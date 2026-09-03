@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>Admin Dashboard - Lapor SOW</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="admin.css">
+
+</head>
+
+
+<body>
+
+    <div class="dashboard-container">
+
+
+        <!-- =========================
+             HEADER
+        ========================== -->
+
+        <header class="dashboard-header">
+
+            <div>
+
+                <h1>ADMIN DASHBOARD SOW</h1>
+
+                <p>
+                    Sistem Monitoring Order Lapor SOW
+                </p>
+
+            </div>
+
+        </header>
+
+
+
+        <!-- =========================
+             STATISTIK
+        ========================== -->
+
+        <section class="stats-container">
+
+
+            <div class="stat-card">
+
+                <span>Total Order</span>
+
+                <h2 id="totalOrder">0</h2>
+
+            </div>
+
+
+
+            <div class="stat-card">
+
+                <span>OPEN</span>
+
+                <h2 id="totalOpen">0</h2>
+
+            </div>
+
+
+
+            <div class="stat-card">
+
+                <span>PROSES</span>
+
+                <h2 id="totalProses">0</h2>
+
+            </div>
+
+
+
+            <div class="stat-card">
+
+                <span>SELESAI</span>
+
+                <h2 id="totalSelesai">0</h2>
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- =========================
+             FILTER
+        ========================== -->
+
+        <section class="filter-container">
+
+
+            <!-- CARI KODE -->
+
+            <input
+                type="text"
+                id="searchOrder"
+                placeholder="Cari Kode Order...">
+
+
+
+            <!-- FILTER CABANG -->
+
+            <select id="filterCabang">
+
+                <option value="">
+                    Semua Cabang
+                </option>
+
+            </select>
+
+<!-- =========================================
+     FILTER RENTANG TANGGAL
+========================================= -->
+
+<input
+    type="date"
+    id="filterTanggalMulai"
+    title="Tanggal Mulai"
+>
+
+<input
+    type="date"
+    id="filterTanggalSampai"
+    title="Tanggal Sampai"
+>
+
+            <!-- TOMBOL CARI -->
+
+            <button
+                id="searchButton">
+
+                🔍 Cari
+
+            </button>
+
+
+
+            <!-- RESET FILTER -->
+
+            <button
+                id="resetFilter">
+
+                Reset Filter
+
+            </button>
+
+
+        </section>
+
+
+
+        <!-- =========================
+             TABEL ORDER
+        ========================== -->
+
+        <section class="table-container">
+
+
+            <table>
+
+
+                <thead>
+
+                    <tr>
+
+                        <th>No</th>
+
+                        <th>Kode Order</th>
+
+                        <th>Nama</th>
+
+                        <th>Cabang</th>
+
+                        <th>Jenis Kendala</th>
+
+                        <th>Tanggal</th>
+
+                        <th>Status</th>
+
+                        <th>Teknisi/SOW</th>
+
+                        <th>Aksi</th>
+
+                    </tr>
+
+                </thead>
+
+
+
+                <tbody id="orderTableBody">
+
+                    <tr>
+
+                        <td colspan="9">
+
+                            Belum ada data order
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+
+            </table>
+
+
+        </section>
+
+
+    </div>
+
+
+
+    <!-- =====================================
+         MODAL DETAIL ORDER
+    ====================================== -->
+
+    <div
+        id="detailModal"
+        class="modal">
+
+
+        <div class="modal-content">
+
+
+            <!-- HEADER MODAL -->
+
+            <div class="modal-header">
+
+
+                <div>
+
+                    <h2>
+                        DETAIL ORDER
+                    </h2>
+
+                    <p>
+                        Informasi lengkap laporan SOW
+                    </p>
+
+                </div>
+
+
+                <!-- TOMBOL TUTUP -->
+
+                <button
+                    id="closeModal"
+                    class="close-modal">
+
+                    ✕
+
+                </button>
+
+
+            </div>
+
+
+
+            <!-- BODY MODAL -->
+
+            <div class="modal-body">
+
+
+                <!-- KODE ORDER -->
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+
+                        Kode Order
+
+                    </span>
+
+                    <span
+                        class="detail-value"
+                        id="detailKode">
+
+                        -
+
+                    </span>
+
+                </div>
+
+
+
+                <!-- NAMA -->
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+
+                        Nama
+
+                    </span>
+
+                    <span
+                        class="detail-value"
+                        id="detailNama">
+
+                        -
+
+                    </span>
+
+                </div>
+
+
+
+                <!-- NIP -->
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+
+                        NIP
+
+                    </span>
+
+                    <span
+                        class="detail-value"
+                        id="detailNip">
+
+                        -
+
+                    </span>
+
+                </div>
+
+
+
+                <!-- CABANG -->
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+
+                        Cabang
+
+                    </span>
+
+                    <span
+                        class="detail-value"
+                        id="detailCabang">
+
+                        -
+
+                    </span>
+
+                </div>
+
+
+
+                <!-- JENIS KENDALA -->
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+
+                        Jenis Kendala
+
+                    </span>
+
+                    <span
+                        class="detail-value"
+                        id="detailJenisKendala">
+
+                        -
+
+                    </span>
+
+                </div>
+
+
+
+                <!-- DESKRIPSI -->
+
+                <div class="detail-item detail-full">
+
+                    <span class="detail-label">
+
+                        Deskripsi Kendala
+
+                    </span>
+
+                    <div
+                        class="detail-description"
+                        id="detailDeskripsi">
+
+                        -
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- WHATSAPP -->
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+
+                        WhatsApp
+
+                    </span>
+
+                    <span
+                        class="detail-value"
+                        id="detailWhatsapp">
+
+                        -
+
+                    </span>
+
+                </div>
+
+
+
+                <!-- TANGGAL -->
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+
+                        Tanggal
+
+                    </span>
+
+                    <span
+                        class="detail-value"
+                        id="detailTanggal">
+
+                        -
+
+                    </span>
+
+                </div>
+
+
+
+                <!-- JAM -->
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+
+                        Jam
+
+                    </span>
+
+                    <span
+                        class="detail-value"
+                        id="detailJam">
+
+                        -
+
+                    </span>
+
+                </div>
+
+
+
+                <!-- STATUS -->
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+
+                        Status
+
+                    </span>
+
+                    <span
+                        class="detail-status"
+                        id="detailStatus">
+
+                        -
+
+                    </span>
+
+                </div>
+
+
+
+                <!-- TEKNISI -->
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+
+                        Teknisi / SOW
+
+                    </span>
+
+                    <span
+                        class="detail-value"
+                        id="detailTeknisi">
+
+                        -
+
+                    </span>
+
+                </div>
+
+
+
+                <!-- CATATAN PROGRES -->
+
+                <div class="detail-item detail-full">
+
+                    <span class="detail-label">
+
+                        Catatan Progres
+
+                    </span>
+
+                    <div
+                        class="detail-description"
+                        id="detailCatatan">
+
+                        -
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- TANGGAL UPDATE -->
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+
+                        Terakhir Update
+
+                    </span>
+
+                    <span
+                        class="detail-value"
+                        id="detailTanggalUpdate">
+
+                        -
+
+                    </span>
+
+                </div>
+
+
+
+                <!-- RIWAYAT -->
+
+                <div class="detail-item detail-full">
+
+                    <span class="detail-label">
+
+                        Riwayat Status
+
+                    </span>
+
+                    <div
+                        class="detail-history"
+                        id="detailRiwayat">
+
+                        -
+
+                    </div>
+
+                </div>
+
+
+            </div>
+            <!-- FOOTER MODAL --> 
+  <!-- AREA UPDATE ORDER --> 
+
+<div class="update-order-section">
+
+    <h3>UPDATE ORDER</h3>
+
+
+<!-- UPDATE STATUS -->
+
+<div class="update-item">
+
+    <label for="updateStatus">
+        Update Status
+    </label>
+
+    <select id="updateStatus">
+
+        <option value="OPEN">
+            OPEN
+        </option>
+
+        <option value="PROSES">
+            PROSES
+        </option>
+
+        <option value="SELESAI">
+            SELESAI
+        </option>
+
+    </select>
+
+</div>
+
+
+<!-- PILIH TEKNISI -->
+
+<div class="update-item">
+
+    <label for="updateTeknisi">
+        Pilih Teknisi / SOW
+    </label>
+
+    <select id="updateTeknisi">
+
+        <option value="">
+            -- Pilih Teknisi / SOW --
+        </option>
+
+        <option value="NINA WIRAYUNI">
+            NINA WIRAYUNI
+        </option>
+
+        <option value="OKA W">
+            OKA W
+        </option>
+
+        <option value="DIDI WAHYUDI">
+            DIDI WAHYUDI
+        </option>
+
+        <option value="WAYAN HENDY">
+            WAYAN HENDY
+        </option>
+         <option value="ANOM S">
+            ANOM S
+        </option>
+         <option value="YOGA S">
+            YOGA S
+        </option>
+
+    </select>
+
+</div>
+<!-- CATATAN PROGRES -->
+
+<div class="update-item">
+
+    <label for="updateCatatan">
+        Catatan Progres
+    </label>
+
+    <textarea
+        id="updateCatatan"
+        placeholder="Tulis catatan progres pekerjaan..."
+        rows="4"></textarea>
+
+</div>
+
+<!-- SIMPAN -->
+
+<button id="saveUpdateButton">
+
+    Simpan Update
+
+</button>
+
+
+</div>
+
+
+
+<!-- FOOTER MODAL -->
+
+<div class="modal-footer">
+
+
+    <button
+        id="closeModalButton"
+        class="btn-close">
+
+        Tutup
+
+    </button>
+
+
+</div>
+
+
+        </div>
+
+
+    </div>
+
+
+
+    <!-- JAVASCRIPT -->
+
+    <script src="admin.js"></script>
+
+
+</body>
+
+</html>

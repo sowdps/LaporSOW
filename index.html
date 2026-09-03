@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Form Order Kendala Teknisi</title>
+
+    <link rel="stylesheet" href="CSS/style.css">
+
+</head>
+
+<body>
+
+    <div class="form-container">
+
+        <h2>FORM ORDER KENDALA</h2>
+
+        <form id="orderForm">
+
+            <div class="form-group">
+
+                <label for="nama">NAMA</label>
+
+                <input type="text" id="nama" required placeholder="Nama Lengkap">
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="nip">NIP</label>
+
+                <input type="text" id="nip" required placeholder="Nomor Induk Pegawai">
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="kode_cabang">KODE CABANG</label>
+
+                <select id="kode_cabang" required>
+
+                    <option value="">Pilih Cabang</option>
+
+                    <option>0040-KCU DENPASAR</option>
+                    <option>0146-KCU KUTA</option>
+                    <option>6115-KCP GATOT SUBROTO BARAT</option>
+                    <option>7730-KCP GATOT SUBROTO TIMUR</option>
+                    <option>6690-KCP GATOT SUBROTO DENPASAR</option>
+                    <option>6113-KCP BULUH INDAH</option>
+                    <option>0435-KCP COKROAMINOTO</option>
+                    <option>6485-KCP MAHENDRADATA</option>
+                    <option>7445-KCP BENOA</option>
+                    <option>7670-KCP SESETAN</option>
+                    <option>7680-KCP TEUKU UMAR</option>
+                    <option>0049-KCP MALUKU</option>
+                    <option>6110-KCP GRAND SUDIRMAN</option>
+                    <option>7725-KCP RENON</option>
+                    <option>0135-KCP UBUD</option>
+                    <option>0416-KCP GIANYAR</option>
+                    <option>0395-KCP KLUNGKUNG</option>
+                    <option>6700-KCP SANUR</option>
+                    <option>7720-KCP BYPASS MUMBUL</option>
+                    <option>7723-KCP PECATU</option>
+                    <option>7705-KCP SUNSET BOULEVARD</option>
+                    <option>8580-KCP BYPASS NGURAH RAI</option>
+                    <option>0404-KCP KARTIKA PLAZA</option>
+                    <option>6955-KCP PASAR KUTA</option>
+                    <option>6130-KCP RAYA KUTA</option>
+                    <option>7700-KCP KEROBOKAN</option>
+                    <option>7703-KCP CANGGU</option>
+                    <option>0142-KCP TABANAN</option>
+                    <option>7728-KCP GAJAH MADA</option>
+                    <option>7726-KCP DALUNG</option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="jenis_kendala">JENIS KENDALA</label>
+
+                <select id="jenis_kendala" required>
+
+                    <option value="">Pilih Jenis Kendala</option>
+
+                    <option>E-Service</option>
+                    <option>Mesin Sari</option>
+                    <option>BDS Web</option>
+                    <option>CS Digital</option>
+                    <option>Printer</option>
+                    <option>Server</option>
+                    <option>PC Mati</option>
+                    <option>Tablet Mati</option>
+                    <option>Tablet Error</option>
+                    <option>Update</option>
+                    <option>Payroll</option>
+                    <option>Kunjungan</option>
+                    <option>Teknis</option>
+                    <option>Lainnya</option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="deskripsi">DESKRIPSI</label>
+
+                <textarea id="deskripsi" required placeholder="Jelaskan detail kendala..."></textarea>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="whatsapp">WHATSAPP</label>
+
+                <input type="tel" id="whatsapp" required placeholder="08123456789">
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="tanggal">TANGGAL</label>
+
+                <input type="date" id="tanggal" required>
+
+
+                <label for="jam" class="label-jam">
+
+                    JAM
+
+                </label>
+
+                <input type="time" id="jam" required>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>KODE ORDER</label>
+
+                <div id="kode">
+
+                    Memuat...
+
+                </div>
+
+            </div>
+
+
+            <button type="submit" class="btn-submit" id="submitBtn">
+
+                KIRIM ORDER
+
+            </button>
+
+
+            <div id="success"></div>
+
+        </form>
+
+    </div>
+
+
+    <script src="js/script.js"></script>
+
+</body>
+
+</html>
