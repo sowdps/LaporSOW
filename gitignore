@@ -1,0 +1,15 @@
+# Google Apps Script / credential
+*.gs
+
+# Backup
+*_backup.*
+*.bak
+
+# Environment / secret
+.env
+.env.*
+*.key
+*.pem
+
+# Editor
+.vscode/
