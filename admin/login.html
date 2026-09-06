@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Login Admin - Lapor SOW</title>
+    <link rel="stylesheet" href="./login.css">
+    <style>
+        /* =========================================
+       TAHAP 11.5.3 - LOGO LOGIN ADMIN
+       ========================================= */
+
+        .sow-login-logo {
+            display: block;
+            width: 150px;
+            height: 150px;
+            object-fit: contain;
+            margin: 0 auto 18px;
+            filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.25));
+        }
+
+        .sow-login-brand {
+            text-align: center;
+            margin-bottom: 22px;
+        }
+
+        .sow-login-brand-name {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+        }
+
+        .sow-login-brand-subtitle {
+            margin: 5px 0 0;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1.2px;
+            opacity: 0.75;
+        }
+
+        /* Tampilan HP */
+        @media (max-width: 768px) {
+
+            .sow-login-logo {
+                width: 120px;
+                height: 120px;
+                margin-bottom: 14px;
+            }
+
+            .sow-login-brand-name {
+                font-size: 16px;
+            }
+
+            .sow-login-brand-subtitle {
+                font-size: 10px;
+            }
+        }
+    </style>
+</head>
+
+
+<body>
+
+
+    <div class="login-container">
+
+        <div class="login-card">
+
+            <div class="sow-login-brand">
+
+                <img class="sow-login-logo" src="../images/logo-sow-iv-dps-compact.png" alt="Logo SOW IV DPS">
+
+
+                <p class="sow-login-brand-subtitle">
+                    SISTEM MONITORING LAPOR SOW
+                </p>
+
+            </div>
+
+            <div class="login-title">
+                🔐 LOGIN ADMIN
+            </div>
+            <form id="loginForm">
+
+
+                <label for="username">
+
+                    Username
+
+                </label>
+
+
+                <input type="text" id="username" autocomplete="username" required>
+
+
+                <label for="password">
+
+                    Password
+
+                </label>
+
+
+                <input type="password" id="password" autocomplete="current-password" required>
+
+
+                <button type="submit" id="loginButton">
+
+                    LOGIN
+
+                </button>
+
+
+            </form>
+
+
+            <div id="pesanLogin"></div>
+
+        </div>
+
+    </div>
+
+
+    <script>
+
+
+        // =====================================================
+        // API GOOGLE APPS SCRIPT
+        // =====================================================
+
+        const API_URL =
+            "https://script.google.com/macros/s/AKfycbyOcM6jK4OHqHwd7203Do9Za0W23ZpA4wfmvBd2UsqQT_7v359DkjKTxdeaEqjQlqhV/exec";
+
+
+        // =====================================================
+        // ELEMENT HTML
+        // =====================================================
+
+        const loginForm =
+            document.getElementById(
+                "loginForm"
+            );
+
+
+        const usernameInput =
+            document.getElementById(
+                "username"
+            );
+
+
+        const passwordInput =
+            document.getElementById(
+                "password"
+            );
+
+
+        const loginButton =
+            document.getElementById(
+                "loginButton"
+            );
+
+
+        const pesanLogin =
+            document.getElementById(
+                "pesanLogin"
+            );
+
+
+        // =====================================================
+        // CEK SESSION LAMA
+        // =====================================================
+
+        const tokenLama =
+            localStorage.getItem(
+                "MY_SOW_ADMIN_TOKEN"
+            );
+
+
+        if (tokenLama) {
+
+            console.log(
+                "Session admin ditemukan."
+            );
+
+        }
+
+
+        // =====================================================
+        // PROSES LOGIN
+        // =====================================================
+
+        loginForm.addEventListener(
+            "submit",
+            async function (event) {
+
+                event.preventDefault();
+
+
+                const username =
+                    usernameInput.value.trim();
+
+
+                const password =
+                    passwordInput.value;
+
+
+                if (!username || !password) {
+
+                    pesanLogin.textContent =
+                        "Username dan password wajib diisi.";
+
+                    pesanLogin.style.color =
+                        "#dc2626";
+
+                    return;
+
+                }
+
+
+                loginButton.disabled =
+                    true;
+
+
+                loginButton.textContent =
+                    "MEMERIKSA...";
+
+
+                pesanLogin.textContent =
+                    "Menghubungkan ke server...";
+
+
+                pesanLogin.style.color =
+                    "#64748b";
+
+
+                try {
+
+
+                    console.log(
+                        "MENGIRIM LOGIN..."
+                    );
+
+
+                    const response =
+                        await fetch(
+                            API_URL,
+                            {
+
+                                method:
+                                    "POST",
+
+                                headers: {
+
+                                    "Content-Type":
+                                        "text/plain;charset=utf-8"
+
+                                },
+
+                                body:
+                                    JSON.stringify({
+
+                                        action:
+                                            "loginAdmin",
+
+                                        username:
+                                            username,
+
+                                        password:
+                                            password
+
+                                    })
+
+                            }
+                        );
+
+
+                    console.log(
+                        "HTTP STATUS:",
+                        response.status
+                    );
+
+
+                    const text =
+                        await response.text();
+
+
+                    console.log(
+                        "RESPON SERVER:",
+                        text
+                    );
+
+
+                    let result;
+
+
+                    try {
+
+                        result =
+                            JSON.parse(text);
+
+                    }
+                    catch (jsonError) {
+
+                        throw new Error(
+                            "Server mengirim respon yang tidak valid."
+                        );
+
+                    }
+
+
+                    console.log(
+                        "HASIL LOGIN:",
+                        result
+                    );
+
+
+                    // =================================================
+                    // LOGIN GAGAL
+                    // =================================================
+
+                    if (
+                        !result.success
+                    ) {
+
+                        throw new Error(
+                            result.message ||
+                            "Username atau password salah."
+                        );
+
+                    }
+
+
+                    // =================================================
+                    // TOKEN TIDAK ADA
+                    // =================================================
+
+                    if (
+                        !result.token
+                    ) {
+
+                        throw new Error(
+                            "Login berhasil tetapi token tidak diterima."
+                        );
+
+                    }
+
+
+                    // =================================================
+                    // SIMPAN TOKEN
+                    // =================================================
+
+                    localStorage.setItem(
+                        "MY_SOW_ADMIN_TOKEN",
+                        result.token
+                    );
+
+
+                    console.log(
+                        "TOKEN ADMIN TERSIMPAN."
+                    );
+
+
+                    pesanLogin.textContent =
+                        "✅ Login berhasil. Membuka dashboard...";
+
+
+                    pesanLogin.style.color =
+                        "#16a34a";
+
+
+                    // =================================================
+                    // MASUK DASHBOARD
+                    // =================================================
+
+                    setTimeout(
+                        function () {
+
+                            window.location.replace(
+                                "index.html"
+                            );
+
+                        },
+                        300
+                    );
+
+
+                }
+                catch (error) {
+
+
+                    console.error(
+                        "ERROR LOGIN:",
+                        error
+                    );
+
+
+                    pesanLogin.textContent =
+                        "❌ " +
+                        error.message;
+
+
+                    pesanLogin.style.color =
+                        "#dc2626";
+
+
+                }
+                finally {
+
+
+                    loginButton.disabled =
+                        false;
+
+
+                    loginButton.textContent =
+                        "LOGIN";
+
+
+                }
+
+            }
+        );
+
+    </script>
+
+
+</body>
+
+</html>
