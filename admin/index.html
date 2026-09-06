@@ -2,11 +2,24 @@
 <html lang="id">
 
 <head>
+    <script>
 
+        if (
+            !localStorage.getItem(
+                "MY_SOW_ADMIN_TOKEN"
+            )
+        ) {
+
+            window.location.replace(
+                "login.html"
+            );
+
+        }
+
+    </script>
     <meta charset="UTF-8">
 
-    <meta name="viewport"
-        content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Admin Dashboard - Lapor SOW</title>
 
@@ -17,6 +30,114 @@
 
 
 <body>
+    <!-- =====================================================
+     SIDEBAR MENU ADMIN
+     TAHAP 13 - NAVIGASI
+     ===================================================== -->
+
+    <button type="button" id="sidebarMenuButton" class="sidebar-menu-button" aria-label="Buka Menu">
+
+        ☰
+
+    </button>
+
+
+    <div id="sidebarOverlay" class="sidebar-overlay">
+    </div>
+
+
+    <aside id="adminSidebar" class="admin-sidebar">
+
+        <div class="sidebar-header">
+
+            <div class="sidebar-title">
+
+                <span class="sidebar-title-icon">
+                    ☰
+                </span>
+
+                <div>
+                    <strong>MENU ADMIN</strong>
+
+                    <small>
+                        SOW IV DENPASAR
+                    </small>
+                </div>
+
+            </div>
+
+
+            <button type="button" id="sidebarCloseButton" class="sidebar-close-button">
+
+                ✕
+
+            </button>
+
+        </div>
+
+
+        <div class="sidebar-menu">
+
+            <!-- DASHBOARD -->
+
+            <button type="button" class="sidebar-menu-item" data-menu-target="dashboard">
+
+                <span class="sidebar-menu-icon">
+                    🏠
+                </span>
+
+                <span>
+                    Dashboard
+                </span>
+
+            </button>
+
+
+            <!-- REKAP -->
+
+            <button type="button" class="sidebar-menu-item" data-menu-target="rekap">
+
+                <span class="sidebar-menu-icon">
+                    📊
+                </span>
+
+                <span>
+                    Rekap Laporan
+                </span>
+
+            </button>
+
+
+            <!-- TEKNISI -->
+
+            <button type="button" class="sidebar-menu-item" data-menu-target="teknisi">
+
+                <span class="sidebar-menu-icon">
+                    👨‍🔧
+                </span>
+
+                <span>
+                    Manajemen Teknisi / SOW
+                </span>
+
+            </button>
+
+        </div>
+
+
+        <div class="sidebar-footer">
+
+            <span>
+                Sistem Monitoring Order
+            </span>
+
+            <strong>
+                SOW IV DENPASAR
+            </strong>
+
+        </div>
+
+    </aside>
 
     <div class="dashboard-container">
 
@@ -27,15 +148,25 @@
 
         <header class="dashboard-header">
 
-            <div>
+            <div class="dashboard-brand">
 
-                <h1>ADMIN DASHBOARD SOW</h1>
+                <img src="../images/logo-sow-iv-dps-compact.png" alt="Logo SOW IV DPS" class="dashboard-logo">
 
-                <p>
-                    Sistem Monitoring Order Lapor SOW
-                </p>
+                <div class="dashboard-brand-text">
+
+                    <h1>ADMIN SOW IV DENPASAR</h1>
+
+                    <p>
+                        Sistem Monitoring Order
+                    </p>
+
+                </div>
 
             </div>
+
+            <button id="logoutButton" type="button">
+                🚪 Logout
+            </button>
 
         </header>
 
@@ -100,43 +231,152 @@
 
             <!-- CARI KODE -->
 
-            <input
-                type="text"
-                id="searchOrder"
-                placeholder="Cari Kode Order...">
+            <input type="text" id="searchOrder" placeholder="Cari Kode Order...">
 
 
 
             <!-- FILTER CABANG -->
 
+            <!-- FILTER CABANG -->
             <select id="filterCabang">
 
                 <option value="">
                     Semua Cabang
                 </option>
 
+                <option value="0040-KCU DENPASAR">
+                    0040-KCU DENPASAR
+                </option>
+
+                <option value="0146-KCU KUTA">
+                    0146-KCU KUTA
+                </option>
+
+                <option value="6115-KCP GATOT SUBROTO BARAT">
+                    6115-KCP GATOT SUBROTO BARAT
+                </option>
+
+                <option value="7730-KCP GATOT SUBROTO TIMUR">
+                    7730-KCP GATOT SUBROTO TIMUR
+                </option>
+
+                <option value="6690-KCP GATOT SUBROTO DENPASAR">
+                    6690-KCP GATOT SUBROTO DENPASAR
+                </option>
+
+                <option value="6113-KCP BULUH INDAH">
+                    6113-KCP BULUH INDAH
+                </option>
+
+                <option value="0435-KCP COKROAMINOTO">
+                    0435-KCP COKROAMINOTO
+                </option>
+
+                <option value="6485-KCP MAHENDRADATA">
+                    6485-KCP MAHENDRADATA
+                </option>
+
+                <option value="7445-KCP BENOA">
+                    7445-KCP BENOA
+                </option>
+
+                <option value="7670-KCP SESETAN">
+                    7670-KCP SESETAN
+                </option>
+
+                <option value="7680-KCP TEUKU UMAR">
+                    7680-KCP TEUKU UMAR
+                </option>
+
+                <option value="0049-KCP MALUKU">
+                    0049-KCP MALUKU
+                </option>
+
+                <option value="6110-KCP GRAND SUDIRMAN">
+                    6110-KCP GRAND SUDIRMAN
+                </option>
+
+                <option value="7725-KCP RENON">
+                    7725-KCP RENON
+                </option>
+
+                <option value="0135-KCP UBUD">
+                    0135-KCP UBUD
+                </option>
+
+                <option value="0416-KCP GIANYAR">
+                    0416-KCP GIANYAR
+                </option>
+
+                <option value="0395-KCP KLUNGKUNG">
+                    0395-KCP KLUNGKUNG
+                </option>
+
+                <option value="6700-KCP SANUR">
+                    6700-KCP SANUR
+                </option>
+
+                <option value="7720-KCP BYPASS MUMBUL">
+                    7720-KCP BYPASS MUMBUL
+                </option>
+
+                <option value="7723-KCP PECATU">
+                    7723-KCP PECATU
+                </option>
+
+                <option value="7705-KCP SUNSET BOULEVARD">
+                    7705-KCP SUNSET BOULEVARD
+                </option>
+
+                <option value="8580-KCP BYPASS NGURAH RAI">
+                    8580-KCP BYPASS NGURAH RAI
+                </option>
+
+                <option value="0404-KCP KARTIKA PLAZA">
+                    0404-KCP KARTIKA PLAZA
+                </option>
+
+                <option value="6955-KCP PASAR KUTA">
+                    6955-KCP PASAR KUTA
+                </option>
+
+                <option value="6130-KCP RAYA KUTA">
+                    6130-KCP RAYA KUTA
+                </option>
+
+                <option value="7700-KCP KEROBOKAN">
+                    7700-KCP KEROBOKAN
+                </option>
+
+                <option value="7703-KCP CANGGU">
+                    7703-KCP CANGGU
+                </option>
+
+                <option value="0142-KCP TABANAN">
+                    0142-KCP TABANAN
+                </option>
+
+                <option value="7728-KCP GAJAH MADA">
+                    7728-KCP GAJAH MADA
+                </option>
+
+                <option value="7726-KCP DALUNG">
+                    7726-KCP DALUNG
+                </option>
+
             </select>
 
-<!-- =========================================
+            <!-- =========================================
      FILTER RENTANG TANGGAL
 ========================================= -->
 
-<input
-    type="date"
-    id="filterTanggalMulai"
-    title="Tanggal Mulai"
->
+            <input type="date" id="filterTanggalMulai" title="Tanggal Mulai">
 
-<input
-    type="date"
-    id="filterTanggalSampai"
-    title="Tanggal Sampai"
->
+            <input type="date" id="filterTanggalSampai" title="Tanggal Sampai">
 
             <!-- TOMBOL CARI -->
 
-            <button
-                id="searchButton">
+            <button id="searchButton">
 
                 🔍 Cari
 
@@ -146,8 +386,7 @@
 
             <!-- RESET FILTER -->
 
-            <button
-                id="resetFilter">
+            <button id="resetFilter">
 
                 Reset Filter
 
@@ -158,6 +397,255 @@
 
 
 
+        </section>
+
+
+        <!-- =========================================
+             TAHAP B.2.1 - MENU REKAP LAPORAN
+        ========================================== -->
+
+        <section class="rekap-container">
+
+            <div class="rekap-header">
+
+                <div>
+                    <h2>📊 Rekap Laporan</h2>
+
+                    <p>
+                        Rekap laporan berdasarkan periode
+                        Harian, Mingguan, Bulanan, dan Tahunan.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <!-- PILIH PERIODE -->
+
+            <div class="rekap-menu">
+
+                <button type="button" class="rekap-period-button active" data-period="harian">
+
+                    📅 Harian
+
+                </button>
+
+
+                <button type="button" class="rekap-period-button" data-period="mingguan">
+
+                    📆 Mingguan
+
+                </button>
+
+
+                <button type="button" class="rekap-period-button" data-period="bulanan">
+
+                    🗓️ Bulanan
+
+                </button>
+
+
+                <button type="button" class="rekap-period-button" data-period="tahunan">
+
+                    📈 Tahunan
+
+                </button>
+
+            </div>
+
+
+            <!-- AREA PEMILIHAN PERIODE -->
+
+            <div id="rekapPeriodForm" class="rekap-period-form">
+
+                <!--
+                    Form periode akan diisi
+                    pada tahap B.2.2
+                -->
+
+                <div class="rekap-info">
+
+                    <strong>Periode Rekap</strong>
+
+                    <span>
+                        Silakan pilih jenis periode di atas.
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- TOMBOL TAMPILKAN -->
+
+            <div class="rekap-action">
+
+                <button type="button" id="tampilkanRekapButton">
+                    🔍 Tampilkan Rekap
+                </button>
+
+                <button type="button" id="downloadRekapExcelButton">
+                    📥 Download Excel
+                </button>
+
+            </div>
+
+
+            <!-- HASIL REKAP -->
+
+            <div id="rekapResult" class="rekap-result">
+
+                <div class="rekap-empty">
+
+                    📊
+
+                    <h3>
+                        Belum Ada Rekap
+                    </h3>
+
+                    <p>
+                        Pilih periode kemudian tekan
+                        <strong>Tampilkan Rekap</strong>.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+        <!-- =====================================================
+     TAHAP 13
+     MANAJEMEN TEKNISI / SOW
+     ===================================================== -->
+
+        <section class="teknisi-container">
+
+            <div class="teknisi-header">
+
+                <div>
+                    <h2>👨‍🔧 Manajemen Teknisi / SOW</h2>
+
+                    <p>
+                        Kelola daftar Teknisi / SOW yang digunakan
+                        dalam proses pengerjaan order.
+                    </p>
+                </div>
+
+                <button type="button" id="tambahTeknisiButton" class="btn-tambah-teknisi">
+
+                    ➕ Tambah Teknisi / SOW
+
+                </button>
+
+            </div>
+
+
+            <div class="teknisi-table-wrapper">
+
+                <table class="teknisi-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>No</th>
+
+                            <th>
+                                Nama Teknisi / SOW
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                            <th>
+                                Tanggal Update
+                            </th>
+
+                            <th>
+                                Aksi
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="teknisiTableBody">
+
+                        <tr>
+
+                            <td colspan="5" class="teknisi-loading">
+
+                                Memuat daftar Teknisi...
+
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+     MODAL TAMBAH / EDIT TEKNISI
+     ===================================================== -->
+
+        <div id="teknisiModal" class="teknisi-modal">
+
+            <div class="teknisi-modal-content">
+
+                <div class="teknisi-modal-header">
+
+                    <h3 id="teknisiModalTitle">
+                        Tambah Teknisi / SOW
+                    </h3>
+
+                    <button type="button" id="closeTeknisiModal" class="teknisi-modal-close">
+
+                        ✕
+
+                    </button>
+
+                </div>
+
+
+                <div class="teknisi-modal-body">
+
+                    <label for="teknisiNamaInput">
+                        Nama Teknisi / SOW
+                    </label>
+
+                    <input type="text" id="teknisiNamaInput" placeholder="Contoh: BUDI S" autocomplete="off" />
+
+                    <input type="hidden" id="teknisiIdInput" value="" />
+
+                </div>
+
+
+                <div class="teknisi-modal-footer">
+
+                    <button type="button" id="batalTeknisiButton" class="btn-batal-teknisi">
+
+                        Batal
+
+                    </button>
+
+                    <button type="button" id="simpanTeknisiButton" class="btn-simpan-teknisi">
+
+                        💾 Simpan
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
         <!-- =========================
              TABEL ORDER
         ========================== -->
@@ -225,9 +713,7 @@
          MODAL DETAIL ORDER
     ====================================== -->
 
-    <div
-        id="detailModal"
-        class="modal">
+    <div id="detailModal" class="modal">
 
 
         <div class="modal-content">
@@ -253,9 +739,7 @@
 
                 <!-- TOMBOL TUTUP -->
 
-                <button
-                    id="closeModal"
-                    class="close-modal">
+                <button id="closeModal" class="close-modal">
 
                     ✕
 
@@ -281,9 +765,7 @@
 
                     </span>
 
-                    <span
-                        class="detail-value"
-                        id="detailKode">
+                    <span class="detail-value" id="detailKode">
 
                         -
 
@@ -303,9 +785,7 @@
 
                     </span>
 
-                    <span
-                        class="detail-value"
-                        id="detailNama">
+                    <span class="detail-value" id="detailNama">
 
                         -
 
@@ -325,9 +805,7 @@
 
                     </span>
 
-                    <span
-                        class="detail-value"
-                        id="detailNip">
+                    <span class="detail-value" id="detailNip">
 
                         -
 
@@ -347,9 +825,7 @@
 
                     </span>
 
-                    <span
-                        class="detail-value"
-                        id="detailCabang">
+                    <span class="detail-value" id="detailCabang">
 
                         -
 
@@ -369,9 +845,7 @@
 
                     </span>
 
-                    <span
-                        class="detail-value"
-                        id="detailJenisKendala">
+                    <span class="detail-value" id="detailJenisKendala">
 
                         -
 
@@ -391,9 +865,7 @@
 
                     </span>
 
-                    <div
-                        class="detail-description"
-                        id="detailDeskripsi">
+                    <div class="detail-description" id="detailDeskripsi">
 
                         -
 
@@ -413,9 +885,7 @@
 
                     </span>
 
-                    <span
-                        class="detail-value"
-                        id="detailWhatsapp">
+                    <span class="detail-value" id="detailWhatsapp">
 
                         -
 
@@ -435,9 +905,7 @@
 
                     </span>
 
-                    <span
-                        class="detail-value"
-                        id="detailTanggal">
+                    <span class="detail-value" id="detailTanggal">
 
                         -
 
@@ -457,9 +925,7 @@
 
                     </span>
 
-                    <span
-                        class="detail-value"
-                        id="detailJam">
+                    <span class="detail-value" id="detailJam">
 
                         -
 
@@ -479,9 +945,7 @@
 
                     </span>
 
-                    <span
-                        class="detail-status"
-                        id="detailStatus">
+                    <span class="detail-status" id="detailStatus">
 
                         -
 
@@ -501,9 +965,7 @@
 
                     </span>
 
-                    <span
-                        class="detail-value"
-                        id="detailTeknisi">
+                    <span class="detail-value" id="detailTeknisi">
 
                         -
 
@@ -523,9 +985,7 @@
 
                     </span>
 
-                    <div
-                        class="detail-description"
-                        id="detailCatatan">
+                    <div class="detail-description" id="detailCatatan">
 
                         -
 
@@ -545,9 +1005,7 @@
 
                     </span>
 
-                    <span
-                        class="detail-value"
-                        id="detailTanggalUpdate">
+                    <span class="detail-value" id="detailTanggalUpdate">
 
                         -
 
@@ -567,9 +1025,7 @@
 
                     </span>
 
-                    <div
-                        class="detail-history"
-                        id="detailRiwayat">
+                    <div class="detail-history" id="detailRiwayat">
 
                         -
 
@@ -579,123 +1035,118 @@
 
 
             </div>
-            <!-- FOOTER MODAL --> 
-  <!-- AREA UPDATE ORDER --> 
+            <!-- FOOTER MODAL -->
+            <!-- AREA UPDATE ORDER -->
 
-<div class="update-order-section">
+            <div class="update-order-section">
 
-    <h3>UPDATE ORDER</h3>
-
-
-<!-- UPDATE STATUS -->
-
-<div class="update-item">
-
-    <label for="updateStatus">
-        Update Status
-    </label>
-
-    <select id="updateStatus">
-
-        <option value="OPEN">
-            OPEN
-        </option>
-
-        <option value="PROSES">
-            PROSES
-        </option>
-
-        <option value="SELESAI">
-            SELESAI
-        </option>
-
-    </select>
-
-</div>
+                <h3>UPDATE ORDER</h3>
 
 
-<!-- PILIH TEKNISI -->
+                <!-- UPDATE STATUS -->
 
-<div class="update-item">
+                <div class="update-item">
 
-    <label for="updateTeknisi">
-        Pilih Teknisi / SOW
-    </label>
+                    <label for="updateStatus">
+                        Update Status
+                    </label>
 
-    <select id="updateTeknisi">
+                    <select id="updateStatus">
 
-        <option value="">
-            -- Pilih Teknisi / SOW --
-        </option>
+                        <option value="OPEN">
+                            OPEN
+                        </option>
 
-        <option value="NINA WIRAYUNI">
-            NINA WIRAYUNI
-        </option>
+                        <option value="PROSES">
+                            PROSES
+                        </option>
 
-        <option value="OKA W">
-            OKA W
-        </option>
+                        <option value="SELESAI">
+                            SELESAI
+                        </option>
 
-        <option value="DIDI WAHYUDI">
-            DIDI WAHYUDI
-        </option>
+                    </select>
 
-        <option value="WAYAN HENDY">
-            WAYAN HENDY
-        </option>
-         <option value="ANOM S">
-            ANOM S
-        </option>
-         <option value="YOGA S">
-            YOGA S
-        </option>
-
-    </select>
-
-</div>
-<!-- CATATAN PROGRES -->
-
-<div class="update-item">
-
-    <label for="updateCatatan">
-        Catatan Progres
-    </label>
-
-    <textarea
-        id="updateCatatan"
-        placeholder="Tulis catatan progres pekerjaan..."
-        rows="4"></textarea>
-
-</div>
-
-<!-- SIMPAN -->
-
-<button id="saveUpdateButton">
-
-    Simpan Update
-
-</button>
+                </div>
 
 
-</div>
+                <!-- PILIH TEKNISI -->
+
+                <div class="update-item">
+
+                    <label for="updateTeknisi">
+                        Pilih Teknisi / SOW
+                    </label>
+
+                    <select id="updateTeknisi">
+
+                        <option value="">
+                            -- Pilih Teknisi / SOW --
+                        </option>
+
+                        <option value="NINA WIRAYUNI">
+                            NINA WIRAYUNI
+                        </option>
+
+                        <option value="OKA W">
+                            OKA W
+                        </option>
+
+                        <option value="DIDI WAHYUDI">
+                            DIDI WAHYUDI
+                        </option>
+
+                        <option value="WAYAN HENDY">
+                            WAYAN HENDY
+                        </option>
+                        <option value="ANOM S">
+                            ANOM S
+                        </option>
+                        <option value="YOGA S">
+                            YOGA S
+                        </option>
+
+                    </select>
+
+                </div>
+                <!-- CATATAN PROGRES -->
+
+                <div class="update-item">
+
+                    <label for="updateCatatan">
+                        Catatan Progres
+                    </label>
+
+                    <textarea id="updateCatatan" placeholder="Tulis catatan progres pekerjaan..." rows="4"></textarea>
+
+                </div>
+
+                <!-- SIMPAN -->
+
+                <button id="saveUpdateButton">
+
+                    Simpan Update
+
+                </button>
+
+
+            </div>
 
 
 
-<!-- FOOTER MODAL -->
+            <!-- FOOTER MODAL -->
 
-<div class="modal-footer">
-
-
-    <button
-        id="closeModalButton"
-        class="btn-close">
-
-        Tutup
-
-    </button>
+            <div class="modal-footer">
 
 
-</div>
+                <button id="closeModalButton" class="btn-close">
+
+                    Tutup
+
+                </button>
+
+
+            </div>
 
 
         </div>
@@ -705,8 +1156,14 @@
 
 
 
-    <!-- JAVASCRIPT -->
+    <!-- LIBRARY EXCEL - SHEETJS -->
+    <script type="text/javascript" src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js">
+    </script>
 
+    <!-- LIBRARY EXCELJS - UNTUK EXCEL DENGAN DESAIN/WARNA -->
+    <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+
+    <!-- JAVASCRIPT -->
     <script src="admin.js"></script>
 
 
