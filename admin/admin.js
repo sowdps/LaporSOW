@@ -35,7 +35,7 @@ if (
 // =====================================================
 
 const ADMIN_IDLE_MINUTES =
-    1;
+    10;
 
 const ADMIN_IDLE_MS =
     ADMIN_IDLE_MINUTES *
