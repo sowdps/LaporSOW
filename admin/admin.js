@@ -29,6 +29,312 @@ if (
     );
 
 }
+// =====================================================
+// TAHAP 15A.3
+// AUTO LOGOUT ADMIN - 10 MENIT
+// =====================================================
+
+const ADMIN_IDLE_MINUTES =
+    1;
+
+const ADMIN_IDLE_MS =
+    ADMIN_IDLE_MINUTES *
+    60 *
+    1000;
+
+
+// -----------------------------------------------------
+// WAKTU AKTIVITAS TERAKHIR
+// -----------------------------------------------------
+
+let adminLastActivity =
+    Date.now();
+
+
+// -----------------------------------------------------
+// WAKTU TERAKHIR SERVER DIHUBUNGI
+// -----------------------------------------------------
+
+let adminLastServerTouch =
+    0;
+
+
+// -----------------------------------------------------
+// TIMER AUTO LOGOUT
+// -----------------------------------------------------
+
+let adminIdleTimer =
+    null;
+
+
+// -----------------------------------------------------
+// PENGAMAN AGAR LOGOUT TIDAK BERULANG
+// -----------------------------------------------------
+
+let adminLogoutInProgress =
+    false;
+
+
+// =====================================================
+// FUNGSI LOGOUT OTOMATIS
+// =====================================================
+
+async function forceLogoutAdmin(
+    alasan
+) {
+
+    if (
+        adminLogoutInProgress
+    ) {
+        return;
+    }
+
+    adminLogoutInProgress =
+        true;
+
+
+    console.warn(
+        "ADMIN LOGOUT:",
+        alasan
+    );
+
+
+    // -------------------------------------------------
+    // HAPUS TOKEN DARI BROWSER
+    // -------------------------------------------------
+
+    localStorage.removeItem(
+        "MY_SOW_ADMIN_TOKEN"
+    );
+
+
+    // -------------------------------------------------
+    // KEMBALI KE LOGIN
+    // -------------------------------------------------
+
+    window.location.replace(
+        "login.html"
+    );
+
+}
+
+
+// =====================================================
+// RESET TIMER AKTIVITAS
+// =====================================================
+
+function resetAdminIdleTimer() {
+
+    adminLastActivity =
+        Date.now();
+
+
+    if (
+        adminIdleTimer
+    ) {
+
+        clearTimeout(
+            adminIdleTimer
+        );
+
+    }
+
+
+    adminIdleTimer =
+        setTimeout(
+            function () {
+
+                forceLogoutAdmin(
+                    "Tidak ada aktivitas selama 10 menit."
+                );
+
+            },
+            ADMIN_IDLE_MS
+        );
+
+}
+
+
+// =====================================================
+// PERBARUI AKTIVITAS KE SERVER
+// =====================================================
+
+async function touchAdminSessionServer() {
+
+    const sekarang =
+        Date.now();
+
+
+    // Jangan request terlalu sering
+    if (
+        sekarang -
+        adminLastServerTouch
+        <
+        60000
+    ) {
+
+        return;
+
+    }
+
+
+    adminLastServerTouch =
+        sekarang;
+
+
+    try {
+
+        const response =
+            await fetch(
+                API_URL,
+                {
+                    method:
+                        "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "text/plain;charset=utf-8"
+                    },
+
+                    body:
+                        JSON.stringify({
+                            action:
+                                "touchAdminSession",
+
+                            token:
+                                ADMIN_TOKEN
+                        })
+                }
+            );
+
+
+        const result =
+            await response.json();
+
+
+        if (
+            !result.success ||
+            result.unauthorized
+        ) {
+
+            forceLogoutAdmin(
+                result.message ||
+                "Session admin sudah berakhir."
+            );
+
+        }
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Gagal memperbarui session:",
+            error
+        );
+
+    }
+
+}
+
+
+// =====================================================
+// CATAT AKTIVITAS ADMIN
+// =====================================================
+
+function catatAktivitasAdmin() {
+
+    const sekarang =
+        Date.now();
+
+
+    // -----------------------------------------------
+    // JIKA SUDAH MELEWATI 10 MENIT
+    // -----------------------------------------------
+
+    if (
+        sekarang -
+        adminLastActivity
+        >=
+        ADMIN_IDLE_MS
+    ) {
+
+        forceLogoutAdmin(
+            "Session berakhir karena tidak ada aktivitas selama 10 menit."
+        );
+
+        return;
+
+    }
+
+
+    resetAdminIdleTimer();
+
+    touchAdminSessionServer();
+
+}
+
+
+// =====================================================
+// DETEKSI AKTIVITAS ADMIN
+// =====================================================
+
+[
+    "click",
+    "keydown",
+    "scroll",
+    "touchstart",
+    "mousemove"
+].forEach(
+    function (eventName) {
+
+        document.addEventListener(
+            eventName,
+            catatAktivitasAdmin,
+            {
+                passive: true
+            }
+        );
+
+    }
+);
+
+
+// =====================================================
+// CEK SAAT KEMBALI KE TAB
+// =====================================================
+
+document.addEventListener(
+    "visibilitychange",
+    function () {
+
+        if (
+            document.visibilityState ===
+            "visible"
+        ) {
+
+            catatAktivitasAdmin();
+
+        }
+
+    }
+);
+
+
+// =====================================================
+// MULAI TIMER
+// =====================================================
+
+resetAdminIdleTimer();
+
+
+// =====================================================
+// LOG TAHAP 15A.3
+// =====================================================
+
+console.log(
+    "TAHAP 15A.3 - Auto Logout aktif: 10 menit"
+);
 
 // =====================================================
 // AMBIL ELEMENT HTML
