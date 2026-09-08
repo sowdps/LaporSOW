@@ -470,18 +470,98 @@ let orderAktif = null;
 let hasilRekapTerakhir = null;
 let periodeRekapTerakhir = "";
 
+// =====================================================
+// TAHAP 15A.6
+// LOAD CABANG DARI MASTER_DATA
+// =====================================================
 
+async function loadCabangMasterData() {
+
+    try {
+
+        const response =
+            await fetch(
+                API_URL + "?master=true"
+            );
+
+        if (!response.ok) {
+            throw new Error(
+                "Gagal mengambil MASTER_DATA"
+            );
+        }
+
+        const result =
+            await response.json();
+
+        if (!result.success) {
+            throw new Error(
+                result.message ||
+                "MASTER_DATA gagal dimuat"
+            );
+        }
+
+        // Reset dropdown
+        filterCabang.innerHTML = `
+            <option value="">
+                Semua Cabang
+            </option>
+        `;
+
+        // Isi CABANG aktif dari MASTER_DATA
+        (result.cabang || []).forEach(
+            function (item) {
+
+                const option =
+                    document.createElement(
+                        "option"
+                    );
+
+                option.value =
+                    item.kode +
+                    "-" +
+                    item.nama;
+
+                option.textContent =
+                    item.kode +
+                    "-" +
+                    item.nama;
+
+                filterCabang.appendChild(
+                    option
+                );
+            }
+        );
+
+        console.log(
+            "CABANG MASTER_DATA berhasil dimuat:",
+            result.cabang
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Gagal load CABANG MASTER_DATA:",
+            error
+        );
+
+        alert(
+            "Data cabang gagal dimuat dari MASTER_DATA."
+        );
+    }
+}
 // =====================================================
 // SAAT HALAMAN PERTAMA KALI DIBUKA
 // =====================================================
 
 document.addEventListener(
     "DOMContentLoaded",
-    function () {
+    async function () {
 
         console.log(
             "Admin Dashboard berhasil dimuat"
         );
+
+        await loadCabangMasterData();
 
         loadOrders();
 

@@ -105,7 +105,7 @@
                 </label>
 
 
-                <input type="password" id="password" autocomplete="current-password" required>
+                <input type="password" id="password" autocomplete="off" required>
 
 
                 <button type="submit" id="loginButton">
@@ -423,7 +423,28 @@
 
             }
         );
+        // =====================================================
+        // TAHAP 15A.5
+        // BERSIHKAN PASSWORD SETELAH LOGOUT
+        // =====================================================
 
+        function kosongkanPassword() {
+            passwordInput.value = "";
+            passwordInput.setAttribute("value", "");
+        }
+
+        // Saat halaman login dibuka
+        kosongkanPassword();
+
+        // Saat kembali ke halaman login dari logout
+        window.addEventListener("pageshow", function () {
+            kosongkanPassword();
+
+            // Bersihkan lagi setelah browser selesai autofill
+            setTimeout(function () {
+                kosongkanPassword();
+            }, 300);
+        });
     </script>
 
 
