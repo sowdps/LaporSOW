@@ -1199,7 +1199,7 @@ function lihatDetail(kode) {
 
 
     detailNip.textContent =
-        order.nip || "-";
+        order.unitkerja || "-";
 
 
     detailCabang.textContent =
