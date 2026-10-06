@@ -789,7 +789,7 @@ async function loadOrders() {
 
                 <td colspan="9">
 
-                    ❌ Gagal memuat data:
+                    âŒ Gagal memuat data:
                     ${error.message}
 
                 </td>
@@ -1652,15 +1652,15 @@ function renderRiwayatTimeline(riwayat) {
             detail =
                 detail
                     .replace(
-                        /^OPEN\s*[-→]?\s*/i,
+                        /^OPEN\s*[-â†’]?\s*/i,
                         ""
                     )
                     .replace(
-                        /^PROSES\s*[-→]?\s*/i,
+                        /^PROSES\s*[-â†’]?\s*/i,
                         ""
                     )
                     .replace(
-                        /^SELESAI\s*[-→]?\s*/i,
+                        /^SELESAI\s*[-â†’]?\s*/i,
                         ""
                     )
                     .trim();
@@ -1668,7 +1668,7 @@ function renderRiwayatTimeline(riwayat) {
 
             detail =
                 detail.replace(
-                    /^[-→\s]+/,
+                    /^[-â†’\s]+/,
                     ""
                 );
 
@@ -2205,7 +2205,7 @@ saveUpdateButton.addEventListener(
 
                 "\nStatus: " +
                 statusLama +
-                " → " +
+                " â†’ " +
                 statusBaru +
 
                 "\nTeknisi/SOW: " +
@@ -2463,7 +2463,7 @@ saveUpdateButton.addEventListener(
 
                 "\nStatus: " +
                 statusLama +
-                " → " +
+                " â†’ " +
                 statusBaru +
 
                 "\nTeknisi/SOW: " +
@@ -2492,7 +2492,7 @@ saveUpdateButton.addEventListener(
 
             alert(
 
-                "❌ Update gagal disimpan.\n\n" +
+                "âŒ Update gagal disimpan.\n\n" +
 
                 error.message
 
@@ -3185,7 +3185,7 @@ async function ambilRekap(
 
         rekapResult.innerHTML = `
             <div class="rekap-empty">
-                ⏳
+                â³
                 <h3>Memuat Rekap...</h3>
                 <p>Mohon tunggu.</p>
             </div>
@@ -3323,7 +3323,7 @@ async function ambilRekap(
         rekapResult.innerHTML = `
             <div class="rekap-empty">
 
-                ❌
+                âŒ
 
                 <h3>Rekap Gagal</h3>
 
@@ -4112,7 +4112,7 @@ async function downloadRekapExcel() {
         worksheet.getCell(
             `A${teknisiHeaderRow}`
         ).value =
-            "Teknisi / SOW";
+            "SOW";
 
         worksheet.getCell(
             `B${teknisiHeaderRow}`
@@ -4275,7 +4275,7 @@ async function downloadRekapExcel() {
 
             "Status",
 
-            "Teknisi / SOW"
+            "SOW"
 
         ];
 
@@ -4823,7 +4823,7 @@ function tampilkanHasilRekap(
 
             <div class="rekap-table-title">
 
-                📊 REKAP ${namaPeriode}
+                ðŸ“Š REKAP ${namaPeriode}
 
             </div>
 
@@ -4924,7 +4924,7 @@ function tampilkanHasilRekap(
 
             <div class="rekap-table-title">
 
-                🏢 REKAP BERDASARKAN CABANG
+                ðŸ¢ REKAP BERDASARKAN CABANG
 
             </div>
 
@@ -5010,7 +5010,7 @@ function tampilkanHasilRekap(
 
             <div class="rekap-table-title">
 
-                👨‍🔧 REKAP BERDASARKAN SOW
+                ðŸ‘¨â€ðŸ”§ REKAP BERDASARKAN SOW
 
             </div>
 
@@ -5021,7 +5021,7 @@ function tampilkanHasilRekap(
 
                     <tr>
 
-                        <th>Teknisi / SOW</th>
+                        <th>SOW</th>
 
                         <th>Jumlah</th>
 
@@ -5106,7 +5106,7 @@ function tampilkanHasilRekap(
 
                 <div class="rekap-table-title">
 
-                    📅 REKAP PER BULAN
+                    ðŸ“… REKAP PER BULAN
 
                 </div>
 
@@ -5201,7 +5201,7 @@ function tampilkanHasilRekap(
 
             <div class="rekap-table-title">
 
-                📋 DETAIL ORDER
+                ðŸ“‹ DETAIL ORDER
 
             </div>
 
@@ -5295,7 +5295,7 @@ function tampilkanHasilRekap(
                         </td>
 
                         <td>
-                            ${order.nip || "-"}
+                            ${order.unit_kerja || order.nip || "-"}
                         </td>
 
                         <td>
@@ -5478,7 +5478,7 @@ async function loadTeknisiAdmin() {
                 <td colspan="5"
                     class="teknisi-loading">
 
-                    ❌ Gagal memuat daftar Teknisi.
+                    âŒ Gagal memuat daftar Teknisi.
 
                 </td>
             </tr>
@@ -5514,7 +5514,7 @@ function renderTeknisiAdmin() {
                 <td colspan="5"
                     class="teknisi-loading">
 
-                    Belum ada Teknisi / SOW.
+                    Belum ada SOW.
 
                 </td>
             </tr>
@@ -5572,7 +5572,7 @@ function renderTeknisiAdmin() {
                                         class="btn-edit-teknisi"
                                         onclick="editTeknisiAdmin(${item.id})">
 
-                                        ✏️ Edit
+                                        âœï¸ Edit
 
                                     </button>
 
@@ -5582,8 +5582,8 @@ function renderTeknisiAdmin() {
                                         onclick="ubahStatusTeknisiAdmin(${item.id})">
 
                                         ${aktif
-                            ? "⛔ Nonaktifkan"
-                            : "✅ Aktifkan"}
+                            ? "â›” Nonaktifkan"
+                            : "âœ… Aktifkan"}
 
                                     </button>
 
@@ -5623,7 +5623,7 @@ function updateSelectTeknisi() {
 
     select.innerHTML = `
         <option value="">
-            -- Pilih Teknisi / SOW --
+            -- Pilih SOW --
         </option>
     `;
 
@@ -5693,7 +5693,7 @@ function bukaTambahTeknisi() {
 
 
     title.textContent =
-        "Tambah Teknisi / SOW";
+        "Tambah SOW";
 
     nama.value = "";
 
@@ -5736,7 +5736,7 @@ function editTeknisiAdmin(id) {
     if (!item) {
 
         alert(
-            "Data Teknisi tidak ditemukan."
+            "Data SOW tidak ditemukan."
         );
 
         return;
@@ -5747,7 +5747,7 @@ function editTeknisiAdmin(id) {
     document.getElementById(
         "teknisiModalTitle"
     ).textContent =
-        "Edit Teknisi / SOW";
+        "Edit SOW";
 
 
     document.getElementById(
@@ -5819,7 +5819,7 @@ async function simpanTeknisiAdmin() {
     if (!nama) {
 
         alert(
-            "Nama Teknisi / SOW wajib diisi."
+            "Nama SOW wajib diisi."
         );
 
         return;
@@ -5906,7 +5906,7 @@ async function simpanTeknisiAdmin() {
 
             throw new Error(
                 result.message ||
-                "Gagal menyimpan Teknisi."
+                "Gagal menyimpan SOW."
             );
 
         }
@@ -5932,7 +5932,7 @@ async function simpanTeknisiAdmin() {
         );
 
         alert(
-            "❌ " +
+            "âŒ " +
             error.message
         );
 
@@ -5942,7 +5942,7 @@ async function simpanTeknisiAdmin() {
         button.disabled = false;
 
         button.textContent =
-            "💾 Simpan";
+            "ðŸ’¾ Simpan";
 
     }
 
@@ -6072,7 +6072,7 @@ async function ubahStatusTeknisiAdmin(id) {
         );
 
         alert(
-            "❌ " +
+            "âŒ " +
             error.message
         );
 
@@ -6499,7 +6499,7 @@ document.addEventListener(
 
 
         // =================================================
-        // TOMBOL ☰
+        // TOMBOL â˜°
         // =================================================
 
         if (menuButton) {
@@ -6513,7 +6513,7 @@ document.addEventListener(
 
 
         // =================================================
-        // TOMBOL ✕
+        // TOMBOL âœ•
         // =================================================
 
         if (closeButton) {
