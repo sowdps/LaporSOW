@@ -423,8 +423,8 @@ const detailJam =
 const detailStatus =
     document.getElementById("detailStatus");
 
-const detailTeknisi =
-    document.getElementById("detailTeknisi");
+const detail =
+    document.getElementById("detail");
 
 const detailCatatan =
     document.getElementById("detailCatatan");
@@ -443,9 +443,9 @@ const updateStatus =
         "updateStatus"
     );
 
-const updateTeknisi =
+const update =
     document.getElementById(
-        "updateTeknisi"
+        "update"
     );
 const updateCatatan =
     document.getElementById(
@@ -957,7 +957,7 @@ function renderOrders(orders) {
                 <td>
 
                     ${escapeHtml(
-                order.teknisi || "-"
+                order. || "-"
             )}
 
                 </td>
@@ -1231,8 +1231,8 @@ function lihatDetail(kode) {
         order.status || "OPEN";
 
 
-    detailTeknisi.textContent =
-        order.teknisi || "-";
+    detail.textContent =
+        order. || "-";
     // =============================================
     // ISI STATUS UPDATE
     // =============================================
@@ -1242,14 +1242,14 @@ function lihatDetail(kode) {
 
 
     // =============================================
-    // ISI TEKNISI UPDATE
+    // ISI  UPDATE
     // =============================================
 
     const teknisiSekarang =
         order.teknisi || "";
 
 
-    // CEK APAKAH TEKNISI SUDAH ADA
+    // CEK APAKAH SOW SUDAH ADA
     // DI DALAM PILIHAN
 
     let teknisiAda =
@@ -1301,7 +1301,7 @@ function lihatDetail(kode) {
     }
 
 
-    // PILIH TEKNISI SEKARANG
+    // PILIH SOW SEKARANG
 
     updateTeknisi.value =
         teknisiSekarang;
@@ -2156,7 +2156,7 @@ saveUpdateButton.addEventListener(
 
 
         // =============================================
-        // AMBIL TEKNISI / SOW
+        // AMBIL SOW
         // =============================================
 
         const teknisiBaru =
@@ -2208,7 +2208,7 @@ saveUpdateButton.addEventListener(
                 " → " +
                 statusBaru +
 
-                "\nTeknisi/SOW: " +
+                "\n/SOW: " +
                 (
                     teknisiBaru || "-"
                 )
@@ -2263,8 +2263,8 @@ saveUpdateButton.addEventListener(
                 status:
                     statusBaru,
 
-                teknisi:
-                    teknisiBaru,
+                sow:
+                    sowBaru,
 
                 catatan_progres:
                     catatanBaru,
@@ -2466,9 +2466,9 @@ saveUpdateButton.addEventListener(
                 " → " +
                 statusBaru +
 
-                "\nTeknisi/SOW: " +
+                "\n/SOW: " +
                 (
-                    teknisiBaru || "-"
+                    sowBaru || "-"
                 ) +
 
                 "\n\nData sudah disimpan ke Spreadsheet."
@@ -4063,7 +4063,7 @@ async function downloadRekapExcel() {
 
 
         // =================================================
-        // REKAP TEKNISI
+        // REKAP SOW
         // =================================================
 
         const teknisiTitleRow =
@@ -4079,7 +4079,7 @@ async function downloadRekapExcel() {
             );
 
         teknisiTitle.value =
-            "REKAP BERDASARKAN TEKNISI / SOW";
+            "REKAP BERDASARKAN SOW";
 
         teknisiTitle.font = {
             name: "Calibri",
@@ -4112,7 +4112,7 @@ async function downloadRekapExcel() {
         worksheet.getCell(
             `A${teknisiHeaderRow}`
         ).value =
-            "Teknisi / SOW";
+            "SOW";
 
         worksheet.getCell(
             `B${teknisiHeaderRow}`
@@ -4265,7 +4265,7 @@ async function downloadRekapExcel() {
 
             "Kode Order",
 
-            "Nama",
+            "Unit Kerja",
 
             "Kode Cabang",
 
@@ -4275,7 +4275,7 @@ async function downloadRekapExcel() {
 
             "Status",
 
-            "Teknisi / SOW"
+            "SOW"
 
         ];
 
@@ -5003,14 +5003,14 @@ function tampilkanHasilRekap(
 
 
         <!-- ========================================= -->
-        <!-- REKAP TEKNISI -->
+        <!-- REKAP SOW -->
         <!-- ========================================= -->
 
         <div class="rekap-table-container">
 
             <div class="rekap-table-title">
 
-                👨‍🔧 REKAP BERDASARKAN TEKNISI / SOW
+                👨‍🔧 REKAP BERDASARKAN SOW
 
             </div>
 
@@ -5021,7 +5021,7 @@ function tampilkanHasilRekap(
 
                     <tr>
 
-                        <th>Teknisi / SOW</th>
+                        <th>SOW</th>
 
                         <th>Jumlah</th>
 
@@ -5043,7 +5043,7 @@ function tampilkanHasilRekap(
             <tr>
 
                 <td colspan="2">
-                    Tidak ada data teknisi.
+                    Tidak ada data SOW.
                 </td>
 
             </tr>
@@ -5220,7 +5220,7 @@ function tampilkanHasilRekap(
 
                             <th>Nama</th>
 
-                            <th>NIP</th>
+                            <th>Unit Kerja</th>
 
                             <th>Kode Cabang</th>
 
@@ -5236,7 +5236,7 @@ function tampilkanHasilRekap(
 
                             <th>Status</th>
 
-                            <th>Teknisi / SOW</th>
+                            <th>SOW</th>
 
                             <th>Catatan Progres</th>
 
@@ -5375,14 +5375,14 @@ function tampilkanHasilRekap(
 
 // =====================================================
 // TAHAP 13
-// MANAJEMEN TEKNISI / SOW
+// MANAJEMEN SOW
 // =====================================================
 
 let daftarTeknisiAdmin = [];
 
 
 // =====================================================
-// LOAD TEKNISI
+// LOAD SOW
 // =====================================================
 
 async function loadTeknisiAdmin() {
@@ -5446,7 +5446,7 @@ async function loadTeknisiAdmin() {
 
             throw new Error(
                 result.message ||
-                "Gagal mengambil Teknisi."
+                "Gagal mengambil SOW."
             );
 
         }
@@ -5469,7 +5469,7 @@ async function loadTeknisiAdmin() {
     catch (error) {
 
         console.error(
-            "LOAD TEKNISI ERROR:",
+            "LOAD SOW ERROR:",
             error
         );
 
@@ -5478,7 +5478,7 @@ async function loadTeknisiAdmin() {
                 <td colspan="5"
                     class="teknisi-loading">
 
-                    ❌ Gagal memuat daftar Teknisi.
+                    ❌ Gagal memuat daftar SOW.
 
                 </td>
             </tr>
@@ -5490,7 +5490,7 @@ async function loadTeknisiAdmin() {
 
 
 // =====================================================
-// TAMPILKAN TABEL TEKNISI
+// TAMPILKAN TABEL SOW
 // =====================================================
 
 function renderTeknisiAdmin() {
@@ -5514,7 +5514,7 @@ function renderTeknisiAdmin() {
                 <td colspan="5"
                     class="teknisi-loading">
 
-                    Belum ada Teknisi / SOW.
+                    Belum ada SOW.
 
                 </td>
             </tr>
@@ -5602,7 +5602,7 @@ function renderTeknisiAdmin() {
 
 
 // =====================================================
-// UPDATE SELECT TEKNISI PADA UPDATE ORDER
+// UPDATE SELECT SOW PADA UPDATE ORDER
 // =====================================================
 
 function updateSelectTeknisi() {
@@ -5623,7 +5623,7 @@ function updateSelectTeknisi() {
 
     select.innerHTML = `
         <option value="">
-            -- Pilih Teknisi / SOW --
+            -- Pilih SOW --
         </option>
     `;
 
@@ -5693,7 +5693,7 @@ function bukaTambahTeknisi() {
 
 
     title.textContent =
-        "Tambah Teknisi / SOW";
+        "Tambah SOW";
 
     nama.value = "";
 
@@ -5736,7 +5736,7 @@ function editTeknisiAdmin(id) {
     if (!item) {
 
         alert(
-            "Data Teknisi tidak ditemukan."
+            "Data SOW tidak ditemukan."
         );
 
         return;
@@ -5747,7 +5747,7 @@ function editTeknisiAdmin(id) {
     document.getElementById(
         "teknisiModalTitle"
     ).textContent =
-        "Edit Teknisi / SOW";
+        "Edit SOW";
 
 
     document.getElementById(
@@ -5819,7 +5819,7 @@ async function simpanTeknisiAdmin() {
     if (!nama) {
 
         alert(
-            "Nama Teknisi / SOW wajib diisi."
+            "Nama SOW wajib diisi."
         );
 
         return;
@@ -5906,7 +5906,7 @@ async function simpanTeknisiAdmin() {
 
             throw new Error(
                 result.message ||
-                "Gagal menyimpan Teknisi."
+                "Gagal menyimpan SOW."
             );
 
         }
@@ -5927,7 +5927,7 @@ async function simpanTeknisiAdmin() {
     catch (error) {
 
         console.error(
-            "SIMPAN TEKNISI ERROR:",
+            "SIMPAN SOW ERROR:",
             error
         );
 
@@ -6067,7 +6067,7 @@ async function ubahStatusTeknisiAdmin(id) {
     catch (error) {
 
         console.error(
-            "STATUS TEKNISI ERROR:",
+            "STATUS SOW ERROR:",
             error
         );
 
@@ -6440,7 +6440,7 @@ document.addEventListener(
 
 
         // =================================================
-        // BUKA TEKNISI
+        // BUKA SOW
         // =================================================
 
         function bukaTeknisi() {
