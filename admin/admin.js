@@ -5201,7 +5201,7 @@ function tampilkanHasilRekap(
 
             <div class="rekap-table-title">
 
-                ðŸ“‹ DETAIL ORDER
+                DETAIL ORDER
 
             </div>
 
