@@ -399,8 +399,8 @@ const detailKode =
 const detailNama =
     document.getElementById("detailNama");
 
-const detailNip =
-    document.getElementById("detailNip");
+const detailUnitKerja =
+    document.getElementById("detailUnitKerja");
 
 const detailCabang =
     document.getElementById("detailCabang");
@@ -1198,10 +1198,8 @@ function lihatDetail(kode) {
         order.nama || "-";
 
 
-    detailNip.textContent =
-    order.unit_kerja ||
-    order.unitkerja ||
-    "-";
+    detailUnitKerja.textContent =
+        order.unit_kerja || "-";
 
 
     detailCabang.textContent =
@@ -5012,7 +5010,7 @@ function tampilkanHasilRekap(
 
             <div class="rekap-table-title">
 
-                🕵️‍♂️ REKAP BERDASARKAN SOW
+                👩‍💻 REKAP BERDASARKAN SOW
 
             </div>
 
@@ -5297,7 +5295,7 @@ function tampilkanHasilRekap(
                         </td>
 
                         <td>
-                            ${order.unit_kerja || order.nip || "-"}
+                            ${order.unit_kerja || "-"}
                         </td>
 
                         <td>
