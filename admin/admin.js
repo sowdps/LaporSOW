@@ -4823,7 +4823,7 @@ function tampilkanHasilRekap(
 
             <div class="rekap-table-title">
 
-                ðŸ“Š REKAP ${namaPeriode}
+                REKAP ${namaPeriode}
 
             </div>
 
@@ -4924,7 +4924,7 @@ function tampilkanHasilRekap(
 
             <div class="rekap-table-title">
 
-                ðŸ¢ REKAP BERDASARKAN CABANG
+                🏢 REKAP BERDASARKAN CABANG
 
             </div>
 
@@ -5010,7 +5010,7 @@ function tampilkanHasilRekap(
 
             <div class="rekap-table-title">
 
-                ðŸ‘¨â€ðŸ”§ REKAP BERDASARKAN SOW
+                🕵️‍♂️ REKAP BERDASARKAN SOW
 
             </div>
 
@@ -5106,7 +5106,7 @@ function tampilkanHasilRekap(
 
                 <div class="rekap-table-title">
 
-                    ðŸ“… REKAP PER BULAN
+                    📅 REKAP PER BULAN
 
                 </div>
 
@@ -5736,7 +5736,7 @@ function editTeknisiAdmin(id) {
     if (!item) {
 
         alert(
-            "Data Teknisi tidak ditemukan."
+            "Data SOW tidak ditemukan."
         );
 
         return;
@@ -5906,7 +5906,7 @@ async function simpanTeknisiAdmin() {
 
             throw new Error(
                 result.message ||
-                "Gagal menyimpan Teknisi."
+                "Gagal menyimpan SOW."
             );
 
         }
