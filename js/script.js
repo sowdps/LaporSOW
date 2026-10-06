@@ -242,7 +242,7 @@ Saya ingin melaporkan kendala dengan detail berikut:
 📌 KODE ORDER : ${data.kode}
 
 👤 Nama : ${data.nama}
-🆔 NIP : ${data.nip}
+🏢 Unit Kerja : ${data.unit_kerja}
 🏢 Cabang : ${data.kode_cabang}
 ⚠️ Kendala : ${data.jenis_kendala}
 
@@ -317,9 +317,9 @@ document.addEventListener(
                             .value
                             .trim(),
 
-                    nip:
+                    unit_kerja:
                         document
-                            .getElementById("nip")
+                            .getElementById("unit_kerja")
                             .value
                             .trim(),
 
