@@ -104,7 +104,7 @@ async function forceLogoutAdmin(
     // -------------------------------------------------
 
     localStorage.removeItem(
-        "MY_SOW_ADMIN_TOKEN"
+        "MY__ADMIN_TOKEN"
     );
 
 
@@ -1249,7 +1249,7 @@ function lihatDetail(kode) {
         order.teknisi || "";
 
 
-    // CEK APAKAH SOW SUDAH ADA
+    // CEK APAKAH  SUDAH ADA
     // DI DALAM PILIHAN
 
     let teknisiAda =
@@ -2208,7 +2208,7 @@ saveUpdateButton.addEventListener(
                 " → " +
                 statusBaru +
 
-                "\n/SOW: " +
+                "\nteknisi/SOW: " +
                 (
                     teknisiBaru || "-"
                 )
@@ -2263,8 +2263,8 @@ saveUpdateButton.addEventListener(
                 status:
                     statusBaru,
 
-                sow:
-                    sowBaru,
+                teknisi:
+                    teknisiBaru,
 
                 catatan_progres:
                     catatanBaru,
@@ -2466,9 +2466,9 @@ saveUpdateButton.addEventListener(
                 " → " +
                 statusBaru +
 
-                "\n/SOW: " +
+                "\n/teknisi/SOW: " +
                 (
-                    sowBaru || "-"
+                    teknisiBaru || "-"
                 ) +
 
                 "\n\nData sudah disimpan ke Spreadsheet."
