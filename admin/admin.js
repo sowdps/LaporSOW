@@ -1242,14 +1242,14 @@ function lihatDetail(kode) {
 
 
     // =============================================
-    // ISI TEKNISI UPDATE
+    // ISI SOW UPDATE
     // =============================================
 
     const teknisiSekarang =
         order.teknisi || "";
 
 
-    // CEK APAKAH TEKNISI SUDAH ADA
+    // CEK APAKAH SOW SUDAH ADA
     // DI DALAM PILIHAN
 
     let teknisiAda =
@@ -1301,7 +1301,7 @@ function lihatDetail(kode) {
     }
 
 
-    // PILIH TEKNISI SEKARANG
+    // PILIH SOW SEKARANG
 
     updateTeknisi.value =
         teknisiSekarang;
@@ -2156,7 +2156,7 @@ saveUpdateButton.addEventListener(
 
 
         // =============================================
-        // AMBIL TEKNISI / SOW
+        // AMBIL SOW
         // =============================================
 
         const teknisiBaru =
@@ -4063,7 +4063,7 @@ async function downloadRekapExcel() {
 
 
         // =================================================
-        // REKAP TEKNISI
+        // REKAP SOW
         // =================================================
 
         const teknisiTitleRow =
@@ -4079,7 +4079,7 @@ async function downloadRekapExcel() {
             );
 
         teknisiTitle.value =
-            "REKAP BERDASARKAN TEKNISI / SOW";
+            "REKAP BERDASARKAN SOW";
 
         teknisiTitle.font = {
             name: "Calibri",
@@ -5003,14 +5003,14 @@ function tampilkanHasilRekap(
 
 
         <!-- ========================================= -->
-        <!-- REKAP TEKNISI -->
+        <!-- REKAP SOW -->
         <!-- ========================================= -->
 
         <div class="rekap-table-container">
 
             <div class="rekap-table-title">
 
-                👨‍🔧 REKAP BERDASARKAN TEKNISI / SOW
+                👨‍🔧 REKAP BERDASARKAN SOW
 
             </div>
 
@@ -5043,7 +5043,7 @@ function tampilkanHasilRekap(
             <tr>
 
                 <td colspan="2">
-                    Tidak ada data teknisi.
+                    Tidak ada data SOW.
                 </td>
 
             </tr>
@@ -5220,7 +5220,7 @@ function tampilkanHasilRekap(
 
                             <th>Nama</th>
 
-                            <th>NIP</th>
+                            <th>UNIT KERJA</th>
 
                             <th>Kode Cabang</th>
 
@@ -5236,7 +5236,7 @@ function tampilkanHasilRekap(
 
                             <th>Status</th>
 
-                            <th>Teknisi / SOW</th>
+                            <th>SOW</th>
 
                             <th>Catatan Progres</th>
 
@@ -5375,14 +5375,14 @@ function tampilkanHasilRekap(
 
 // =====================================================
 // TAHAP 13
-// MANAJEMEN TEKNISI / SOW
+// MANAJEMEN SOW
 // =====================================================
 
 let daftarTeknisiAdmin = [];
 
 
 // =====================================================
-// LOAD TEKNISI
+// LOAD SOW
 // =====================================================
 
 async function loadTeknisiAdmin() {
@@ -5469,7 +5469,7 @@ async function loadTeknisiAdmin() {
     catch (error) {
 
         console.error(
-            "LOAD TEKNISI ERROR:",
+            "LOAD SOW ERROR:",
             error
         );
 
@@ -5490,7 +5490,7 @@ async function loadTeknisiAdmin() {
 
 
 // =====================================================
-// TAMPILKAN TABEL TEKNISI
+// TAMPILKAN TABEL SOW
 // =====================================================
 
 function renderTeknisiAdmin() {
@@ -5602,7 +5602,7 @@ function renderTeknisiAdmin() {
 
 
 // =====================================================
-// UPDATE SELECT TEKNISI PADA UPDATE ORDER
+// UPDATE SELECT SOW PADA UPDATE ORDER
 // =====================================================
 
 function updateSelectTeknisi() {
@@ -5927,7 +5927,7 @@ async function simpanTeknisiAdmin() {
     catch (error) {
 
         console.error(
-            "SIMPAN TEKNISI ERROR:",
+            "SIMPAN SOW ERROR:",
             error
         );
 
@@ -6067,7 +6067,7 @@ async function ubahStatusTeknisiAdmin(id) {
     catch (error) {
 
         console.error(
-            "STATUS TEKNISI ERROR:",
+            "STATUS SOW ERROR:",
             error
         );
 
@@ -6440,7 +6440,7 @@ document.addEventListener(
 
 
         // =================================================
-        // BUKA TEKNISI
+        // BUKA SOW
         // =================================================
 
         function bukaTeknisi() {
