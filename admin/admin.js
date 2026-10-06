@@ -104,7 +104,7 @@ async function forceLogoutAdmin(
     // -------------------------------------------------
 
     localStorage.removeItem(
-        "MY__ADMIN_TOKEN"
+        "MY_SOW_ADMIN_TOKEN"
     );
 
 
@@ -423,8 +423,8 @@ const detailJam =
 const detailStatus =
     document.getElementById("detailStatus");
 
-const detail =
-    document.getElementById("detail");
+const detailTeknisi =
+    document.getElementById("detailTeknisi");
 
 const detailCatatan =
     document.getElementById("detailCatatan");
@@ -443,9 +443,9 @@ const updateStatus =
         "updateStatus"
     );
 
-const update =
+const updateTeknisi =
     document.getElementById(
-        "update"
+        "updateTeknisi"
     );
 const updateCatatan =
     document.getElementById(
@@ -957,7 +957,7 @@ function renderOrders(orders) {
                 <td>
 
                     ${escapeHtml(
-                order. || "-"
+                order.teknisi || "-"
             )}
 
                 </td>
@@ -1231,8 +1231,8 @@ function lihatDetail(kode) {
         order.status || "OPEN";
 
 
-    detail.textContent =
-        order. || "-";
+    detailTeknisi.textContent =
+        order.teknisi || "-";
     // =============================================
     // ISI STATUS UPDATE
     // =============================================
@@ -1242,14 +1242,14 @@ function lihatDetail(kode) {
 
 
     // =============================================
-    // ISI  UPDATE
+    // ISI SOW UPDATE
     // =============================================
 
     const teknisiSekarang =
         order.teknisi || "";
 
 
-    // CEK APAKAH  SUDAH ADA
+    // CEK APAKAH SOW SUDAH ADA
     // DI DALAM PILIHAN
 
     let teknisiAda =
@@ -2208,7 +2208,7 @@ saveUpdateButton.addEventListener(
                 " → " +
                 statusBaru +
 
-                "\nteknisi/SOW: " +
+                "\nTeknisi/SOW: " +
                 (
                     teknisiBaru || "-"
                 )
@@ -2466,7 +2466,7 @@ saveUpdateButton.addEventListener(
                 " → " +
                 statusBaru +
 
-                "\n/teknisi/SOW: " +
+                "\nTeknisi/SOW: " +
                 (
                     teknisiBaru || "-"
                 ) +
@@ -4112,7 +4112,7 @@ async function downloadRekapExcel() {
         worksheet.getCell(
             `A${teknisiHeaderRow}`
         ).value =
-            "SOW";
+            "Teknisi / SOW";
 
         worksheet.getCell(
             `B${teknisiHeaderRow}`
@@ -4265,7 +4265,7 @@ async function downloadRekapExcel() {
 
             "Kode Order",
 
-            "Unit Kerja",
+            "Nama",
 
             "Kode Cabang",
 
@@ -4275,7 +4275,7 @@ async function downloadRekapExcel() {
 
             "Status",
 
-            "SOW"
+            "Teknisi / SOW"
 
         ];
 
@@ -5021,7 +5021,7 @@ function tampilkanHasilRekap(
 
                     <tr>
 
-                        <th>SOW</th>
+                        <th>Teknisi / SOW</th>
 
                         <th>Jumlah</th>
 
@@ -5220,7 +5220,7 @@ function tampilkanHasilRekap(
 
                             <th>Nama</th>
 
-                            <th>Unit Kerja</th>
+                            <th>UNIT KERJA</th>
 
                             <th>Kode Cabang</th>
 
@@ -5446,7 +5446,7 @@ async function loadTeknisiAdmin() {
 
             throw new Error(
                 result.message ||
-                "Gagal mengambil SOW."
+                "Gagal mengambil Teknisi."
             );
 
         }
@@ -5478,7 +5478,7 @@ async function loadTeknisiAdmin() {
                 <td colspan="5"
                     class="teknisi-loading">
 
-                    ❌ Gagal memuat daftar SOW.
+                    ❌ Gagal memuat daftar Teknisi.
 
                 </td>
             </tr>
@@ -5514,7 +5514,7 @@ function renderTeknisiAdmin() {
                 <td colspan="5"
                     class="teknisi-loading">
 
-                    Belum ada SOW.
+                    Belum ada Teknisi / SOW.
 
                 </td>
             </tr>
@@ -5623,7 +5623,7 @@ function updateSelectTeknisi() {
 
     select.innerHTML = `
         <option value="">
-            -- Pilih SOW --
+            -- Pilih Teknisi / SOW --
         </option>
     `;
 
@@ -5693,7 +5693,7 @@ function bukaTambahTeknisi() {
 
 
     title.textContent =
-        "Tambah SOW";
+        "Tambah Teknisi / SOW";
 
     nama.value = "";
 
@@ -5736,7 +5736,7 @@ function editTeknisiAdmin(id) {
     if (!item) {
 
         alert(
-            "Data SOW tidak ditemukan."
+            "Data Teknisi tidak ditemukan."
         );
 
         return;
@@ -5747,7 +5747,7 @@ function editTeknisiAdmin(id) {
     document.getElementById(
         "teknisiModalTitle"
     ).textContent =
-        "Edit SOW";
+        "Edit Teknisi / SOW";
 
 
     document.getElementById(
@@ -5819,7 +5819,7 @@ async function simpanTeknisiAdmin() {
     if (!nama) {
 
         alert(
-            "Nama SOW wajib diisi."
+            "Nama Teknisi / SOW wajib diisi."
         );
 
         return;
@@ -5906,7 +5906,7 @@ async function simpanTeknisiAdmin() {
 
             throw new Error(
                 result.message ||
-                "Gagal menyimpan SOW."
+                "Gagal menyimpan Teknisi."
             );
 
         }
