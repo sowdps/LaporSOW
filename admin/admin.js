@@ -35,7 +35,7 @@ if (
 // =====================================================
 
 const ADMIN_IDLE_MINUTES =
-    60;
+    10;
 
 const ADMIN_IDLE_MS =
     ADMIN_IDLE_MINUTES *
@@ -333,7 +333,7 @@ resetAdminIdleTimer();
 // =====================================================
 
 console.log(
-    "TAHAP 15A.3 - Auto Logout aktif: 60 menit"
+    "TAHAP 15A.3 - Auto Logout aktif: 10 menit"
 );
 
 // =====================================================
@@ -2492,7 +2492,7 @@ saveUpdateButton.addEventListener(
 
             alert(
 
-                "Update gagal disimpan.\n\n" +
+                "âŒ Update gagal disimpan.\n\n" +
 
                 error.message
 
@@ -5571,7 +5571,7 @@ function renderTeknisiAdmin() {
                                         class="btn-edit-teknisi"
                                         onclick="editTeknisiAdmin(${item.id})">
 
-                                        Edit
+                                        âœï¸ Edit
 
                                     </button>
 
@@ -5581,8 +5581,8 @@ function renderTeknisiAdmin() {
                                         onclick="ubahStatusTeknisiAdmin(${item.id})">
 
                                         ${aktif
-                            ? "Nonaktifkan"
-                            : "Aktifkan"}
+                            ? "â›” Nonaktifkan"
+                            : "âœ… Aktifkan"}
 
                                     </button>
 
@@ -5931,7 +5931,7 @@ async function simpanTeknisiAdmin() {
         );
 
         alert(
-            " " +
+            "âŒ " +
             error.message
         );
 
@@ -5941,7 +5941,7 @@ async function simpanTeknisiAdmin() {
         button.disabled = false;
 
         button.textContent =
-            "Simpan";
+            "ðŸ’¾ Simpan";
 
     }
 
