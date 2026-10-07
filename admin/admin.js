@@ -35,7 +35,7 @@ if (
 // =====================================================
 
 const ADMIN_IDLE_MINUTES =
-    10;
+    60;
 
 const ADMIN_IDLE_MS =
     ADMIN_IDLE_MINUTES *
@@ -333,7 +333,7 @@ resetAdminIdleTimer();
 // =====================================================
 
 console.log(
-    "TAHAP 15A.3 - Auto Logout aktif: 10 menit"
+    "TAHAP 15A.3 - Auto Logout aktif: 60 menit"
 );
 
 // =====================================================
@@ -5571,7 +5571,7 @@ function renderTeknisiAdmin() {
                                         class="btn-edit-teknisi"
                                         onclick="editTeknisiAdmin(${item.id})">
 
-                                        âœï¸ Edit
+                                        Edit
 
                                     </button>
 
@@ -5581,8 +5581,8 @@ function renderTeknisiAdmin() {
                                         onclick="ubahStatusTeknisiAdmin(${item.id})">
 
                                         ${aktif
-                            ? "â›” Nonaktifkan"
-                            : "âœ… Aktifkan"}
+                            ? "Nonaktifkan"
+                            : "Aktifkan"}
 
                                     </button>
 
@@ -5931,7 +5931,7 @@ async function simpanTeknisiAdmin() {
         );
 
         alert(
-            "âŒ " +
+            "" +
             error.message
         );
 
@@ -5941,7 +5941,7 @@ async function simpanTeknisiAdmin() {
         button.disabled = false;
 
         button.textContent =
-            "ðŸ’¾ Simpan";
+            "Simpan";
 
     }
 
@@ -6071,7 +6071,7 @@ async function ubahStatusTeknisiAdmin(id) {
         );
 
         alert(
-            "âŒ " +
+            "tidak bisa" +
             error.message
         );
 
