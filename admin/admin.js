@@ -2492,7 +2492,7 @@ saveUpdateButton.addEventListener(
 
             alert(
 
-                "âŒ Update gagal disimpan.\n\n" +
+                "Update gagal disimpan.\n\n" +
 
                 error.message
 
@@ -5931,7 +5931,7 @@ async function simpanTeknisiAdmin() {
         );
 
         alert(
-            "" +
+            " " +
             error.message
         );
 
@@ -6071,7 +6071,7 @@ async function ubahStatusTeknisiAdmin(id) {
         );
 
         alert(
-            "tidak bisa" +
+            "âŒ " +
             error.message
         );
 
