@@ -789,7 +789,7 @@ async function loadOrders() {
 
                 <td colspan="9">
 
-                    âŒ Gagal memuat data:
+                    Gagal memuat data:
                     ${error.message}
 
                 </td>
@@ -3323,7 +3323,6 @@ async function ambilRekap(
         rekapResult.innerHTML = `
             <div class="rekap-empty">
 
-                âŒ
 
                 <h3>Rekap Gagal</h3>
 
@@ -5478,7 +5477,7 @@ async function loadTeknisiAdmin() {
                 <td colspan="5"
                     class="teknisi-loading">
 
-                    âŒ Gagal memuat daftar Teknisi.
+                    Gagal memuat daftar Teknisi.
 
                 </td>
             </tr>
