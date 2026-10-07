@@ -2,62 +2,263 @@
 <html lang="id">
 
 <head>
-
     <meta charset="UTF-8">
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Login Admin - Lapor SOW</title>
-    <link rel="stylesheet" href="./login.css">
-    <style>
-        /* =========================================
-       TAHAP 11.5.3 - LOGO LOGIN ADMIN
-       ========================================= */
+    <meta name="theme-color" content="#17365d">
 
-        .sow-login-logo {
-            display: block;
-            width: 150px;
-            height: 150px;
-            object-fit: contain;
-            margin: 0 auto 18px;
-            filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.25));
-        }
+    <meta name="description" content="Login Admin SOW IV Denpasar">
+
+    <title>Login Admin | SOW IV Denpasar</title>
+
+    <link rel="stylesheet" href="./login.css">
+
+    <style>
+        /* =====================================================
+           LOGIN ADMIN - PENYEMPURNAAN TAMPILAN
+           ===================================================== */
 
         .sow-login-brand {
             text-align: center;
-            margin-bottom: 22px;
+            margin-bottom: 24px;
+        }
+
+        .sow-login-logo {
+            display: block;
+
+            width: 125px;
+            height: 125px;
+
+            object-fit: contain;
+
+            margin: 0 auto 15px;
+
+            filter:
+                drop-shadow(0 8px 15px rgba(0, 0, 0, 0.18));
         }
 
         .sow-login-brand-name {
             margin: 0;
-            font-size: 18px;
+
+            color: #17365d;
+
+            font-size: 21px;
             font-weight: 800;
-            letter-spacing: 1.5px;
+
+            letter-spacing: 1.4px;
         }
 
         .sow-login-brand-subtitle {
-            margin: 5px 0 0;
+            margin: 6px 0 0;
+
+            color: #64748b;
+
             font-size: 11px;
-            font-weight: 600;
+            font-weight: 700;
+
             letter-spacing: 1.2px;
-            opacity: 0.75;
         }
 
-        /* Tampilan HP */
+        .login-title {
+            margin-bottom: 22px;
+
+            color: #17365d;
+
+            font-size: 21px;
+            font-weight: 800;
+
+            text-align: center;
+
+            letter-spacing: 0.3px;
+        }
+
+        .login-form-group {
+            margin-bottom: 17px;
+        }
+
+        .login-form-group label {
+            display: block;
+
+            margin-bottom: 7px;
+
+            color: #334155;
+
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .login-input-wrapper {
+            position: relative;
+        }
+
+        .login-input-wrapper input {
+            width: 100%;
+
+            min-height: 46px;
+
+            padding:
+                0 45px 0 13px;
+
+            border:
+                1px solid #cbd5e1;
+
+            border-radius: 9px;
+
+            background: #ffffff;
+
+            color: #1e293b;
+
+            font-size: 14px;
+
+            transition:
+                border-color 0.2s ease,
+                box-shadow 0.2s ease;
+        }
+
+        .login-input-wrapper input:focus {
+            outline: none;
+
+            border-color: #2563eb;
+
+            box-shadow:
+                0 0 0 3px rgba(37, 99, 235, 0.10);
+        }
+
+        .password-toggle {
+            position: absolute;
+
+            top: 50%;
+            right: 10px;
+
+            transform:
+                translateY(-50%);
+
+            width: 34px;
+            height: 34px;
+
+            padding: 0;
+
+            border: none;
+
+            border-radius: 7px;
+
+            background: transparent;
+
+            color: #64748b;
+
+            font-size: 17px;
+        }
+
+        .password-toggle:hover {
+            background: #f1f5f9;
+
+            color: #17365d;
+        }
+
+        #loginButton {
+            width: 100%;
+
+            min-height: 47px;
+
+            margin-top: 7px;
+
+            border: none;
+
+            border-radius: 9px;
+
+            background:
+                linear-gradient(135deg,
+                    #17365d,
+                    #2f75b5);
+
+            color: #ffffff;
+
+            font-size: 14px;
+            font-weight: 800;
+
+            letter-spacing: 0.5px;
+
+            transition:
+                transform 0.2s ease,
+                box-shadow 0.2s ease,
+                opacity 0.2s ease;
+        }
+
+        #loginButton:hover:not(:disabled) {
+            transform:
+                translateY(-1px);
+
+            box-shadow:
+                0 6px 16px rgba(23, 54, 93, 0.25);
+        }
+
+        #loginButton:active:not(:disabled) {
+            transform:
+                translateY(0);
+        }
+
+        #loginButton:disabled {
+            cursor: wait;
+
+            opacity: 0.70;
+        }
+
+        #pesanLogin {
+            min-height: 22px;
+
+            margin-top: 15px;
+
+            font-size: 13px;
+
+            line-height: 1.5;
+
+            text-align: center;
+        }
+
+        .login-security-note {
+            margin-top: 20px;
+            padding-top: 15px;
+
+            border-top:
+                1px solid #e2e8f0;
+
+            color: #94a3b8;
+
+            font-size: 11px;
+
+            line-height: 1.5;
+
+            text-align: center;
+        }
+
+        .login-security-note strong {
+            color: #64748b;
+        }
+
+        /* =====================================================
+           RESPONSIVE
+           ===================================================== */
+
         @media (max-width: 768px) {
 
             .sow-login-logo {
-                width: 120px;
-                height: 120px;
-                margin-bottom: 14px;
+                width: 105px;
+                height: 105px;
+
+                margin-bottom: 13px;
             }
 
             .sow-login-brand-name {
-                font-size: 16px;
+                font-size: 18px;
             }
 
             .sow-login-brand-subtitle {
                 font-size: 10px;
+            }
+
+            .login-title {
+                font-size: 19px;
             }
         }
     </style>
@@ -66,15 +267,18 @@
 
 <body>
 
+    <main class="login-container">
 
-    <div class="login-container">
+        <section class="login-card" aria-labelledby="loginTitle">
 
-        <div class="login-card">
+            <!-- =================================================
+                 BRANDING SOW
+                 ================================================= -->
 
             <div class="sow-login-brand">
 
-                <img class="sow-login-logo" src="../images/logo-sow-iv-dps-compact.png" alt="Logo SOW IV DPS">
-
+                <img class="sow-login-logo" src="../images/logo-sow-iv-dps-compact.png" alt="Logo SOW IV Denpasar"
+                    loading="eager">
 
                 <p class="sow-login-brand-subtitle">
                     SISTEM MONITORING LAPOR SOW
@@ -82,116 +286,281 @@
 
             </div>
 
-            <div class="login-title">
-                🔐 LOGIN ADMIN
+
+            <!-- =================================================
+                 JUDUL LOGIN
+                 ================================================= -->
+
+            <div class="login-title" id="loginTitle">
+                 🔐LOGIN ADMIN
             </div>
-            <form id="loginForm">
 
 
-                <label for="username">
+            <!-- =================================================
+                 FORM LOGIN
+                 ================================================= -->
 
-                    Username
+            <form id="loginForm" autocomplete="on" novalidate>
 
-                </label>
+                <!-- USERNAME -->
+
+                <div class="login-form-group">
+
+                    <label for="username">
+                        Username
+                    </label>
+
+                    <div class="login-input-wrapper">
+
+                        <input type="text" id="username" name="username" autocomplete="username"
+                            placeholder="Masukkan username" maxlength="50" required>
+
+                    </div>
+
+                </div>
 
 
-                <input type="text" id="username" autocomplete="username" required>
+                <!-- PASSWORD -->
+
+                <div class="login-form-group">
+
+                    <label for="password">
+                        Password
+                    </label>
+
+                    <div class="login-input-wrapper">
+
+                        <input type="password" id="password" name="password" autocomplete="current-password"
+                            placeholder="Masukkan password" maxlength="100" required>
+
+                        <button type="button" class="password-toggle" id="passwordToggle"
+                            aria-label="Tampilkan password" title="Tampilkan password">
+                            👁
+                        </button>
+
+                    </div>
+
+                </div>
 
 
-                <label for="password">
-
-                    Password
-
-                </label>
-
-
-                <input type="password" id="password" autocomplete="off" required>
-
+                <!-- LOGIN -->
 
                 <button type="submit" id="loginButton">
-
                     LOGIN
-
                 </button>
-
 
             </form>
 
 
-            <div id="pesanLogin"></div>
+            <!-- =================================================
+                 PESAN LOGIN
+                 ================================================= -->
 
-        </div>
+            <div id="pesanLogin" role="alert" aria-live="polite"></div>
 
-    </div>
+
+            <!-- =================================================
+                 INFORMASI KEAMANAN
+                 ================================================= -->
+
+            <div class="login-security-note">
+
+                <strong>Akses Admin</strong><br>
+
+                Gunakan akun admin yang telah terdaftar.
+                Jangan membagikan password kepada pihak lain.
+
+            </div>
+
+        </section>
+
+    </main>
 
 
     <script>
 
+        /* =====================================================
+           MY SOW BALI
+           LOGIN ADMIN
+           ===================================================== */
 
-        // =====================================================
-        // API GOOGLE APPS SCRIPT
-        // =====================================================
+
+        /* =====================================================
+           01. KONFIGURASI API
+           ===================================================== */
 
         const API_URL =
             "https://script.google.com/macros/s/AKfycbyOcM6jK4OHqHwd7203Do9Za0W23ZpA4wfmvBd2UsqQT_7v359DkjKTxdeaEqjQlqhV/exec";
 
 
-        // =====================================================
-        // ELEMENT HTML
-        // =====================================================
+        /* =====================================================
+           02. ELEMENT HTML
+           ===================================================== */
 
         const loginForm =
-            document.getElementById(
-                "loginForm"
-            );
-
+            document.getElementById("loginForm");
 
         const usernameInput =
-            document.getElementById(
-                "username"
-            );
-
+            document.getElementById("username");
 
         const passwordInput =
-            document.getElementById(
-                "password"
-            );
-
+            document.getElementById("password");
 
         const loginButton =
-            document.getElementById(
-                "loginButton"
-            );
-
+            document.getElementById("loginButton");
 
         const pesanLogin =
-            document.getElementById(
-                "pesanLogin"
-            );
+            document.getElementById("pesanLogin");
+
+        const passwordToggle =
+            document.getElementById("passwordToggle");
 
 
-        // =====================================================
-        // CEK SESSION LAMA
-        // =====================================================
+        /* =====================================================
+           03. CEK ELEMENT
+           ===================================================== */
 
-        const tokenLama =
-            localStorage.getItem(
-                "MY_SOW_ADMIN_TOKEN"
-            );
+        if (
+            !loginForm ||
+            !usernameInput ||
+            !passwordInput ||
+            !loginButton ||
+            !pesanLogin
+        ) {
 
-
-        if (tokenLama) {
-
-            console.log(
-                "Session admin ditemukan."
+            console.error(
+                "Element login tidak lengkap."
             );
 
         }
 
 
-        // =====================================================
-        // PROSES LOGIN
-        // =====================================================
+        /* =====================================================
+           04. TAMPILKAN / SEMBUNYIKAN PASSWORD
+           ===================================================== */
+
+        if (passwordToggle) {
+
+            passwordToggle.addEventListener(
+                "click",
+                function () {
+
+                    const sedangPassword =
+                        passwordInput.type === "password";
+
+                    passwordInput.type =
+                        sedangPassword
+                            ? "text"
+                            : "password";
+
+                    passwordToggle.textContent =
+                        sedangPassword
+                            ? "🙈"
+                            : "👁";
+
+                    passwordToggle.setAttribute(
+                        "aria-label",
+                        sedangPassword
+                            ? "Sembunyikan password"
+                            : "Tampilkan password"
+                    );
+
+                    passwordToggle.setAttribute(
+                        "title",
+                        sedangPassword
+                            ? "Sembunyikan password"
+                            : "Tampilkan password"
+                    );
+
+                }
+            );
+
+        }
+
+
+        /* =====================================================
+           05. FUNGSI PESAN LOGIN
+           ===================================================== */
+
+        function tampilkanPesanLogin(
+            pesan,
+            tipe = "info"
+        ) {
+
+            if (!pesanLogin) {
+                return;
+            }
+
+            pesanLogin.textContent = pesan;
+
+            if (tipe === "success") {
+
+                pesanLogin.style.color =
+                    "#16a34a";
+
+            } else if (tipe === "error") {
+
+                pesanLogin.style.color =
+                    "#dc2626";
+
+            } else {
+
+                pesanLogin.style.color =
+                    "#64748b";
+
+            }
+
+        }
+
+
+        /* =====================================================
+           06. BERSIHKAN PASSWORD
+           ===================================================== */
+
+        function kosongkanPassword() {
+
+            if (!passwordInput) {
+                return;
+            }
+
+            passwordInput.value = "";
+
+        }
+
+
+        /* =====================================================
+           07. CEK SESSION ADMIN LAMA
+           ===================================================== */
+
+        function cekSessionLama() {
+
+            const tokenLama =
+                localStorage.getItem(
+                    "MY_SOW_ADMIN_TOKEN"
+                );
+
+            if (tokenLama) {
+
+                /*
+                 * Token lama sengaja tidak langsung
+                 * mengarahkan user ke dashboard.
+                 *
+                 * Validasi session dilakukan oleh
+                 * admin.js saat dashboard dibuka.
+                 */
+
+                console.log(
+                    "Session admin ditemukan."
+                );
+
+            }
+
+        }
+
+
+        /* =====================================================
+           08. PROSES LOGIN ADMIN
+           ===================================================== */
 
         loginForm.addEventListener(
             "submit",
@@ -203,66 +572,76 @@
                 const username =
                     usernameInput.value.trim();
 
-
                 const password =
                     passwordInput.value;
 
 
-                if (!username || !password) {
+                /* ---------------------------------------------
+                   VALIDASI INPUT
+                   --------------------------------------------- */
 
-                    pesanLogin.textContent =
-                        "Username dan password wajib diisi.";
+                if (!username) {
 
-                    pesanLogin.style.color =
-                        "#dc2626";
+                    tampilkanPesanLogin(
+                        "Username wajib diisi.",
+                        "error"
+                    );
+
+                    usernameInput.focus();
 
                     return;
 
                 }
 
 
-                loginButton.disabled =
-                    true;
+                if (!password) {
 
+                    tampilkanPesanLogin(
+                        "Password wajib diisi.",
+                        "error"
+                    );
+
+                    passwordInput.focus();
+
+                    return;
+
+                }
+
+
+                /* ---------------------------------------------
+                   LOCK TOMBOL LOGIN
+                   --------------------------------------------- */
+
+                loginButton.disabled = true;
 
                 loginButton.textContent =
                     "MEMERIKSA...";
 
-
-                pesanLogin.textContent =
-                    "Menghubungkan ke server...";
-
-
-                pesanLogin.style.color =
-                    "#64748b";
+                tampilkanPesanLogin(
+                    "Menghubungkan ke server...",
+                    "info"
+                );
 
 
                 try {
 
-
-                    console.log(
-                        "MENGIRIM LOGIN..."
-                    );
-
+                    /* -----------------------------------------
+                       REQUEST LOGIN KE APPS SCRIPT
+                       ----------------------------------------- */
 
                     const response =
                         await fetch(
                             API_URL,
                             {
-
-                                method:
-                                    "POST",
+                                method: "POST",
 
                                 headers: {
-
                                     "Content-Type":
                                         "text/plain;charset=utf-8"
-
                                 },
 
                                 body:
                                     JSON.stringify({
-
                                         action:
                                             "loginAdmin",
 
@@ -271,39 +650,31 @@
 
                                         password:
                                             password
-
                                     })
-
                             }
                         );
 
 
-                    console.log(
-                        "HTTP STATUS:",
-                        response.status
-                    );
-
+                    /* -----------------------------------------
+                       BACA RESPONSE
+                       ----------------------------------------- */
 
                     const text =
                         await response.text();
 
-
-                    console.log(
-                        "RESPON SERVER:",
-                        text
-                    );
-
-
                     let result;
-
 
                     try {
 
                         result =
                             JSON.parse(text);
 
-                    }
-                    catch (jsonError) {
+                    } catch (jsonError) {
+
+                        console.error(
+                            "Response server:",
+                            text
+                        );
 
                         throw new Error(
                             "Server mengirim respon yang tidak valid."
@@ -312,19 +683,11 @@
                     }
 
 
-                    console.log(
-                        "HASIL LOGIN:",
-                        result
-                    );
+                    /* -----------------------------------------
+                       LOGIN GAGAL
+                       ----------------------------------------- */
 
-
-                    // =================================================
-                    // LOGIN GAGAL
-                    // =================================================
-
-                    if (
-                        !result.success
-                    ) {
+                    if (!result.success) {
 
                         throw new Error(
                             result.message ||
@@ -334,13 +697,11 @@
                     }
 
 
-                    // =================================================
-                    // TOKEN TIDAK ADA
-                    // =================================================
+                    /* -----------------------------------------
+                       TOKEN TIDAK ADA
+                       ----------------------------------------- */
 
-                    if (
-                        !result.token
-                    ) {
+                    if (!result.token) {
 
                         throw new Error(
                             "Login berhasil tetapi token tidak diterima."
@@ -349,9 +710,9 @@
                     }
 
 
-                    // =================================================
-                    // SIMPAN TOKEN
-                    // =================================================
+                    /* -----------------------------------------
+                       SIMPAN TOKEN ADMIN
+                       ----------------------------------------- */
 
                     localStorage.setItem(
                         "MY_SOW_ADMIN_TOKEN",
@@ -359,22 +720,26 @@
                     );
 
 
-                    console.log(
-                        "TOKEN ADMIN TERSIMPAN."
+                    /* -----------------------------------------
+                       PESAN BERHASIL
+                       ----------------------------------------- */
+
+                    tampilkanPesanLogin(
+                        "Login berhasil. Membuka dashboard...",
+                        "success"
                     );
 
 
-                    pesanLogin.textContent =
-                        "✅ Login berhasil. Membuka dashboard...";
+                    /* -----------------------------------------
+                       BERSIHKAN PASSWORD
+                       ----------------------------------------- */
+
+                    kosongkanPassword();
 
 
-                    pesanLogin.style.color =
-                        "#16a34a";
-
-
-                    // =================================================
-                    // MASUK DASHBOARD
-                    // =================================================
+                    /* -----------------------------------------
+                       MASUK DASHBOARD
+                       ----------------------------------------- */
 
                     setTimeout(
                         function () {
@@ -384,69 +749,78 @@
                             );
 
                         },
-                        300
+                        350
                     );
 
-
                 }
-                catch (error) {
 
+
+                /* =================================================
+                   ERROR HANDLER
+                   ================================================= */
+
+                catch (error) {
 
                     console.error(
                         "ERROR LOGIN:",
                         error
                     );
 
-
-                    pesanLogin.textContent =
-                        "❌ " +
-                        error.message;
-
-
-                    pesanLogin.style.color =
-                        "#dc2626";
-
+                    tampilkanPesanLogin(
+                        error.message ||
+                        "Login gagal. Silakan coba lagi.",
+                        "error"
+                    );
 
                 }
-                finally {
 
+
+                /* =================================================
+                   AKTIFKAN KEMBALI TOMBOL
+                   ================================================= */
+
+                finally {
 
                     loginButton.disabled =
                         false;
 
-
                     loginButton.textContent =
                         "LOGIN";
-
 
                 }
 
             }
         );
-        // =====================================================
-        // TAHAP 15A.5
-        // BERSIHKAN PASSWORD SETELAH LOGOUT
-        // =====================================================
 
-        function kosongkanPassword() {
-            passwordInput.value = "";
-            passwordInput.setAttribute("value", "");
-        }
 
-        // Saat halaman login dibuka
+        /* =====================================================
+           09. BERSIHKAN PASSWORD SAAT HALAMAN DIBUKA
+           ===================================================== */
+
         kosongkanPassword();
 
-        // Saat kembali ke halaman login dari logout
-        window.addEventListener("pageshow", function () {
-            kosongkanPassword();
 
-            // Bersihkan lagi setelah browser selesai autofill
-            setTimeout(function () {
+        /* =====================================================
+           10. BERSIHKAN PASSWORD SAAT KEMBALI KE LOGIN
+           ===================================================== */
+
+        window.addEventListener(
+            "pageshow",
+            function () {
+
                 kosongkanPassword();
-            }, 300);
-        });
-    </script>
 
+            }
+        );
+
+
+        /* =====================================================
+           11. INISIALISASI
+           ===================================================== */
+
+        cekSessionLama();
+
+    </script>
 
 </body>
 

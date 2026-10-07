@@ -1,1299 +1,546 @@
-/* =========================================
-   GLOBAL
-========================================= */
+/* ============================================================
+   MY SOW BALI
+   ADMIN DASHBOARD
+   FILE : admin.css
+   VERSION : FINAL FIX
+   ============================================================
+
+   FUNGSI:
+   - Dashboard Admin
+   - Sidebar
+   - Statistik Order
+   - Filter Order
+   - Tabel Order
+   - Rekap Laporan
+   - Manajemen SOW
+   - Modal Detail Order
+   - Update Order
+   - Timeline Riwayat Status
+   - Responsive Desktop / Tablet / Mobile
+   - Print
+
+   CATATAN:
+   File ini adalah CSS utama Admin Dashboard.
+   Tidak membutuhkan CSS dashboard tambahan.
+   ============================================================ */
+
+
+/* ============================================================
+   01. GLOBAL
+   ============================================================ */
 
 * {
     box-sizing: border-box;
 }
 
+html {
+    scroll-behavior: smooth;
+}
 
 body {
     margin: 0;
+    padding: 0;
 
     font-family:
         Arial,
+        Helvetica,
         sans-serif;
 
-    background:
-        #f1f5f9;
+    background: #f1f5f9;
+    color: #1e293b;
+
+    min-height: 100vh;
+}
+
+button,
+input,
+select,
+textarea {
+    font-family: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+button:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+
+input,
+select,
+textarea {
+    outline: none;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: #2563eb !important;
+
+    box-shadow:
+        0 0 0 3px rgba(37, 99, 235, 0.10);
 }
 
 
-/* =========================================
-   DASHBOARD
-========================================= */
+/* ============================================================
+   02. DASHBOARD CONTAINER
+   ============================================================ */
 
 .dashboard-container {
-
     width: 100%;
-
     min-height: 100vh;
 
     padding: 25px;
-
 }
 
 
-/* =========================================
-   HEADER
-========================================= */
+/* ============================================================
+   03. HEADER DASHBOARD
+   ============================================================ */
 
 .dashboard-header {
+    display: flex;
 
-    background:
-        linear-gradient(135deg,
-            #0f172a,
-            #2563eb);
+    align-items: center;
+    justify-content: space-between;
 
-    color: white;
+    gap: 20px;
 
-    padding: 25px;
+    margin-bottom: 25px;
+    padding: 22px 25px;
 
     border-radius: 15px;
 
-    margin-bottom: 25px;
+    background:
+        linear-gradient(135deg,
+            #17365d,
+            #2f75b5);
 
+    color: #ffffff;
+
+    box-shadow:
+        0 5px 18px rgba(0, 0, 0, 0.12);
 }
-
-
-.dashboard-header h1 {
-
-    margin: 0;
-
-}
-
-
-.dashboard-header p {
-
-    margin-bottom: 0;
-
-    opacity: 0.8;
-
-}
-
-/* =========================================
-   TAHAP 11.5.4 - LOGO DASHBOARD
-========================================= */
 
 .dashboard-brand {
     display: flex;
+
     align-items: center;
+
     gap: 18px;
+
+    min-width: 0;
 }
 
 .dashboard-logo {
-    width: 75px;
-    height: 75px;
+    width: 72px;
+    height: 72px;
+
     object-fit: contain;
+
     flex-shrink: 0;
-    filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.25));
+
+    filter:
+        drop-shadow(0 5px 10px rgba(0, 0, 0, 0.25));
 }
 
 .dashboard-brand-text {
     display: flex;
     flex-direction: column;
+
     justify-content: center;
+
+    min-width: 0;
 }
 
 .dashboard-brand-text h1 {
     margin: 0;
+
+    font-size: 25px;
+    line-height: 1.25;
+
+    letter-spacing: 0.2px;
 }
 
 .dashboard-brand-text p {
-    margin-top: 6px;
-    margin-bottom: 0;
+    margin: 7px 0 0;
+
+    font-size: 14px;
+
+    opacity: 0.88;
 }
 
 
-/* =========================================
-   RESPONSIVE HP
-========================================= */
+/* ============================================================
+   04. LOGOUT
+   ============================================================ */
 
-@media (max-width: 600px) {
+#logoutButton {
+    flex-shrink: 0;
 
-    .dashboard-brand {
-        gap: 10px;
-    }
+    border: 1px solid rgba(255, 255, 255, 0.25);
 
-    .dashboard-logo {
-        width: 55px;
-        height: 55px;
-    }
+    border-radius: 9px;
 
-    .dashboard-brand-text h1 {
-        font-size: 20px;
-    }
+    padding: 11px 17px;
 
-    .dashboard-brand-text p {
-        font-size: 12px;
-    }
+    background:
+        rgba(255, 255, 255, 0.12);
+
+    color: #ffffff;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+
+#logoutButton:hover {
+    background:
+        rgba(255, 255, 255, 0.22);
+
+    transform: translateY(-1px);
 }
 
 
-/* =========================================
-   STATISTIK
-========================================= */
+/* ============================================================
+   05. STATISTIK DASHBOARD
+   ============================================================ */
 
 .stats-container {
-
     display: grid;
 
     grid-template-columns:
-        repeat(4, 1fr);
+        repeat(4, minmax(0, 1fr));
 
     gap: 20px;
 
     margin-bottom: 25px;
-
 }
 
-
 .stat-card {
-
-    background: white;
-
     padding: 20px;
+
+    background: #ffffff;
 
     border-radius: 15px;
 
     box-shadow:
-        0 5px 15px rgba(0, 0, 0, 0.08);
+        0 5px 15px rgba(0, 0, 0, 0.07);
 
+    border:
+        1px solid #e2e8f0;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
 }
 
+.stat-card:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 8px 22px rgba(0, 0, 0, 0.10);
+}
 
 .stat-card span {
+    display: block;
 
-    font-size: 14px;
+    margin-bottom: 8px;
 
     color: #64748b;
 
+    font-size: 13px;
+    font-weight: 600;
 }
-
 
 .stat-card h2 {
+    margin: 0;
 
-    margin-bottom: 0;
+    color: #0f172a;
 
     font-size: 30px;
-
+    line-height: 1;
 }
 
 
-/* =========================================
-   FILTER
-========================================= */
+/* ============================================================
+   06. FILTER ORDER
+   ============================================================ */
 
 .filter-container {
+    display: flex;
 
-    background: white;
+    flex-wrap: wrap;
+    align-items: center;
 
-    padding: 20px;
+    gap: 12px;
+
+    margin-bottom: 25px;
+    padding: 18px;
+
+    background: #ffffff;
 
     border-radius: 15px;
 
-    display: flex;
+    border:
+        1px solid #e2e8f0;
 
-    gap: 15px;
-
-    flex-wrap: wrap;
-
-    margin-bottom: 25px;
-
+    box-shadow:
+        0 5px 15px rgba(0, 0, 0, 0.05);
 }
 
-
 .filter-container input,
-.filter-container select,
-.filter-container button {
+.filter-container select {
+    min-width: 190px;
 
-    padding: 12px;
+    height: 44px;
 
-    border-radius: 8px;
+    padding:
+        0 13px;
 
     border:
         1px solid #cbd5e1;
 
+    border-radius: 8px;
+
+    background: #ffffff;
+
+    color: #334155;
+
+    font-size: 14px;
 }
-
-
-.filter-container input,
-.filter-container select {
-
-    min-width: 200px;
-
-}
-
 
 .filter-container button {
+    height: 44px;
 
+    padding:
+        0 16px;
+
+    border:
+        1px solid transparent;
+
+    border-radius: 8px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+
+#searchButton {
     background: #2563eb;
+    color: #ffffff;
+}
 
-    color: white;
+#searchButton:hover {
+    background: #1d4ed8;
 
-    border: none;
+    transform: translateY(-1px);
+}
 
-    cursor: pointer;
+#resetFilter {
+    background: #f1f5f9;
 
+    border-color:
+        #cbd5e1;
+
+    color: #334155;
+}
+
+#resetFilter:hover {
+    background: #e2e8f0;
 }
 
 
-/* =========================================
-   TABLE
-========================================= */
+/* ============================================================
+   07. TABEL ORDER
+   ============================================================ */
 
 .table-container {
+    width: 100%;
 
-    background: white;
+    margin-bottom: 25px;
+    padding: 20px;
+
+    background: #ffffff;
 
     border-radius: 15px;
 
-    padding: 20px;
+    border:
+        1px solid #e2e8f0;
 
-    overflow-x: auto;
+    box-shadow:
+        0 5px 15px rgba(0, 0, 0, 0.05);
 
+    overflow: hidden;
 }
 
-
-table {
-
+.table-wrapper {
     width: 100%;
 
-    border-collapse: collapse;
-
-    min-width: 900px;
-
+    overflow-x: auto;
 }
 
+.table-container table {
+    width: 100%;
 
-th {
+    min-width: 950px;
+
+    border-collapse: collapse;
+}
+
+.table-container th {
+    padding: 13px 12px;
 
     background: #0f172a;
 
-    color: white;
+    color: #ffffff;
 
-}
-
-
-th,
-td {
-
-    padding: 14px;
+    font-size: 12px;
+    font-weight: 700;
 
     text-align: left;
+
+    white-space: nowrap;
+}
+
+.table-container td {
+    padding: 12px;
 
     border-bottom:
         1px solid #e2e8f0;
 
-}
-
-
-/* =========================================
-   MODAL DETAIL ORDER
-========================================= */
-
-.modal {
-
-    display: none;
-
-    position: fixed;
-
-    top: 0;
-
-    left: 0;
-
-    width: 100%;
-
-    height: 100%;
-
-    background:
-        rgba(0, 0, 0, 0.55);
-
-    z-index: 9999;
-
-    align-items: center;
-
-    justify-content: center;
-
-    padding: 20px;
-
-}
-
-
-.modal.show {
-
-    display: flex;
-
-}
-
-
-/* =========================================
-   MODAL CONTENT
-========================================= */
-
-.modal-content {
-
-    width: 90%;
-
-    max-width: 850px;
-
-    max-height: 90vh;
-
-    background: white;
-
-    border-radius: 14px;
-
-    box-shadow:
-        0 20px 50px rgba(0, 0, 0, 0.25);
-
-    overflow-y: auto;
-
-    overflow-x: hidden;
-
-}
-
-
-/* =========================================
-   HEADER MODAL
-========================================= */
-
-.modal-header {
-
-    display: flex;
-
-    justify-content: space-between;
-
-    align-items: center;
-
-    padding: 20px 25px;
-
-    background:
-        linear-gradient(135deg,
-            #16213e,
-            #3159b8);
-
-    color: white;
-
-    position: sticky;
-
-    top: 0;
-
-    z-index: 10;
-
-}
-
-
-.modal-header h2 {
-
-    margin: 0;
-
-    font-size: 24px;
-
-}
-
-
-.modal-header p {
-
-    margin-top: 5px;
-
-    margin-bottom: 0;
+    color: #334155;
 
     font-size: 13px;
 
-    opacity: 0.85;
+    vertical-align: middle;
+}
 
+.table-container tbody tr {
+    transition:
+        background 0.15s ease;
+}
+
+.table-container tbody tr:hover {
+    background: #f8fafc;
+}
+
+.table-container tbody tr:nth-child(even) {
+    background: #fcfdff;
+}
+
+.table-container tbody tr:nth-child(even):hover {
+    background: #f8fafc;
 }
 
 
-/* =========================================
-   TOMBOL X
-========================================= */
+/* ============================================================
+   08. TOMBOL AKSI ORDER
+   ============================================================ */
 
-.close-modal {
-
+.btn-detail-order,
+.btn-detail,
+.btn-lihat-order {
     border: none;
 
-    background: transparent;
+    border-radius: 7px;
 
-    color: white;
+    padding: 7px 11px;
 
-    font-size: 28px;
+    background: #2563eb;
 
-    cursor: pointer;
-
-    padding: 5px 10px;
-
-}
-
-
-/* =========================================
-   BODY MODAL
-========================================= */
-
-.modal-body {
-
-    display: grid;
-
-    grid-template-columns:
-        repeat(2, 1fr);
-
-    gap: 12px;
-
-    padding: 25px;
-
-}
-
-
-/* =========================================
-   DETAIL ITEM
-========================================= */
-
-.detail-item {
-
-    background: #f5f7fb;
-
-    border:
-        1px solid #e3e7ef;
-
-    border-radius: 10px;
-
-    padding: 15px;
-
-}
-
-
-.detail-full {
-
-    grid-column:
-        span 2;
-
-}
-
-
-.detail-label {
-
-    display: block;
+    color: #ffffff;
 
     font-size: 12px;
-
-    font-weight: bold;
-
-    color: #6b7280;
-
-    margin-bottom: 7px;
-
-    text-transform: uppercase;
-
-}
-
-
-.detail-value {
-
-    font-size: 15px;
-
-    color: #1f2937;
-
-    font-weight: 500;
-
-}
-
-
-/* =========================================
-   DESKRIPSI
-========================================= */
-
-.detail-description {
-
-    background: white;
-
-    padding: 12px;
-
-    border-radius: 7px;
-
-    border:
-        1px solid #e5e7eb;
-
-    white-space: pre-wrap;
-
-    line-height: 1.6;
-
-}
-
-
-/* =========================================
-   STATUS
-========================================= */
-
-.detail-status {
-
-    display: inline-block;
-
-    padding: 6px 14px;
-
-    border-radius: 20px;
-
-    background: #e5e7eb;
-
-    font-weight: bold;
-
-}
-
-
-/* =========================================
-   RIWAYAT STATUS
-========================================= */
-
-.detail-history {
-
-    background: white;
-
-    border-left:
-        4px solid #3159b8;
-
-    padding: 15px;
-
-    white-space: pre-wrap;
-
-    line-height: 1.8;
-
-    border-radius: 5px;
-
-}
-
-
-/* =========================================
-   UPDATE ORDER
-========================================= */
-
-.update-order-section {
-
-    margin:
-        0 25px 25px 25px;
-
-    padding: 20px;
-
-    background:
-        #f5f7fb;
-
-    border:
-        1px solid #d7dce5;
-
-    border-radius: 12px;
-
-}
-
-
-.update-order-section h3 {
-
-    margin:
-        0 0 18px 0;
-
-    font-size: 18px;
-
-    color: #1f2937;
-
-}
-
-
-/* =========================================
-   UPDATE ITEM
-========================================= */
-
-.update-item {
-
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 8px;
-
-    margin-bottom: 15px;
-
-}
-
-
-.update-item label {
-
-    font-size: 13px;
-
-    font-weight: 600;
-
-    color: #5b6573;
-
-}
-
-
-/* =========================================
-   SELECT UPDATE
-========================================= */
-
-.update-item select {
-
-    width: 100%;
-
-    padding: 12px 14px;
-
-    font-size: 15px;
-
-    border:
-        1px solid #cfd6e2;
-
-    border-radius: 8px;
-
-    outline: none;
-
-    background: white;
-
-}
-
-
-.update-item select:focus {
-
-    border-color: #3159a6;
-
-}
-
-
-/* =========================================
-   TEXTAREA CATATAN PROGRES
-========================================= */
-
-.update-item textarea {
-
-    width: 100%;
-
-    min-height: 100px;
-
-    padding: 12px 14px;
-
-    font-family: Arial, sans-serif;
-
-    font-size: 14px;
-
-    border:
-        1px solid #cfd6e2;
-
-    border-radius: 8px;
-
-    outline: none;
-
-    resize: vertical;
-
-    background: white;
-
-}
-
-
-.update-item textarea:focus {
-
-    border-color: #3159a6;
-
-}
-
-
-/* =========================================
-   TOMBOL SIMPAN UPDATE
-========================================= */
-
-#saveUpdateButton {
-
-    margin-top: 5px;
-
-    padding: 12px 22px;
-
-    border: none;
-
-    border-radius: 8px;
-
-    background: #3159a6;
-
-    color: white;
-
-    font-size: 14px;
-
     font-weight: 600;
 
     cursor: pointer;
+}
 
+.btn-detail-order:hover,
+.btn-detail:hover,
+.btn-lihat-order:hover {
+    background: #1d4ed8;
 }
 
 
-#saveUpdateButton:hover {
-
-    opacity: 0.9;
-
-}
-
-
-/* =========================================
-   FOOTER MODAL
-========================================= */
-
-.modal-footer {
-
-    padding: 18px 25px;
-
-    border-top:
-        1px solid #e5e7eb;
-
-    display: flex;
-
-    justify-content: flex-end;
-
-    background: white;
-
-    position: sticky;
-
-    bottom: 0;
-
-    z-index: 10;
-
-}
-
-
-.btn-close {
-
-    border: none;
-
-    background: #3159b8;
-
-    color: white;
-
-    padding: 10px 25px;
-
-    border-radius: 7px;
-
-    cursor: pointer;
-
-    font-size: 14px;
-
-}
-
-
-.btn-close:hover {
-
-    opacity: 0.9;
-
-}
-
-
-/* =========================================
-   RESPONSIVE TABLET
-========================================= */
-
-@media (max-width: 900px) {
-
-    .stats-container {
-
-        grid-template-columns:
-            repeat(2, 1fr);
-
-    }
-
-}
-
-
-/* =========================================
-   RESPONSIVE MOBILE
-========================================= */
-
-@media (max-width: 700px) {
-
-    .modal {
-
-        padding: 10px;
-
-    }
-
-
-    .modal-content {
-
-        width: 100%;
-
-        max-height: 95vh;
-
-    }
-
-
-    .modal-body {
-
-        grid-template-columns:
-            1fr;
-
-        padding: 15px;
-
-    }
-
-
-    .detail-full {
-
-        grid-column:
-            span 1;
-
-    }
-
-
-    .update-order-section {
-
-        margin:
-            0 15px 20px 15px;
-
-        padding: 15px;
-
-    }
-
-
-    .modal-header {
-
-        padding: 15px;
-
-    }
-
-
-    .modal-footer {
-
-        padding: 15px;
-
-    }
-
-}
-
-
-@media (max-width: 600px) {
-
-    .dashboard-container {
-
-        padding: 15px;
-
-    }
-
-
-    .stats-container {
-
-        grid-template-columns:
-            1fr;
-
-    }
-
-
-    .filter-container {
-
-        flex-direction: column;
-
-    }
-
-
-    .filter-container input,
-    .filter-container select,
-    .filter-container button {
-
-        width: 100%;
-
-    }
-
-}
-
-
-
-
-/* =========================================
-   TAHAP 4.9
-   TIMELINE RIWAYAT STATUS
-========================================= */
-
-
-/* =========================================
-   CONTAINER TIMELINE
-========================================= */
-
-.riwayat-timeline {
-
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 0;
-
-    width: 100%;
-
-}
-
-
-/* =========================================
-   ITEM TIMELINE
-========================================= */
-
-.timeline-item {
-
-    display: flex;
-
-    align-items: flex-start;
-
-    width: 100%;
-
-    min-height: 70px;
-
-    position: relative;
-
-}
-
-
-/* =========================================
-   MARKER KIRI
-========================================= */
-
-.timeline-marker {
-
-    width: 35px;
-
-    min-width: 35px;
-
-    display: flex;
-
-    flex-direction: column;
-
-    align-items: center;
-
-    position: relative;
-
-    height: 100%;
-
-}
-
-
-/* =========================================
-   TITIK TIMELINE
-========================================= */
-
-.timeline-dot {
-
-    width: 14px;
-
-    height: 14px;
-
-    border-radius: 50%;
-
-    background: #64748b;
-
-    margin-top: 8px;
-
-    z-index: 2;
-
-    border: 3px solid white;
-
-    box-shadow:
-        0 0 0 2px #cbd5e1;
-
-}
-
-
-/* =========================================
-   GARIS TIMELINE
-========================================= */
-
-.timeline-line {
-
-    width: 2px;
-
-    background: #cbd5e1;
-
-    flex: 1;
-
-    min-height: 45px;
-
-    margin-top: 2px;
-
-}
-
-
-/* =========================================
-   HILANGKAN GARIS ITEM TERAKHIR
-========================================= */
-
-.timeline-item:last-child .timeline-line {
-
-    display: none;
-
-}
-
-
-/* =========================================
-   CONTENT TIMELINE
-========================================= */
-
-.timeline-content {
-
-    flex: 1;
-
-    min-width: 0;
-
-    padding:
-
-        0 0 20px 8px;
-
-}
-
-
-/* =========================================
-   STATUS TIMELINE
-========================================= */
-
-.timeline-status {
-
+/* ============================================================
+   09. STATUS ORDER
+   ============================================================ */
+
+.status-badge {
     display: inline-flex;
 
     align-items: center;
-
     justify-content: center;
-
-    width: auto;
 
     min-width: 75px;
 
-    padding:
-
-        6px 14px;
+    padding: 5px 10px;
 
     border-radius: 20px;
 
-    font-size: 12px;
+    font-size: 11px;
+    font-weight: 700;
+}
 
-    font-weight: bold;
+.status-open,
+.status-badge.open {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
 
-    letter-spacing: 0.5px;
+.status-proses,
+.status-badge.proses {
+    background: #fef3c7;
+    color: #92400e;
+}
 
-    margin-bottom: 6px;
-
-    color: white;
-
+.status-selesai,
+.status-badge.selesai {
+    background: #dcfce7;
+    color: #166534;
 }
 
 
-/* =========================================
-   STATUS OPEN
-========================================= */
-
-.timeline-status.open {
-
-    background: #64748b;
-
-}
-
-
-/* =========================================
-   STATUS PROSES
-========================================= */
-
-.timeline-status.proses {
-
-    background: #2563eb;
-
-}
-
-
-/* =========================================
-   STATUS SELESAI
-========================================= */
-
-.timeline-status.selesai {
-
-    background: #16a34a;
-
-}
-
-
-/* =========================================
-   WARNA TITIK OPEN
-========================================= */
-
-.timeline-item.open .timeline-dot {
-
-    background: #64748b;
-
-}
-
-
-/* =========================================
-   WARNA TITIK PROSES
-========================================= */
-
-.timeline-item.proses .timeline-dot {
-
-    background: #2563eb;
-
-}
-
-
-/* =========================================
-   WARNA TITIK SELESAI
-========================================= */
-
-.timeline-item.selesai .timeline-dot {
-
-    background: #16a34a;
-
-}
-
-
-/* =========================================
-   WAKTU TIMELINE
-========================================= */
-
-.timeline-time {
-
-    font-size: 12px;
-
-    color: #64748b;
-
-    margin-bottom: 6px;
-
-    font-weight: 500;
-
-}
-
-
-/* =========================================
-   DETAIL RIWAYAT
-========================================= */
-
-.timeline-detail {
-
-    font-size: 14px;
-
-    color: #334155;
-
-    line-height: 1.6;
-
-    word-break: break-word;
-
-}
-
-
-/* =========================================
-   PERBAIKAN DETAIL HISTORY
-========================================= */
-
-.detail-history {
-
-    white-space: normal;
-
-    overflow: hidden;
-
-}
-
-
-/* =========================================
-   JIKA BELUM ADA RIWAYAT
-========================================= */
-
-.timeline-empty {
-
-    padding: 15px;
-
-    color: #64748b;
-
-    font-style: italic;
-
-    text-align: center;
-
-}
-
-
-/* =========================================
-   RESPONSIVE MOBILE TIMELINE
-========================================= */
-
-@media (max-width: 600px) {
-
-    .timeline-marker {
-
-        width: 30px;
-
-        min-width: 30px;
-
-    }
-
-
-    .timeline-content {
-
-        padding-left: 5px;
-
-    }
-
-
-    .timeline-status {
-
-        font-size: 11px;
-
-        min-width: 65px;
-
-    }
-
-}
-
-/* =========================================
-   TAHAP 11.5.4 - RAPIIKAN HEADER DASHBOARD
-========================================= */
-
-.dashboard-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-}
-
-.dashboard-header #logoutButton {
-    flex-shrink: 0;
-}
-
-
-/* =========================================
-   RESPONSIVE HP
-========================================= */
-
-@media (max-width: 600px) {
-
-    .dashboard-header {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .dashboard-brand {
-        width: 100%;
-    }
-
-    .dashboard-header #logoutButton {
-        align-self: flex-end;
-    }
-}
-
-/* =====================================================
-   TAHAP B.2.2 - REKAP LAPORAN
-===================================================== */
-
-/* =========================================
-   CONTAINER REKAP
-========================================= */
+/* ============================================================
+   10. REKAP LAPORAN
+   ============================================================ */
 
 .rekap-container {
-    background: white;
-    padding: 20px;
-    border-radius: 15px;
+    width: 100%;
+
     margin-bottom: 25px;
+    padding: 22px;
+
+    background: #ffffff;
+
+    border-radius: 15px;
+
+    border:
+        1px solid #e2e8f0;
 
     box-shadow:
-        0 5px 15px rgba(0, 0, 0, 0.08);
+        0 5px 15px rgba(0, 0, 0, 0.06);
+
+    scroll-margin-top: 25px;
 }
-
-
-/* =========================================
-   HEADER REKAP
-========================================= */
 
 .rekap-header {
     display: flex;
+
     align-items: center;
     justify-content: space-between;
+
+    gap: 20px;
 
     margin-bottom: 20px;
 }
@@ -1301,43 +548,42 @@ td {
 .rekap-header h2 {
     margin: 0;
 
-    font-size: 22px;
     color: #0f172a;
+
+    font-size: 22px;
 }
 
 .rekap-header p {
-    margin-top: 6px;
-    margin-bottom: 0;
+    margin: 7px 0 0;
 
-    font-size: 14px;
     color: #64748b;
+
+    font-size: 13px;
+    line-height: 1.5;
 }
 
 
-/* =========================================
-   MENU PERIODE
-========================================= */
+/* ============================================================
+   11. MENU PERIODE REKAP
+   ============================================================ */
 
 .rekap-menu {
     display: flex;
-    gap: 10px;
 
     flex-wrap: wrap;
 
-    margin-bottom: 20px;
+    gap: 10px;
+
+    margin-bottom: 18px;
 }
 
-
-/* =========================================
-   TOMBOL PERIODE
-========================================= */
-
 .rekap-period-button {
-    padding: 11px 18px;
+    padding: 10px 17px;
+
+    border:
+        1px solid #cbd5e1;
 
     border-radius: 8px;
-
-    border: 1px solid #cbd5e1;
 
     background: #f8fafc;
 
@@ -1345,8 +591,6 @@ td {
 
     font-size: 14px;
     font-weight: 600;
-
-    cursor: pointer;
 
     transition:
         background 0.2s ease,
@@ -1355,49 +599,45 @@ td {
         transform 0.2s ease;
 }
 
-
-/* HOVER */
-
 .rekap-period-button:hover {
-    border-color: #2563eb;
+    background: #eaf3fb;
 
-    color: #2563eb;
+    border-color: #93c5fd;
 
-    transform: translateY(-1px);
+    color: #17365d;
 }
-
-
-/* AKTIF */
 
 .rekap-period-button.active {
-    background: #2563eb;
+    background:
+        linear-gradient(135deg,
+            #17365d,
+            #2f75b5);
 
-    color: white;
+    border-color: #17365d;
 
-    border-color: #2563eb;
+    color: #ffffff;
+
+    box-shadow:
+        0 4px 10px rgba(23, 54, 93, 0.18);
 }
 
 
-/* =========================================
-   FORM PERIODE
-========================================= */
+/* ============================================================
+   12. FORM PERIODE REKAP
+   ============================================================ */
 
 .rekap-period-form {
+    padding: 18px;
+
+    margin-bottom: 18px;
+
     background: #f8fafc;
 
-    border: 1px solid #e2e8f0;
+    border:
+        1px solid #e2e8f0;
 
     border-radius: 10px;
-
-    padding: 15px;
-
-    margin-bottom: 15px;
 }
-
-
-/* =========================================
-   INFO PERIODE
-========================================= */
 
 .rekap-info {
     display: flex;
@@ -1405,12 +645,14 @@ td {
     flex-direction: column;
 
     gap: 5px;
+
+    margin-bottom: 15px;
 }
 
 .rekap-info strong {
     color: #0f172a;
 
-    font-size: 14px;
+    font-size: 15px;
 }
 
 .rekap-info span {
@@ -1419,51 +661,11 @@ td {
     font-size: 13px;
 }
 
-
-/* =========================================
-   INPUT PERIODE
-========================================= */
-
-.rekap-period-form input,
-.rekap-period-form select {
-    width: 100%;
-
-    padding: 12px;
-
-    border-radius: 8px;
-
-    border: 1px solid #cbd5e1;
-
-    background: white;
-
-    color: #334155;
-
-    font-size: 14px;
-
-    outline: none;
-}
-
-
-/* FOCUS */
-
-.rekap-period-form input:focus,
-.rekap-period-form select:focus {
-    border-color: #2563eb;
-
-    box-shadow:
-        0 0 0 3px rgba(37, 99, 235, 0.10);
-}
-
-
-/* =========================================
-   GROUP INPUT PERIODE
-========================================= */
-
 .rekap-input-group {
     display: grid;
 
     grid-template-columns:
-        repeat(2, 1fr);
+        repeat(2, minmax(0, 1fr));
 
     gap: 15px;
 }
@@ -1473,50 +675,78 @@ td {
 
     flex-direction: column;
 
-    gap: 6px;
+    gap: 7px;
 }
 
 .rekap-input-item label {
-    font-size: 13px;
+    color: #334155;
 
+    font-size: 13px;
     font-weight: 600;
+}
+
+.rekap-input-item input,
+.rekap-input-item select,
+.rekap-period-form input,
+.rekap-period-form select {
+    width: 100%;
+
+    min-height: 43px;
+
+    padding:
+        9px 12px;
+
+    border:
+        1px solid #cbd5e1;
+
+    border-radius: 8px;
+
+    background: #ffffff;
 
     color: #334155;
+
+    font-size: 14px;
 }
 
 
-/* =========================================
-   TOMBOL TAMPILKAN REKAP
-========================================= */
+/* ============================================================
+   13. AKSI REKAP
+   ============================================================ */
 
 .rekap-action {
     display: flex;
 
     justify-content: flex-end;
+    align-items: center;
+
+    gap: 10px;
 
     margin-bottom: 20px;
 }
 
-#tampilkanRekapButton {
-    padding: 12px 20px;
+#tampilkanRekapButton,
+#downloadRekapExcelButton {
+    min-height: 43px;
 
-    border-radius: 8px;
+    padding:
+        0 18px;
 
     border: none;
 
-    background: #2563eb;
+    border-radius: 8px;
 
-    color: white;
+    color: #ffffff;
 
     font-size: 14px;
-
     font-weight: 600;
-
-    cursor: pointer;
 
     transition:
         background 0.2s ease,
         transform 0.2s ease;
+}
+
+#tampilkanRekapButton {
+    background: #2563eb;
 }
 
 #tampilkanRekapButton:hover {
@@ -1525,36 +755,38 @@ td {
     transform: translateY(-1px);
 }
 
-#tampilkanRekapButton:active {
-    transform: translateY(0);
+#downloadRekapExcelButton {
+    background: #16a34a;
+}
+
+#downloadRekapExcelButton:hover {
+    background: #15803d;
+
+    transform: translateY(-1px);
 }
 
 
-/* =========================================
-   HASIL REKAP
-========================================= */
+/* ============================================================
+   14. HASIL REKAP
+   ============================================================ */
 
 .rekap-result {
     width: 100%;
 }
 
-
-/* =========================================
-   KONDISI KOSONG
-========================================= */
-
 .rekap-empty {
-    text-align: center;
-
     padding: 35px 20px;
+
+    border:
+        1px dashed #cbd5e1;
 
     border-radius: 10px;
 
     background: #f8fafc;
 
-    border: 1px dashed #cbd5e1;
-
     color: #64748b;
+
+    text-align: center;
 }
 
 .rekap-empty> :first-child {
@@ -1562,9 +794,8 @@ td {
 }
 
 .rekap-empty h3 {
-    margin-top: 10px;
-
-    margin-bottom: 5px;
+    margin:
+        10px 0 5px;
 
     color: #334155;
 
@@ -1575,18 +806,19 @@ td {
     margin: 0;
 
     font-size: 13px;
+    line-height: 1.5;
 }
 
 
-/* =========================================
-   CARD STATISTIK REKAP
-========================================= */
+/* ============================================================
+   15. STATISTIK REKAP
+   ============================================================ */
 
 .rekap-stat-container {
     display: grid;
 
     grid-template-columns:
-        repeat(5, 1fr);
+        repeat(5, minmax(0, 1fr));
 
     gap: 15px;
 
@@ -1594,13 +826,14 @@ td {
 }
 
 .rekap-stat-card {
-    background: white;
+    padding: 18px;
 
-    border: 1px solid #e2e8f0;
+    background: #ffffff;
+
+    border:
+        1px solid #e2e8f0;
 
     border-radius: 10px;
-
-    padding: 18px;
 
     box-shadow:
         0 3px 10px rgba(0, 0, 0, 0.05);
@@ -1609,78 +842,73 @@ td {
 .rekap-stat-card span {
     display: block;
 
-    font-size: 13px;
+    margin-bottom: 8px;
 
     color: #64748b;
 
-    margin-bottom: 8px;
+    font-size: 13px;
 }
 
 .rekap-stat-card strong {
     display: block;
 
-    font-size: 26px;
-
     color: #0f172a;
+
+    font-size: 26px;
 }
 
 
-/* =========================================
-   WRAPPER TABEL REKAP
-========================================= */
+/* ============================================================
+   16. TABEL REKAP
+   ============================================================ */
 
 .rekap-table-container {
-    background: white;
+    width: 100%;
+
+    margin-bottom: 20px;
+
+    background: #ffffff;
+
+    border:
+        1px solid #e2e8f0;
 
     border-radius: 10px;
 
-    border: 1px solid #e2e8f0;
-
     overflow-x: auto;
-
-    margin-bottom: 20px;
 }
-
-
-/* =========================================
-   JUDUL TABEL REKAP
-========================================= */
 
 .rekap-table-title {
     padding: 15px 18px;
 
-    border-bottom: 1px solid #e2e8f0;
-
-    font-size: 16px;
-
-    font-weight: 700;
+    border-bottom:
+        1px solid #e2e8f0;
 
     color: #0f172a;
+
+    font-size: 16px;
+    font-weight: 700;
 }
-
-
-/* =========================================
-   TABEL REKAP
-========================================= */
 
 .rekap-table {
     width: 100%;
 
-    border-collapse: collapse;
+    min-width: 600px;
 
-    min-width: 500px;
+    border-collapse: collapse;
 }
 
 .rekap-table th {
+    padding: 12px 14px;
+
     background: #0f172a;
 
-    color: white;
+    color: #ffffff;
 
-    padding: 12px 14px;
+    font-size: 13px;
 
     text-align: left;
 
-    font-size: 13px;
+    white-space: nowrap;
 }
 
 .rekap-table td {
@@ -1692,16 +920,13 @@ td {
     color: #334155;
 
     font-size: 13px;
+
+    vertical-align: top;
 }
 
 .rekap-table tbody tr:hover {
     background: #f8fafc;
 }
-
-
-/* =========================================
-   ANGKA TOTAL
-========================================= */
 
 .rekap-total-row {
     background: #f8fafc;
@@ -1714,465 +939,337 @@ td {
 }
 
 
-/* =========================================
-   RESPONSIVE TABLET
-========================================= */
-
-@media (max-width: 900px) {
-
-    .rekap-stat-container {
-        grid-template-columns:
-            repeat(3, 1fr);
-    }
-
-}
-
-
-/* =========================================
-   RESPONSIVE HP
-========================================= */
-
-@media (max-width: 600px) {
-
-    .rekap-container {
-        padding: 15px;
-    }
-
-
-    .rekap-header {
-        align-items: flex-start;
-
-        flex-direction: column;
-    }
-
-
-    .rekap-header h2 {
-        font-size: 19px;
-    }
-
-
-    .rekap-header p {
-        font-size: 12px;
-
-        line-height: 1.5;
-    }
-
-
-    .rekap-menu {
-        display: grid;
-
-        grid-template-columns:
-            repeat(2, 1fr);
-
-        gap: 8px;
-    }
-
-
-    .rekap-period-button {
-        width: 100%;
-
-        padding: 11px 8px;
-
-        font-size: 13px;
-    }
-
-
-    .rekap-period-form {
-        padding: 12px;
-    }
-
-
-    .rekap-input-group {
-        grid-template-columns: 1fr;
-    }
-
-
-    .rekap-action {
-        display: block;
-    }
-
-
-    #tampilkanRekapButton {
-        width: 100%;
-    }
-
-
-    .rekap-stat-container {
-        grid-template-columns: 1fr;
-
-        gap: 10px;
-    }
-
-
-    .rekap-stat-card {
-        padding: 15px;
-    }
-
-
-    .rekap-stat-card strong {
-        font-size: 23px;
-    }
-
-
-    .rekap-table-container {
-        margin-left: 0;
-
-        margin-right: 0;
-    }
-
-}
-
-/* =====================================================
-   TAHAP 13
-   MANAJEMEN TEKNISI / SOW
-   ===================================================== */
+/* ============================================================
+   17. MANAJEMEN SOW
+   ============================================================ */
 
 .teknisi-container {
+    width: 100%;
 
-    margin-top: 24px;
+    margin-bottom: 25px;
+    padding: 22px;
 
     background: #ffffff;
 
-    border-radius: 14px;
+    border:
+        1px solid #e2e8f0;
 
-    padding: 22px;
+    border-radius: 15px;
 
     box-shadow:
-        0 4px 18px rgba(0, 0, 0, 0.08);
+        0 5px 15px rgba(0, 0, 0, 0.06);
 
+    scroll-margin-top: 25px;
 }
 
-
 .teknisi-header {
-
     display: flex;
 
-    justify-content: space-between;
-
     align-items: center;
+    justify-content: space-between;
 
     gap: 20px;
 
     margin-bottom: 20px;
-
 }
-
 
 .teknisi-header h2 {
+    margin: 0 0 6px;
 
-    margin: 0 0 6px 0;
+    color: #17365d;
 
-    color: #17365D;
-
+    font-size: 21px;
 }
-
 
 .teknisi-header p {
-
     margin: 0;
 
-    color: #666;
+    color: #64748b;
 
+    font-size: 13px;
+    line-height: 1.5;
 }
 
-
 .btn-tambah-teknisi {
+    flex-shrink: 0;
 
     border: none;
 
-    background: #2F75B5;
-
-    color: #ffffff;
+    border-radius: 8px;
 
     padding: 11px 18px;
 
-    border-radius: 8px;
-
-    cursor: pointer;
-
-    font-weight: 600;
-
-}
-
-
-.btn-tambah-teknisi:hover {
-
-    background: #17365D;
-
-}
-
-
-.teknisi-table-wrapper {
-
-    width: 100%;
-
-    overflow-x: auto;
-
-}
-
-
-.teknisi-table {
-
-    width: 100%;
-
-    border-collapse: collapse;
-
-}
-
-
-.teknisi-table th {
-
-    background: #2F75B5;
+    background: #2f75b5;
 
     color: #ffffff;
 
+    font-size: 14px;
+    font-weight: 600;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+
+.btn-tambah-teknisi:hover {
+    background: #17365d;
+
+    transform: translateY(-1px);
+}
+
+
+/* ============================================================
+   18. TABEL SOW
+   ============================================================ */
+
+.teknisi-table-wrapper {
+    width: 100%;
+
+    overflow-x: auto;
+}
+
+.teknisi-table {
+    width: 100%;
+
+    min-width: 700px;
+
+    border-collapse: collapse;
+}
+
+.teknisi-table th {
     padding: 12px;
+
+    background: #2f75b5;
+
+    color: #ffffff;
+
+    font-size: 13px;
 
     text-align: left;
 
+    white-space: nowrap;
 }
-
 
 .teknisi-table td {
-
     padding: 11px 12px;
 
-    border-bottom: 1px solid #e5e5e5;
+    border-bottom:
+        1px solid #e5e7eb;
 
+    color: #334155;
+
+    font-size: 13px;
+
+    vertical-align: middle;
 }
-
 
 .teknisi-table tbody tr:nth-child(even) {
-
-    background: #f7f9fc;
-
+    background: #f8fafc;
 }
 
+.teknisi-table tbody tr:hover {
+    background: #eef6ff;
+}
 
 .teknisi-loading {
-
-    text-align: center;
-
     padding: 25px !important;
 
-    color: #777;
+    color: #64748b;
 
+    text-align: center;
 }
 
 
-.status-teknisi {
+/* ============================================================
+   19. STATUS SOW
+   ============================================================ */
 
+.status-teknisi {
     display: inline-block;
 
     padding: 5px 11px;
 
     border-radius: 20px;
 
-    font-size: 12px;
-
+    font-size: 11px;
     font-weight: 700;
-
 }
-
 
 .status-teknisi.aktif {
+    background: #dcfce7;
 
-    background: #E2F0D9;
-
-    color: #38761D;
-
+    color: #166534;
 }
-
 
 .status-teknisi.nonaktif {
+    background: #fee2e2;
 
-    background: #F4CCCC;
-
-    color: #990000;
-
+    color: #991b1b;
 }
 
 
+/* ============================================================
+   20. AKSI SOW
+   ============================================================ */
+
 .aksi-teknisi {
-
     display: flex;
-
-    gap: 7px;
 
     flex-wrap: wrap;
 
+    gap: 7px;
 }
 
+.btn-edit-teknisi,
+.btn-status-teknisi {
+    border: none;
+
+    border-radius: 6px;
+
+    padding: 7px 11px;
+
+    color: #ffffff;
+
+    font-size: 12px;
+    font-weight: 600;
+}
 
 .btn-edit-teknisi {
-
-    border: none;
-
-    background: #5B9BD5;
-
-    color: white;
-
-    padding: 7px 11px;
-
-    border-radius: 6px;
-
-    cursor: pointer;
-
+    background: #5b9bd5;
 }
 
+.btn-edit-teknisi:hover {
+    background: #3f7fb8;
+}
 
 .btn-status-teknisi {
-
-    border: none;
-
-    background: #777;
-
-    color: white;
-
-    padding: 7px 11px;
-
-    border-radius: 6px;
-
-    cursor: pointer;
-
+    background: #64748b;
 }
-
 
 .btn-status-teknisi:hover {
-
-    opacity: 0.85;
-
+    background: #475569;
 }
 
 
-/* =====================================================
-   MODAL
-   ===================================================== */
+/* ============================================================
+   21. MODAL TAMBAH / EDIT SOW
+   ============================================================ */
 
 .teknisi-modal {
-
     display: none;
 
     position: fixed;
 
     inset: 0;
 
-    background: rgba(0, 0, 0, 0.45);
-
-    z-index: 9999;
+    z-index: 10000;
 
     align-items: center;
-
     justify-content: center;
 
     padding: 20px;
 
+    background:
+        rgba(0, 0, 0, 0.50);
 }
-
 
 .teknisi-modal.show {
-
     display: flex;
-
 }
 
-
 .teknisi-modal-content {
-
     width: 100%;
-
     max-width: 480px;
 
     background: #ffffff;
 
     border-radius: 14px;
 
-    box-shadow:
-        0 10px 40px rgba(0, 0, 0, 0.2);
-
     overflow: hidden;
 
+    box-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.25);
 }
 
-
 .teknisi-modal-header {
-
     display: flex;
 
-    justify-content: space-between;
-
     align-items: center;
+    justify-content: space-between;
 
     padding: 17px 20px;
 
-    background: #17365D;
+    background:
+        linear-gradient(135deg,
+            #17365d,
+            #2f75b5);
 
-    color: white;
-
+    color: #ffffff;
 }
-
 
 .teknisi-modal-header h3 {
-
     margin: 0;
 
+    font-size: 18px;
 }
 
-
 .teknisi-modal-close {
+    width: 36px;
+    height: 36px;
 
     border: none;
 
-    background: transparent;
+    border-radius: 7px;
 
-    color: white;
+    background:
+        rgba(255, 255, 255, 0.12);
+
+    color: #ffffff;
 
     font-size: 20px;
-
-    cursor: pointer;
-
 }
 
+.teknisi-modal-close:hover {
+    background:
+        rgba(255, 255, 255, 0.25);
+}
 
 .teknisi-modal-body {
-
     padding: 22px;
-
 }
 
-
 .teknisi-modal-body label {
-
     display: block;
 
     margin-bottom: 8px;
 
+    color: #334155;
+
+    font-size: 13px;
     font-weight: 600;
-
-    color: #333;
-
 }
 
-
 .teknisi-modal-body input[type="text"] {
-
     width: 100%;
 
-    box-sizing: border-box;
+    min-height: 44px;
 
-    padding: 12px;
+    padding:
+        10px 12px;
 
-    border: 1px solid #ccc;
+    border:
+        1px solid #cbd5e1;
 
     border-radius: 8px;
 
-    font-size: 15px;
+    background: #ffffff;
 
+    color: #334155;
+
+    font-size: 14px;
 }
 
-
 .teknisi-modal-footer {
-
     display: flex;
 
     justify-content: flex-end;
@@ -2181,153 +1278,622 @@ td {
 
     padding: 16px 20px;
 
-    background: #f5f7fa;
+    background: #f8fafc;
 
+    border-top:
+        1px solid #e2e8f0;
 }
 
+.btn-batal-teknisi,
+.btn-simpan-teknisi {
+    min-height: 40px;
+
+    padding:
+        0 16px;
+
+    border-radius: 7px;
+
+    font-size: 13px;
+    font-weight: 600;
+}
 
 .btn-batal-teknisi {
+    border:
+        1px solid #cbd5e1;
 
-    border: 1px solid #ccc;
+    background: #ffffff;
 
-    background: white;
-
-    padding: 10px 17px;
-
-    border-radius: 7px;
-
-    cursor: pointer;
-
+    color: #334155;
 }
 
+.btn-batal-teknisi:hover {
+    background: #f1f5f9;
+}
 
 .btn-simpan-teknisi {
-
     border: none;
 
-    background: #2F75B5;
+    background: #2f75b5;
 
-    color: white;
+    color: #ffffff;
+}
 
-    padding: 10px 17px;
-
-    border-radius: 7px;
-
-    cursor: pointer;
-
-    font-weight: 600;
-
+.btn-simpan-teknisi:hover {
+    background: #17365d;
 }
 
 
-/* =====================================================
-   MOBILE
-   ===================================================== */
+/* ============================================================
+   22. MODAL DETAIL ORDER
+   ============================================================ */
 
-@media (max-width: 700px) {
-
-    .teknisi-header {
-
-        flex-direction: column;
-
-        align-items: stretch;
-
-    }
-
-    .btn-tambah-teknisi {
-
-        width: 100%;
-
-    }
-
-    .teknisi-table th,
-    .teknisi-table td {
-
-        padding: 9px;
-
-        font-size: 13px;
-
-    }
-
-}
-
-/* =====================================================
-   TAHAP 13
-   SIDEBAR MENU ADMIN
-   ===================================================== */
-
-
-/* =====================================================
-   TOMBOL ☰
-   ===================================================== */
-
-.sidebar-menu-button {
+.modal {
+    display: none;
 
     position: fixed;
 
-    top: 20px;
+    inset: 0;
 
+    z-index: 10001;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background:
+        rgba(0, 0, 0, 0.55);
+}
+
+.modal.show {
+    display: flex;
+}
+
+.modal-content {
+    width: 90%;
+    max-width: 850px;
+
+    max-height: 90vh;
+
+    background: #ffffff;
+
+    border-radius: 14px;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    box-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.25);
+}
+
+
+/* ============================================================
+   23. HEADER MODAL DETAIL
+   ============================================================ */
+
+.modal-header {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding: 20px 25px;
+
+    position: sticky;
+
+    top: 0;
+
+    z-index: 5;
+
+    background:
+        linear-gradient(135deg,
+            #17365d,
+            #2f75b5);
+
+    color: #ffffff;
+}
+
+.modal-header h2 {
+    margin: 0;
+
+    font-size: 22px;
+}
+
+.modal-header p {
+    margin: 6px 0 0;
+
+    font-size: 13px;
+
+    opacity: 0.85;
+}
+
+.close-modal {
+    width: 38px;
+    height: 38px;
+
+    flex-shrink: 0;
+
+    border: none;
+
+    border-radius: 8px;
+
+    background:
+        rgba(255, 255, 255, 0.12);
+
+    color: #ffffff;
+
+    font-size: 22px;
+}
+
+.close-modal:hover {
+    background:
+        rgba(255, 255, 255, 0.25);
+}
+
+
+/* ============================================================
+   24. BODY DETAIL
+   ============================================================ */
+
+.modal-body {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 12px;
+
+    padding: 25px;
+}
+
+.detail-item {
+    padding: 15px;
+
+    background: #f8fafc;
+
+    border:
+        1px solid #e2e8f0;
+
+    border-radius: 10px;
+}
+
+.detail-full {
+    grid-column: span 2;
+}
+
+.detail-label {
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: #64748b;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.3px;
+}
+
+.detail-value {
+    color: #1e293b;
+
+    font-size: 14px;
+    font-weight: 500;
+
+    word-break: break-word;
+}
+
+.detail-description {
+    padding: 12px;
+
+    min-height: 45px;
+
+    background: #ffffff;
+
+    border:
+        1px solid #e2e8f0;
+
+    border-radius: 7px;
+
+    color: #334155;
+
+    font-size: 14px;
+
+    line-height: 1.6;
+
+    white-space: pre-wrap;
+
+    word-break: break-word;
+}
+
+.detail-status {
+    display: inline-flex;
+
+    align-items: center;
+
+    min-height: 30px;
+
+    padding:
+        5px 13px;
+
+    border-radius: 20px;
+
+    background: #e2e8f0;
+
+    color: #334155;
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+
+/* ============================================================
+   25. RIWAYAT STATUS / TIMELINE
+   ============================================================ */
+
+.detail-history {
+    width: 100%;
+
+    padding: 10px;
+
+    background: #ffffff;
+
+    border:
+        1px solid #e2e8f0;
+
+    border-radius: 8px;
+
+    overflow: hidden;
+}
+
+.riwayat-timeline {
+    display: flex;
+
+    flex-direction: column;
+
+    width: 100%;
+}
+
+.timeline-item {
+    display: flex;
+
+    align-items: flex-start;
+
+    width: 100%;
+
+    min-height: 70px;
+
+    position: relative;
+}
+
+.timeline-marker {
+    width: 35px;
+    min-width: 35px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    position: relative;
+
+    height: 100%;
+}
+
+.timeline-dot {
+    width: 14px;
+    height: 14px;
+
+    margin-top: 8px;
+
+    z-index: 2;
+
+    border:
+        3px solid #ffffff;
+
+    border-radius: 50%;
+
+    background: #64748b;
+
+    box-shadow:
+        0 0 0 2px #cbd5e1;
+}
+
+.timeline-line {
+    width: 2px;
+
+    flex: 1;
+
+    min-height: 45px;
+
+    margin-top: 2px;
+
+    background: #cbd5e1;
+}
+
+.timeline-content {
+    flex: 1;
+
+    padding:
+        4px 0 15px 8px;
+}
+
+.timeline-status {
+    display: inline-flex;
+
+    align-items: center;
+
+    min-width: 70px;
+
+    margin-bottom: 5px;
+
+    padding: 5px 9px;
+
+    border-radius: 15px;
+
+    background: #e2e8f0;
+
+    color: #334155;
+
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.timeline-time {
+    margin-bottom: 6px;
+
+    color: #64748b;
+
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.timeline-detail {
+    color: #334155;
+
+    font-size: 14px;
+
+    line-height: 1.6;
+
+    word-break: break-word;
+}
+
+.timeline-empty {
+    padding: 15px;
+
+    color: #64748b;
+
+    font-size: 13px;
+
+    font-style: italic;
+
+    text-align: center;
+}
+
+
+/* ============================================================
+   26. UPDATE ORDER
+   ============================================================ */
+
+.update-order-section {
+    margin:
+        0 25px 25px;
+
+    padding: 20px;
+
+    background: #f8fafc;
+
+    border:
+        1px solid #dbe3ed;
+
+    border-radius: 12px;
+}
+
+.update-order-section h3 {
+    margin:
+        0 0 18px;
+
+    color: #17365d;
+
+    font-size: 18px;
+}
+
+.update-item {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 8px;
+
+    margin-bottom: 15px;
+}
+
+.update-item label {
+    color: #475569;
+
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.update-item select,
+.update-item textarea {
+    width: 100%;
+
+    border:
+        1px solid #cbd5e1;
+
+    border-radius: 8px;
+
+    background: #ffffff;
+
+    color: #334155;
+
+    font-size: 14px;
+}
+
+.update-item select {
+    min-height: 44px;
+
+    padding:
+        0 12px;
+}
+
+.update-item textarea {
+    min-height: 105px;
+
+    padding:
+        11px 12px;
+
+    resize: vertical;
+
+    line-height: 1.5;
+}
+
+#saveUpdateButton {
+    min-height: 44px;
+
+    margin-top: 3px;
+
+    padding:
+        0 20px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    background: #2563eb;
+
+    color: #ffffff;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+
+#saveUpdateButton:hover {
+    background: #1d4ed8;
+
+    transform: translateY(-1px);
+}
+
+#saveUpdateButton:disabled {
+    transform: none;
+}
+
+
+/* ============================================================
+   27. FOOTER MODAL
+   ============================================================ */
+
+.modal-footer {
+    display: flex;
+
+    justify-content: flex-end;
+
+    padding:
+        17px 25px;
+
+    position: sticky;
+
+    bottom: 0;
+
+    z-index: 5;
+
+    background: #ffffff;
+
+    border-top:
+        1px solid #e5e7eb;
+}
+
+.btn-close {
+    min-height: 40px;
+
+    padding:
+        0 22px;
+
+    border: none;
+
+    border-radius: 7px;
+
+    background: #64748b;
+
+    color: #ffffff;
+
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.btn-close:hover {
+    background: #475569;
+}
+
+
+/* ============================================================
+   28. SIDEBAR ADMIN
+   ============================================================ */
+
+.sidebar-menu-button {
+    position: fixed;
+
+    top: 20px;
     left: 20px;
 
     width: 48px;
-
     height: 48px;
+
+    z-index: 10003;
 
     border: none;
 
     border-radius: 10px;
 
-    background: #17365D;
+    background: #17365d;
 
     color: #ffffff;
 
     font-size: 25px;
-
     line-height: 48px;
 
     text-align: center;
-
-    cursor: pointer;
-
-    z-index: 10001;
 
     box-shadow:
         0 4px 15px rgba(0, 0, 0, 0.20);
 
     transition:
-        0.2s ease;
-
+        background 0.2s ease,
+        transform 0.2s ease;
 }
-
 
 .sidebar-menu-button:hover {
-
-    background: #2F75B5;
+    background: #2f75b5;
 
     transform: scale(1.04);
-
 }
 
-
-/* =====================================================
-   SIDEBAR
-   ===================================================== */
-
 .admin-sidebar {
-
     position: fixed;
 
     top: 0;
-
     left: 0;
 
     width: 310px;
-
     height: 100vh;
 
-    background: #ffffff;
+    z-index: 10002;
 
-    z-index: 10000;
+    display: flex;
+
+    flex-direction: column;
+
+    background: #ffffff;
 
     box-shadow:
         6px 0 25px rgba(0, 0, 0, 0.18);
@@ -2337,95 +1903,69 @@ td {
 
     transition:
         transform 0.28s ease;
-
-    display: flex;
-
-    flex-direction: column;
-
 }
-
-
-/* SIDEBAR TERBUKA */
 
 .admin-sidebar.open {
-
     transform:
         translateX(0);
-
 }
 
 
-/* =====================================================
-   HEADER SIDEBAR
-   ===================================================== */
+/* ============================================================
+   29. SIDEBAR HEADER
+   ============================================================ */
 
 .sidebar-header {
-
     min-height: 82px;
 
     padding:
         16px 15px 16px 20px;
 
-    background:
-        linear-gradient(135deg,
-            #17365D,
-            #2F75B5);
-
-    color: #ffffff;
-
     display: flex;
 
     align-items: center;
-
     justify-content: space-between;
 
+    background:
+        linear-gradient(135deg,
+            #17365d,
+            #2f75b5);
+
+    color: #ffffff;
 }
 
-
 .sidebar-title {
-
     display: flex;
 
     align-items: center;
 
     gap: 12px;
-
 }
 
-
 .sidebar-title-icon {
-
     width: 40px;
-
     height: 40px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
 
     border-radius: 9px;
 
     background:
         rgba(255, 255, 255, 0.15);
 
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
     font-size: 20px;
-
 }
 
-
 .sidebar-title strong {
-
     display: block;
 
     font-size: 15px;
-
 }
 
-
 .sidebar-title small {
-
     display: block;
 
     margin-top: 4px;
@@ -2433,14 +1973,10 @@ td {
     opacity: 0.8;
 
     font-size: 11px;
-
 }
 
-
 .sidebar-close-button {
-
     width: 38px;
-
     height: 38px;
 
     border: none;
@@ -2453,38 +1989,36 @@ td {
     color: #ffffff;
 
     font-size: 20px;
-
-    cursor: pointer;
-
 }
-
 
 .sidebar-close-button:hover {
-
     background:
         rgba(255, 255, 255, 0.25);
-
 }
 
 
-/* =====================================================
-   MENU
-   ===================================================== */
+/* ============================================================
+   30. SIDEBAR MENU
+   ============================================================ */
 
 .sidebar-menu {
-
     flex: 1;
 
     padding: 20px 12px;
 
+    overflow-y: auto;
 }
 
-
 .sidebar-menu-item {
-
     width: 100%;
 
     min-height: 54px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 13px;
 
     margin-bottom: 8px;
 
@@ -2499,79 +2033,60 @@ td {
 
     color: #263238;
 
-    display: flex;
-
-    align-items: center;
-
-    gap: 13px;
-
     text-align: left;
 
     font-size: 14px;
-
     font-weight: 600;
-
-    cursor: pointer;
 
     transition:
         background 0.2s ease,
         color 0.2s ease,
         transform 0.2s ease;
-
 }
 
-
 .sidebar-menu-item:hover {
+    background: #eaf3fb;
 
-    background: #EAF3FB;
-
-    color: #17365D;
+    color: #17365d;
 
     transform:
         translateX(3px);
-
 }
 
-
 .sidebar-menu-item.active {
-
     background:
         linear-gradient(135deg,
-            #17365D,
-            #2F75B5);
+            #17365d,
+            #2f75b5);
 
     color: #ffffff;
 
     box-shadow:
         0 4px 12px rgba(23, 54, 93, 0.20);
-
 }
 
-
 .sidebar-menu-icon {
-
     width: 32px;
-
     height: 32px;
 
     display: flex;
 
     align-items: center;
-
     justify-content: center;
 
-    font-size: 19px;
+    flex-shrink: 0;
 
+    font-size: 19px;
 }
 
 
-/* =====================================================
-   FOOTER SIDEBAR
-   ===================================================== */
+/* ============================================================
+   31. SIDEBAR FOOTER
+   ============================================================ */
 
 .sidebar-footer {
-
-    padding: 18px 20px;
+    padding:
+        18px 20px;
 
     border-top:
         1px solid #e5e7eb;
@@ -2579,133 +2094,92 @@ td {
     color: #64748b;
 
     font-size: 11px;
-
 }
 
-
 .sidebar-footer span {
-
     display: block;
 
     margin-bottom: 4px;
-
 }
-
 
 .sidebar-footer strong {
-
-    color: #17365D;
+    color: #17365d;
 
     font-size: 12px;
-
 }
 
 
-/* =====================================================
-   OVERLAY
-   ===================================================== */
+/* ============================================================
+   32. SIDEBAR OVERLAY
+   ============================================================ */
 
 .sidebar-overlay {
-
     position: fixed;
 
     inset: 0;
 
+    z-index: 10000;
+
     background:
         rgba(0, 0, 0, 0.40);
-
-    z-index: 9999;
 
     opacity: 0;
 
     visibility: hidden;
 
     transition:
-        opacity 0.25s ease;
-
+        opacity 0.25s ease,
+        visibility 0.25s ease;
 }
 
-
 .sidebar-overlay.show {
-
     opacity: 1;
 
     visibility: visible;
-
 }
 
 
-/* =====================================================
-   POSISI KONTEN
-   ===================================================== */
+/* ============================================================
+   33. MODE DASHBOARD / REKAP / SOW
+   ============================================================ */
 
-.rekap-container,
-.teknisi-container {
+/*
+   DEFAULT:
+   Jika JS belum selesai melakukan inisialisasi,
+   Dashboard tetap menjadi tampilan utama.
+*/
 
-    scroll-margin-top: 25px;
+body:not(.mode-rekap):not(.mode-teknisi) .stats-container {
+    display: grid;
+}
 
+body:not(.mode-rekap):not(.mode-teknisi) .filter-container {
+    display: flex;
+}
+
+body:not(.mode-rekap):not(.mode-teknisi) .table-container {
+    display: block;
+}
+
+body:not(.mode-rekap):not(.mode-teknisi) .rekap-container,
+body:not(.mode-rekap):not(.mode-teknisi) .teknisi-container {
+    display: none !important;
 }
 
 
-/* =====================================================
-   MOBILE
-   ===================================================== */
-
-@media (max-width: 700px) {
-
-    .sidebar-menu-button {
-
-        top: 14px;
-
-        left: 14px;
-
-        width: 44px;
-
-        height: 44px;
-
-        line-height: 44px;
-
-        font-size: 23px;
-
-    }
-
-
-    .admin-sidebar {
-
-        width: 285px;
-
-    }
-
-
-    .sidebar-header {
-
-        min-height: 75px;
-
-    }
-
-}
-
-/* =========================================================
-   TAHAP 14
-   FINAL - MODE HALAMAN ADMIN
-   ========================================================= */
-
-
-/* =========================================================
-   1. DEFAULT DASHBOARD
-   ========================================================= */
+/* ------------------------------------------------------------
+   DASHBOARD
+   ------------------------------------------------------------ */
 
 body.mode-dashboard .stats-container {
     display: grid !important;
-    grid-template-columns: repeat(4, 1fr) !important;
-    gap: 20px !important;
+
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr)) !important;
 }
 
 body.mode-dashboard .filter-container {
     display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: wrap !important;
-    gap: 15px !important;
 }
 
 body.mode-dashboard .table-container {
@@ -2718,9 +2192,9 @@ body.mode-dashboard .teknisi-container {
 }
 
 
-/* =========================================================
-   2. REKAP LAPORAN
-   ========================================================= */
+/* ------------------------------------------------------------
+   REKAP
+   ------------------------------------------------------------ */
 
 body.mode-rekap .stats-container,
 body.mode-rekap .filter-container,
@@ -2731,13 +2205,14 @@ body.mode-rekap .teknisi-container {
 
 body.mode-rekap .rekap-container {
     display: block !important;
-    margin-top: 24px;
+
+    margin-top: 0;
 }
 
 
-/* =========================================================
-   3. MANAJEMEN TEKNISI / SOW
-   ========================================================= */
+/* ------------------------------------------------------------
+   MANAJEMEN SOW
+   ------------------------------------------------------------ */
 
 body.mode-teknisi .stats-container,
 body.mode-teknisi .filter-container,
@@ -2748,70 +2223,419 @@ body.mode-teknisi .rekap-container {
 
 body.mode-teknisi .teknisi-container {
     display: block !important;
-    margin-top: 24px;
+
+    margin-top: 0;
 }
 
 
-/* =========================================================
-   4. MENU SIDEBAR AKTIF
-   ========================================================= */
+/* ============================================================
+   34. RESPONSIVE TABLET
+   ============================================================ */
 
-.sidebar-menu-item.active {
-    background:
-        linear-gradient(135deg,
-            #17365D,
-            #2F75B5) !important;
+@media (max-width: 1100px) {
 
-    color: #ffffff !important;
+    .stats-container {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
 
-    box-shadow:
-        0 4px 12px rgba(23, 54, 93, 0.20);
+    body.mode-dashboard .stats-container {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    .rekap-stat-container {
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr));
+    }
 }
 
 
-/* =========================================================
-   5. DETAIL REKAP
-   ========================================================= */
-
-.rekap-detail-wrapper {
-    width: 100%;
-    overflow-x: auto;
-}
-
-
-/* =========================================================
-   6. RESPONSIVE TABLET
-   ========================================================= */
+/* ============================================================
+   35. RESPONSIVE TABLET KECIL
+   ============================================================ */
 
 @media (max-width: 900px) {
 
-    body.mode-dashboard .stats-container {
-        grid-template-columns:
-            repeat(2, 1fr) !important;
+    .dashboard-container {
+        padding: 20px;
     }
 
+    .dashboard-brand-text h1 {
+        font-size: 22px;
+    }
+
+    .filter-container input,
+    .filter-container select {
+        min-width: 170px;
+    }
+
+    .rekap-stat-container {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .modal-content {
+        width: 94%;
+    }
 }
 
 
-/* =========================================================
-   7. RESPONSIVE HP
-   ========================================================= */
+/* ============================================================
+   36. RESPONSIVE MOBILE
+   ============================================================ */
 
 @media (max-width: 700px) {
 
+    .dashboard-container {
+        padding: 14px;
+    }
+
+    .dashboard-header {
+        flex-direction: column;
+
+        align-items: stretch;
+
+        padding: 18px;
+
+        margin-top: 8px;
+    }
+
+    .dashboard-brand {
+        gap: 11px;
+    }
+
+    .dashboard-logo {
+        width: 55px;
+        height: 55px;
+    }
+
+    .dashboard-brand-text h1 {
+        font-size: 19px;
+    }
+
+    .dashboard-brand-text p {
+        font-size: 12px;
+    }
+
+    #logoutButton {
+        align-self: flex-end;
+    }
+
+    .stats-container,
     body.mode-dashboard .stats-container {
         grid-template-columns:
             1fr !important;
+
+        gap: 12px;
     }
 
-    body.mode-dashboard .filter-container {
-        flex-direction:
-            column !important;
+    .stat-card {
+        padding: 17px;
     }
 
-    body.mode-rekap .rekap-container,
-    body.mode-teknisi .teknisi-container {
-        margin-top: 15px;
+    .filter-container {
+        flex-direction: column;
+
+        align-items: stretch;
+
+        padding: 15px;
     }
 
+    .filter-container input,
+    .filter-container select,
+    .filter-container button {
+        width: 100%;
+
+        min-width: 0;
+    }
+
+    .table-container {
+        padding: 12px;
+
+        border-radius: 12px;
+    }
+
+    .rekap-container,
+    .teknisi-container {
+        padding: 15px;
+    }
+
+    .rekap-header {
+        flex-direction: column;
+
+        align-items: flex-start;
+    }
+
+    .rekap-header h2 {
+        font-size: 19px;
+    }
+
+    .rekap-menu {
+        display: grid;
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        gap: 8px;
+    }
+
+    .rekap-period-button {
+        width: 100%;
+
+        padding:
+            10px 7px;
+
+        font-size: 13px;
+    }
+
+    .rekap-input-group {
+        grid-template-columns: 1fr;
+    }
+
+    .rekap-action {
+        flex-direction: column;
+
+        align-items: stretch;
+    }
+
+    #tampilkanRekapButton,
+    #downloadRekapExcelButton {
+        width: 100%;
+    }
+
+    .rekap-stat-container {
+        grid-template-columns: 1fr;
+    }
+
+    .teknisi-header {
+        flex-direction: column;
+
+        align-items: stretch;
+    }
+
+    .btn-tambah-teknisi {
+        width: 100%;
+    }
+
+    .aksi-teknisi {
+        flex-direction: column;
+
+        align-items: stretch;
+    }
+
+    .btn-edit-teknisi,
+    .btn-status-teknisi {
+        width: 100%;
+    }
+
+    .sidebar-menu-button {
+        top: 14px;
+        left: 14px;
+
+        width: 44px;
+        height: 44px;
+
+        line-height: 44px;
+
+        font-size: 23px;
+    }
+
+    .admin-sidebar {
+        width: 285px;
+    }
+
+    .sidebar-header {
+        min-height: 75px;
+    }
+
+    .modal {
+        padding: 10px;
+    }
+
+    .modal-content {
+        width: 100%;
+
+        max-height: 95vh;
+
+        border-radius: 12px;
+    }
+
+    .modal-header {
+        padding: 15px;
+    }
+
+    .modal-header h2 {
+        font-size: 19px;
+    }
+
+    .modal-body {
+        grid-template-columns: 1fr;
+
+        padding: 15px;
+    }
+
+    .detail-full {
+        grid-column: span 1;
+    }
+
+    .update-order-section {
+        margin:
+            0 15px 20px;
+
+        padding: 15px;
+    }
+
+    .modal-footer {
+        padding: 15px;
+    }
+
+    .teknisi-modal {
+        padding: 12px;
+    }
+
+    .teknisi-modal-content {
+        max-width: 100%;
+    }
 }
+
+
+/* ============================================================
+   37. RESPONSIVE SMALL MOBILE
+   ============================================================ */
+
+@media (max-width: 420px) {
+
+    .dashboard-container {
+        padding: 10px;
+    }
+
+    .dashboard-header {
+        padding: 15px;
+    }
+
+    .dashboard-logo {
+        width: 48px;
+        height: 48px;
+    }
+
+    .dashboard-brand-text h1 {
+        font-size: 16px;
+    }
+
+    .dashboard-brand-text p {
+        font-size: 11px;
+    }
+
+    .rekap-menu {
+        grid-template-columns: 1fr;
+    }
+
+    .rekap-period-button {
+        font-size: 12px;
+    }
+
+    .modal-header {
+        gap: 10px;
+    }
+
+    .modal-header h2 {
+        font-size: 17px;
+    }
+
+    .detail-item {
+        padding: 12px;
+    }
+
+    .detail-value,
+    .detail-description {
+        font-size: 13px;
+    }
+
+    .update-order-section h3 {
+        font-size: 16px;
+    }
+}
+
+
+/* ============================================================
+   38. SCROLLBAR
+   ============================================================ */
+
+.table-wrapper::-webkit-scrollbar,
+.teknisi-table-wrapper::-webkit-scrollbar,
+.rekap-table-container::-webkit-scrollbar,
+.modal-content::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.table-wrapper::-webkit-scrollbar-track,
+.teknisi-table-wrapper::-webkit-scrollbar-track,
+.rekap-table-container::-webkit-scrollbar-track,
+.modal-content::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb,
+.teknisi-table-wrapper::-webkit-scrollbar-thumb,
+.rekap-table-container::-webkit-scrollbar-thumb,
+.modal-content::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+
+    border-radius: 10px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb:hover,
+.teknisi-table-wrapper::-webkit-scrollbar-thumb:hover,
+.rekap-table-container::-webkit-scrollbar-thumb:hover,
+.modal-content::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+
+/* ============================================================
+   39. PRINT
+   ============================================================ */
+
+@media print {
+
+    .sidebar-menu-button,
+    .admin-sidebar,
+    .sidebar-overlay,
+    #logoutButton,
+    .filter-container,
+    .rekap-action {
+        display: none !important;
+    }
+
+    .dashboard-container {
+        padding: 0;
+    }
+
+    .dashboard-header {
+        color: #000000;
+
+        background: #ffffff;
+
+        box-shadow: none;
+
+        border:
+            1px solid #dddddd;
+    }
+
+    .stat-card,
+    .table-container,
+    .rekap-container,
+    .teknisi-container {
+        box-shadow: none;
+
+        border:
+            1px solid #dddddd;
+    }
+}
+
+
+/* ============================================================
+   END ADMIN.CSS
+   ============================================================ */

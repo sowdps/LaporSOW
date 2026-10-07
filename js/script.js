@@ -1,475 +1,1755 @@
-/* =========================================
-   KONFIGURASI
-========================================= */
+/**
+ * ============================================================
+ * MY SOW BALI
+ * LAPOR SOW
+ * ============================================================
+ *
+ * FILE:
+ * js/script.js
+ *
+ * VERSI:
+ * FINAL
+ *
+ * FUNGSI:
+ * 1. Menghubungkan Form User dengan Apps Script
+ * 2. Memuat Master Data Cabang
+ * 3. Memuat Master Data Jenis Kendala
+ * 4. Menampilkan kode SOW sementara
+ * 5. Mengirim Order
+ * 6. Menampilkan kode order resmi dari Backend
+ * 7. Menampilkan hasil pengiriman
+ *
+ * PENTING:
+ * ------------------------------------------------------------
+ * File ini TIDAK mengirim WhatsApp secara langsung.
+ *
+ * Alur:
+ *
+ * USER FORM
+ *     ↓
+ * script.js
+ *     ↓
+ * Google Apps Script
+ *     ↓
+ * Database / Google Sheet
+ *     ↓
+ * Backend
+ *     ├── WhatsApp Admin
+ *     ├── WhatsApp Group
+ *     ├── WhatsApp Pelapor
+ *     └── Email
+ *
+ * JANGAN menambahkan:
+ * - NOMOR_ADMIN
+ * - nomor WhatsApp Admin
+ * - wa.me
+ * - window.open WhatsApp
+ * - token Fonnte
+ *
+ * KODE ORDER RESMI:
+ * ------------------------------------------------------------
+ * Kode order resmi dibuat oleh BACKEND.
+ *
+ * Contoh:
+ * SOW-130759
+ *
+ * Kode yang ditampilkan sebelum submit hanya kode sementara.
+ * Setelah order berhasil, kode dari backend menjadi kode resmi.
+ *
+ * ============================================================
+ */
 
+
+/* ============================================================
+   1. KONFIGURASI
+   ============================================================ */
+
+/**
+ * URL Web App Google Apps Script.
+ *
+ * Semua komunikasi Form User menuju Backend
+ * menggunakan URL ini.
+ */
 const WEB_APP_URL =
     "https://script.google.com/macros/s/AKfycbyOcM6jK4OHqHwd7203Do9Za0W23ZpA4wfmvBd2UsqQT_7v359DkjKTxdeaEqjQlqhV/exec";
 
-const NOMOR_ADMIN = "6281999486279";
+
+/* ============================================================
+   2. HELPER ELEMENT HTML
+   ============================================================ */
+
+/**
+ * Mengambil seluruh element yang digunakan Form.
+ *
+ * ID harus sesuai dengan index.html.
+ */
+function getElements() {
+
+    return {
+
+        form:
+            document.getElementById("orderForm"),
+
+        nama:
+            document.getElementById("nama"),
+
+        unitKerja:
+            document.getElementById("unit_kerja"),
+
+        kodeCabang:
+            document.getElementById("kode_cabang"),
+
+        jenisKendala:
+            document.getElementById("jenis_kendala"),
+
+        deskripsi:
+            document.getElementById("deskripsi"),
+
+        whatsapp:
+            document.getElementById("whatsapp"),
+
+        tanggal:
+            document.getElementById("tanggal"),
+
+        jam:
+            document.getElementById("jam"),
+
+        kode:
+            document.getElementById("kode"),
+
+        submitBtn:
+            document.getElementById("submitBtn"),
+
+        message:
+            document.getElementById("success")
+
+    };
+
+}
 
 
-/* =========================================
-   MASTER DATA DARI GOOGLE SPREADSHEET
-========================================= */
+/* ============================================================
+   3. TAMPILKAN PESAN
+   ============================================================ */
 
-async function loadMasterData() {
+/**
+ * Menampilkan pesan kepada pengguna.
+ *
+ * @param {string} message
+ * @param {"success"|"error"} type
+ */
+function showMessage(
+    message,
+    type = "success"
+) {
 
-    try {
-
-        const response =
-            await fetch(
-                WEB_APP_URL + "?master=true"
-            );
-
-        const data =
-            await response.json();
-
-
-        if (!data.success) {
-
-            console.error(
-                "MASTER_DATA gagal dimuat:",
-                data.message
-            );
-
-            return;
-        }
+    const elements =
+        getElements();
 
 
-        /* =====================================
-           KODE CABANG
-        ===================================== */
+    if (
+        !elements.message
+    ) {
 
-        const cabangSelect =
-            document.getElementById(
-                "kode_cabang"
-            );
-
-
-        if (cabangSelect) {
-
-            cabangSelect.innerHTML =
-                '<option value="">Pilih Cabang</option>';
-
-
-            data.cabang.forEach(
-                function (item) {
-
-                    let kode =
-                        String(
-                            item.kode || ""
-                        ).trim();
-
-
-                    /*
-                       Format kode menjadi 4 digit.
-
-                       40   → 0040
-                       146  → 0146
-                       6115 → 6115
-                       7730 → 7730
-                    */
-
-                    kode =
-                        kode.padStart(
-                            4,
-                            "0"
-                        );
-
-
-                    const option =
-                        document.createElement(
-                            "option"
-                        );
-
-
-                    /*
-                       Value tetap menggunakan
-                       format yang digunakan sistem
-                       sebelumnya.
-                    */
-
-                    option.value =
-                        kode +
-                        "-" +
-                        item.nama;
-
-
-                    option.textContent =
-                        kode +
-                        "-" +
-                        item.nama;
-
-
-                    cabangSelect.appendChild(
-                        option
-                    );
-
-                }
-            );
-
-        }
-
-
-        /* =====================================
-           JENIS KENDALA
-        ===================================== */
-
-        const kendalaSelect =
-            document.getElementById(
-                "jenis_kendala"
-            );
-
-
-        if (kendalaSelect) {
-
-            kendalaSelect.innerHTML =
-                '<option value="">Pilih Jenis Kendala</option>';
-
-
-            data.kendala.forEach(
-                function (item) {
-
-                    const nama =
-                        String(
-                            item.nama || ""
-                        ).trim();
-
-
-                    if (!nama) {
-                        return;
-                    }
-
-
-                    const option =
-                        document.createElement(
-                            "option"
-                        );
-
-
-                    option.value =
-                        nama;
-
-
-                    option.textContent =
-                        nama;
-
-
-                    kendalaSelect.appendChild(
-                        option
-                    );
-
-                }
-            );
-
-        }
-
-
-        console.log(
-            "MASTER_DATA berhasil dimuat:",
-            data
-        );
-
-
-    } catch (error) {
-
-        console.error(
-            "Gagal mengambil MASTER_DATA:",
-            error
-        );
+        return;
 
     }
 
-}
+
+    elements.message.style.display =
+        "block";
 
 
-/* =========================================
-   GENERATE KODE ORDER
-========================================= */
+    if (
+        type === "success"
+    ) {
 
-function generateOrderNumber() {
-
-    const randomNumber =
-        Math.floor(
-            100000 + Math.random() * 900000
-        );
-
-    const kodeOrder =
-        "SOW-" + randomNumber;
-
-    document
-        .getElementById("kode")
-        .textContent = kodeOrder;
-}
-
-
-/* =========================================
-   TAMPILKAN PESAN
-========================================= */
-
-function showMessage(message, type) {
-
-    const messageBox =
-        document.getElementById("success");
-
-    if (type === "success") {
-
-        messageBox.innerHTML =
-            '<div class="success-message">' +
-            message +
-            '</div>';
+        elements.message.className =
+            "success-message";
 
     } else {
 
-        messageBox.innerHTML =
-            '<div class="error-message">' +
-            message +
-            '</div>';
+        elements.message.className =
+            "error-message";
+
     }
+
+
+    elements.message.innerHTML =
+        message;
+
 }
 
 
-/* =========================================
-   BUAT PESAN WHATSAPP
-========================================= */
+/* ============================================================
+   4. SEMBUNYIKAN PESAN
+   ============================================================ */
 
-function createWhatsAppMessage(data) {
+/**
+ * Menghapus pesan yang sedang tampil.
+ */
+function hideMessage() {
 
-    return `Hallo Admin,
+    const elements =
+        getElements();
 
-Saya ingin melaporkan kendala dengan detail berikut:
 
-📌 KODE ORDER : ${data.kode}
+    if (
+        !elements.message
+    ) {
 
-👤 Nama : ${data.nama}
-🏢 Unit Kerja : ${data.unit_kerja}
-🏢 Cabang : ${data.kode_cabang}
-⚠️ Kendala : ${data.jenis_kendala}
+        return;
 
-📝 DESKRIPSI:
-${data.deskripsi}
+    }
 
-📱 WhatsApp : ${data.whatsapp}
-📅 Tanggal : ${data.tanggal}
-⏰ Jam : ${data.jam}`;
+
+    elements.message.innerHTML =
+        "";
+
+    elements.message.style.display =
+        "none";
+
+    elements.message.className =
+        "";
+
 }
 
 
-/* =========================================
-   HALAMAN DIMUAT
-========================================= */
+/* ============================================================
+   5. ESCAPE HTML
+   ============================================================ */
 
-document.addEventListener(
-    "DOMContentLoaded",
-    async function () {
+/**
+ * Mengamankan data sebelum ditampilkan
+ * sebagai HTML.
+ */
+function escapeHtml(
+    value
+) {
 
-        generateOrderNumber();
+    return String(
+        value ?? ""
+    )
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
 
 
-        /* =====================================
-           LOAD MASTER DATA
-        ===================================== */
+/* ============================================================
+   6. GENERATE KODE SOW SEMENTARA
+   ============================================================ */
 
-        await loadMasterData();
+/**
+ * Membuat kode sementara untuk tampilan form.
+ *
+ * PENTING:
+ * ------------------------------------------------------------
+ * Kode ini BUKAN kode resmi database.
+ *
+ * Kode resmi dibuat Backend ketika order disimpan.
+ *
+ * Format:
+ *
+ * SOW-XXXXXX
+ *
+ * Contoh:
+ *
+ * SOW-A7K92P
+ */
+function generateTemporarySowCode() {
+
+    const elements =
+        getElements();
 
 
-        const orderForm =
-            document.getElementById("orderForm");
+    if (
+        !elements.kode
+    ) {
 
-        const submitBtn =
-            document.getElementById("submitBtn");
+        return "";
 
-
-        /* =====================================
-           SUBMIT FORM
-        ===================================== */
-
-        orderForm.addEventListener(
-            "submit",
-            async function (event) {
-
-                event.preventDefault();
+    }
 
 
-                /* Validasi */
+    const characters =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
-                if (!orderForm.checkValidity()) {
 
-                    orderForm.reportValidity();
+    let randomCode =
+        "";
 
-                    return;
+
+    for (
+        let i = 0;
+        i < 6;
+        i++
+    ) {
+
+        const index =
+            Math.floor(
+                Math.random() *
+                characters.length
+            );
+
+
+        randomCode +=
+            characters.charAt(
+                index
+            );
+
+    }
+
+
+    const code =
+        `SOW-${randomCode}`;
+
+
+    elements.kode.value =
+        code;
+
+
+    return code;
+
+}
+
+
+/* ============================================================
+   7. TANGGAL HARI INI
+   ============================================================ */
+
+/**
+ * Menghasilkan tanggal hari ini.
+ *
+ * Format:
+ * YYYY-MM-DD
+ */
+function getToday() {
+
+    const now =
+        new Date();
+
+
+    const year =
+        now.getFullYear();
+
+
+    const month =
+        String(
+            now.getMonth() + 1
+        )
+            .padStart(
+                2,
+                "0"
+            );
+
+
+    const day =
+        String(
+            now.getDate()
+        )
+            .padStart(
+                2,
+                "0"
+            );
+
+
+    return `${year}-${month}-${day}`;
+
+}
+
+
+/* ============================================================
+   8. JAM SAAT INI
+   ============================================================ */
+
+/**
+ * Menghasilkan jam sekarang.
+ *
+ * Format:
+ * HH:MM
+ */
+function getCurrentTime() {
+
+    const now =
+        new Date();
+
+
+    const hour =
+        String(
+            now.getHours()
+        )
+            .padStart(
+                2,
+                "0"
+            );
+
+
+    const minute =
+        String(
+            now.getMinutes()
+        )
+            .padStart(
+                2,
+                "0"
+            );
+
+
+    return `${hour}:${minute}`;
+
+}
+
+
+/* ============================================================
+   9. SET TANGGAL DAN JAM DEFAULT
+   ============================================================ */
+
+/**
+ * Mengisi tanggal dan jam otomatis
+ * jika masih kosong.
+ */
+function setDefaultDateTime() {
+
+    const elements =
+        getElements();
+
+
+    if (
+        elements.tanggal &&
+        !elements.tanggal.value
+    ) {
+
+        elements.tanggal.value =
+            getToday();
+
+    }
+
+
+    if (
+        elements.jam &&
+        !elements.jam.value
+    ) {
+
+        elements.jam.value =
+            getCurrentTime();
+
+    }
+
+}
+
+
+/* ============================================================
+   10. LOAD MASTER DATA
+   ============================================================ */
+
+/**
+ * Mengambil Master Data dari Apps Script.
+ *
+ * Data:
+ * - CABANG
+ * - JENIS KENDALA
+ */
+async function loadMasterData() {
+
+    const elements =
+        getElements();
+
+
+    if (
+        !elements.kodeCabang ||
+        !elements.jenisKendala
+    ) {
+
+        console.error(
+            "Element Master Data tidak ditemukan."
+        );
+
+        return;
+
+    }
+
+
+    try {
+
+        /* ----------------------------------------------------
+           STATUS LOADING
+           ---------------------------------------------------- */
+
+        elements.kodeCabang.innerHTML =
+            '<option value="">Memuat cabang...</option>';
+
+
+        elements.jenisKendala.innerHTML =
+            '<option value="">Memuat jenis kendala...</option>';
+
+
+        /* ----------------------------------------------------
+           REQUEST KE BACKEND
+           ---------------------------------------------------- */
+
+        const response =
+            await fetch(
+                `${WEB_APP_URL}?master=true`,
+                {
+
+                    method:
+                        "GET",
+
+                    cache:
+                        "no-store"
+
                 }
+            );
 
 
-                /* Ambil data */
+        /* ----------------------------------------------------
+           CEK HTTP
+           ---------------------------------------------------- */
 
-                const formData = {
+        if (
+            !response.ok
+        ) {
 
-                    kode:
-                        document
-                            .getElementById("kode")
-                            .textContent
-                            .trim(),
+            throw new Error(
+                `Server mengembalikan HTTP ${response.status}.`
+            );
 
-                    nama:
-                        document
-                            .getElementById("nama")
-                            .value
-                            .trim(),
-
-                    unit_kerja:
-                        document
-                            .getElementById("unit_kerja")
-                            .value
-                            .trim(),
-
-                    kode_cabang:
-                        document
-                            .getElementById("kode_cabang")
-                            .value,
-
-                    jenis_kendala:
-                        document
-                            .getElementById("jenis_kendala")
-                            .value,
-
-                    deskripsi:
-                        document
-                            .getElementById("deskripsi")
-                            .value
-                            .trim(),
-
-                    whatsapp:
-                        document
-                            .getElementById("whatsapp")
-                            .value
-                            .trim(),
-
-                    tanggal:
-                        document
-                            .getElementById("tanggal")
-                            .value,
-
-                    jam:
-                        document
-                            .getElementById("jam")
-                            .value
-                };
+        }
 
 
-                /* =====================================
-                   BUAT LINK WHATSAPP
-                ===================================== */
+        /* ----------------------------------------------------
+           BACA RESPONSE
+           ---------------------------------------------------- */
 
-                const pesan =
-                    createWhatsAppMessage(formData);
-
-                const encodedMessage =
-                    encodeURIComponent(pesan);
-
-                const waURL =
-                    "https://wa.me/" +
-                    NOMOR_ADMIN +
-                    "?text=" +
-                    encodedMessage;
+        const text =
+            await response.text();
 
 
-                /*
-                   Buka WhatsApp SEKARANG.
+        if (
+            !text
+        ) {
 
-                   Dilakukan sebelum await fetch
-                   supaya tidak diblokir popup blocker.
-                */
+            throw new Error(
+                "Server tidak memberikan response Master Data."
+            );
 
-                window.open(
-                    waURL,
-                    "_blank"
+        }
+
+
+        let data;
+
+
+        try {
+
+            data =
+                JSON.parse(
+                    text
                 );
 
+        }
 
-                /* Tombol loading */
+        catch (
+            error
+        ) {
 
-                submitBtn.disabled = true;
-
-                submitBtn.textContent =
-                    "MENGIRIM...";
-
-
-                showMessage(
-                    "Sedang mengirim order...",
-                    "success"
-                );
+            console.error(
+                "Response Master Data:",
+                text
+            );
 
 
-                /* =====================================
-                   KIRIM KE GOOGLE SPREADSHEET
-                ===================================== */
+            throw new Error(
+                "Response Master Data bukan JSON yang valid."
+            );
 
-                try {
-
-                    await fetch(
-                        WEB_APP_URL,
-                        {
-
-                            method: "POST",
-
-                            mode: "no-cors",
-
-                            headers: {
-
-                                "Content-Type":
-                                    "text/plain"
-
-                            },
-
-                            body:
-                                JSON.stringify(formData)
-
-                        }
-                    );
+        }
 
 
-                    /* =====================================
-                       BERHASIL
-                    ===================================== */
+        if (
+            !data
+        ) {
 
-                    showMessage(
-                        "✓ Order berhasil disimpan dan WhatsApp Admin dibuka!",
-                        "success"
-                    );
+            throw new Error(
+                "Server tidak mengembalikan Master Data."
+            );
 
-
-                    /* Reset Form */
-
-                    orderForm.reset();
+        }
 
 
-                    /* Kode baru */
+        if (
+            data.success === false
+        ) {
 
-                    generateOrderNumber();
+            throw new Error(
+                data.message ||
+                "Master Data gagal dimuat."
+            );
+
+        }
 
 
-                } catch (error) {
+        /* ====================================================
+           MASTER CABANG
+           ==================================================== */
 
-                    console.error(error);
+        elements.kodeCabang.innerHTML =
+            '<option value="">-- Pilih Kode Cabang --</option>';
 
 
-                    showMessage(
-                        "✕ Terjadi kesalahan saat mengirim ke Spreadsheet!",
-                        "error"
-                    );
+        if (
+            Array.isArray(
+                data.cabang
+            )
+        ) {
 
-                } finally {
+            data.cabang.forEach(
+                function(item) {
 
-                    submitBtn.disabled = false;
+                    const option =
+                        document.createElement(
+                            "option"
+                        );
 
-                    submitBtn.textContent =
-                        "KIRIM ORDER";
+
+                    let value =
+                        "";
+
+                    let label =
+                        "";
+
+
+                    /* ----------------------------------------
+                       BACKEND MENGIRIM STRING
+                       ---------------------------------------- */
+
+                    if (
+                        typeof item ===
+                        "string"
+                    ) {
+
+                        value =
+                            item.trim();
+
+                        label =
+                            item.trim();
+
+                    }
+
+
+                    /* ----------------------------------------
+                       BACKEND MENGIRIM OBJECT
+                       ---------------------------------------- */
+
+                    else if (
+                        item &&
+                        typeof item ===
+                        "object"
+                    ) {
+
+                        value =
+                            item.kode ||
+                            item.kode_cabang ||
+                            item.kodeCabang ||
+                            item.value ||
+                            "";
+
+
+                        label =
+                            item.nama ||
+                            item.nama_cabang ||
+                            item.namaCabang ||
+                            item.label ||
+                            value;
+
+                    }
+
+
+                    value =
+                        String(
+                            value
+                        ).trim();
+
+
+                    label =
+                        String(
+                            label
+                        ).trim();
+
+
+                    if (
+                        !value
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    option.value =
+                        value;
+
+
+                    /*
+                     * Tampilkan:
+                     *
+                     * 7730 - KCP GATOT SUBROTO TIMUR
+                     *
+                     */
+
+                    option.textContent =
+                        label &&
+                        label !== value
+                            ? `${value} - ${label}`
+                            : value;
+
+
+                    elements.kodeCabang
+                        .appendChild(
+                            option
+                        );
 
                 }
+            );
+
+        }
+
+
+        /* ====================================================
+           MASTER JENIS KENDALA
+           ==================================================== */
+
+        elements.jenisKendala.innerHTML =
+            '<option value="">-- Pilih Jenis Kendala --</option>';
+
+
+        if (
+            Array.isArray(
+                data.kendala
+            )
+        ) {
+
+            data.kendala.forEach(
+                function(item) {
+
+                    const option =
+                        document.createElement(
+                            "option"
+                        );
+
+
+                    let value =
+                        "";
+
+                    let label =
+                        "";
+
+
+                    /* ----------------------------------------
+                       STRING
+                       ---------------------------------------- */
+
+                    if (
+                        typeof item ===
+                        "string"
+                    ) {
+
+                        value =
+                            item.trim();
+
+                        label =
+                            item.trim();
+
+                    }
+
+
+                    /* ----------------------------------------
+                       OBJECT
+                       ---------------------------------------- */
+
+                    else if (
+                        item &&
+                        typeof item ===
+                        "object"
+                    ) {
+
+                        value =
+                            item.kode ||
+                            item.jenis ||
+                            item.jenis_kendala ||
+                            item.nama ||
+                            item.value ||
+                            "";
+
+
+                        label =
+                            item.nama ||
+                            item.jenis ||
+                            item.jenis_kendala ||
+                            item.label ||
+                            value;
+
+                    }
+
+
+                    value =
+                        String(
+                            value
+                        ).trim();
+
+
+                    label =
+                        String(
+                            label
+                        ).trim();
+
+
+                    if (
+                        !value
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    option.value =
+                        value;
+
+
+                    option.textContent =
+                        label;
+
+
+                    elements.jenisKendala
+                        .appendChild(
+                            option
+                        );
+
+                }
+            );
+
+        }
+
+
+        /* ----------------------------------------------------
+           HASIL
+           ---------------------------------------------------- */
+
+        const jumlahCabang =
+            elements.kodeCabang
+                .options.length -
+            1;
+
+
+        const jumlahKendala =
+            elements.jenisKendala
+                .options.length -
+            1;
+
+
+        console.log(
+            `Master Data berhasil dimuat. Cabang: ${jumlahCabang}, Kendala: ${jumlahKendala}`
+        );
+
+    }
+
+    catch (
+        error
+    ) {
+
+        console.error(
+            "Gagal memuat Master Data:",
+            error
+        );
+
+
+        elements.kodeCabang.innerHTML =
+            '<option value="">Gagal memuat cabang</option>';
+
+
+        elements.jenisKendala.innerHTML =
+            '<option value="">Gagal memuat jenis kendala</option>';
+
+
+        showMessage(
+            "⚠️ Master Data belum dapat dimuat. Silakan periksa koneksi dan coba lagi.",
+            "error"
+        );
+
+    }
+
+}
+
+
+/* ============================================================
+   11. NORMALISASI NOMOR WHATSAPP PELAPOR
+   ============================================================ */
+
+/**
+ * Membersihkan nomor WhatsApp PELAPOR.
+ *
+ * Contoh:
+ *
+ * 081234567890
+ *
+ * menjadi:
+ *
+ * 6281234567890
+ */
+function normalizeWhatsApp(
+    number
+) {
+
+    let value =
+        String(
+            number || ""
+        ).trim();
+
+
+    value =
+        value.replace(
+            /[^0-9+]/g,
+            ""
+        );
+
+
+    if (
+        value.startsWith("+")
+    ) {
+
+        value =
+            value.substring(
+                1
+            );
+
+    }
+
+
+    if (
+        value.startsWith("0")
+    ) {
+
+        value =
+            "62" +
+            value.substring(
+                1
+            );
+
+    }
+
+
+    return value;
+
+}
+
+
+/* ============================================================
+   12. AMBIL DATA FORM
+   ============================================================ */
+
+/**
+ * Mengambil seluruh data Form.
+ *
+ * CATATAN:
+ * ------------------------------------------------------------
+ * Kode yang dikirim ke Backend hanya sebagai referensi.
+ *
+ * Backend tetap membuat kode order resmi.
+ */
+function getOrderData() {
+
+    const elements =
+        getElements();
+
+
+    return {
+
+        /*
+         * WAJIB
+         * Backend menggunakan action ini.
+         */
+        action:
+            "createOrder",
+
+
+        /*
+         * Kode tampilan sementara.
+         *
+         * Backend tidak menganggap ini sebagai
+         * kode final apabila ingin membuat kode unik.
+         */
+        kode:
+            elements.kode
+                ? elements.kode.value.trim()
+                : "",
+
+
+        nama:
+            elements.nama
+                ? elements.nama.value.trim()
+                : "",
+
+
+        unit_kerja:
+            elements.unitKerja
+                ? elements.unitKerja.value.trim()
+                : "",
+
+
+        kode_cabang:
+            elements.kodeCabang
+                ? elements.kodeCabang.value.trim()
+                : "",
+
+
+        jenis_kendala:
+            elements.jenisKendala
+                ? elements.jenisKendala.value.trim()
+                : "",
+
+
+        deskripsi:
+            elements.deskripsi
+                ? elements.deskripsi.value.trim()
+                : "",
+
+
+        whatsapp:
+            elements.whatsapp
+                ? elements.whatsapp.value.trim()
+                : "",
+
+
+        tanggal:
+            elements.tanggal
+                ? elements.tanggal.value
+                : "",
+
+
+        jam:
+            elements.jam
+                ? elements.jam.value
+                : ""
+
+    };
+
+}
+
+
+/* ============================================================
+   13. VALIDASI FORM
+   ============================================================ */
+
+/**
+ * Memastikan semua data wajib telah diisi.
+ */
+function validateOrderData(
+    data
+) {
+
+    if (
+        !data.nama
+    ) {
+
+        return "Nama pelapor wajib diisi.";
+
+    }
+
+
+    if (
+        !data.unit_kerja
+    ) {
+
+        return "Unit kerja wajib diisi.";
+
+    }
+
+
+    if (
+        !data.kode_cabang
+    ) {
+
+        return "Kode cabang wajib dipilih.";
+
+    }
+
+
+    if (
+        !data.jenis_kendala
+    ) {
+
+        return "Jenis kendala wajib dipilih.";
+
+    }
+
+
+    if (
+        !data.deskripsi
+    ) {
+
+        return "Deskripsi kendala wajib diisi.";
+
+    }
+
+
+    if (
+        !data.whatsapp
+    ) {
+
+        return "Nomor WhatsApp pelapor wajib diisi.";
+
+    }
+
+
+    if (
+        !data.tanggal
+    ) {
+
+        return "Tanggal order wajib diisi.";
+
+    }
+
+
+    if (
+        !data.jam
+    ) {
+
+        return "Jam order wajib diisi.";
+
+    }
+
+
+    return null;
+
+}
+
+
+/* ============================================================
+   14. KIRIM ORDER KE APPS SCRIPT
+   ============================================================ */
+
+/**
+ * Mengirim data order ke Google Apps Script.
+ *
+ * TIDAK mengirim WhatsApp.
+ *
+ * Backend menangani:
+ * - Penyimpanan
+ * - WhatsApp Admin
+ * - WhatsApp Group
+ * - WhatsApp Pelapor
+ * - Email
+ */
+async function sendOrderToBackend(
+    data
+) {
+
+    const response =
+        await fetch(
+            WEB_APP_URL,
+            {
+
+                method:
+                    "POST",
+
+                headers: {
+
+                    "Content-Type":
+                        "text/plain;charset=utf-8"
+
+                },
+
+                body:
+                    JSON.stringify(
+                        data
+                    )
 
             }
         );
 
+
+    if (
+        !response.ok
+    ) {
+
+        throw new Error(
+            `Server mengembalikan HTTP ${response.status}.`
+        );
+
     }
+
+
+    const text =
+        await response.text();
+
+
+    if (
+        !text
+    ) {
+
+        throw new Error(
+            "Server tidak memberikan response."
+        );
+
+    }
+
+
+    try {
+
+        return JSON.parse(
+            text
+        );
+
+    }
+
+    catch (
+        error
+    ) {
+
+        console.error(
+            "Response backend:",
+            text
+        );
+
+
+        throw new Error(
+            "Response dari server tidak valid."
+        );
+
+    }
+
+}
+
+
+/* ============================================================
+   15. SET STATUS TOMBOL
+   ============================================================ */
+
+/**
+ * Mengubah tombol menjadi status proses.
+ */
+function setSubmitLoading(
+    loading
+) {
+
+    const elements =
+        getElements();
+
+
+    if (
+        !elements.submitBtn
+    ) {
+
+        return;
+
+    }
+
+
+    if (
+        loading
+    ) {
+
+        if (
+            !elements.submitBtn.dataset
+                .originalText
+        ) {
+
+            elements.submitBtn.dataset
+                .originalText =
+                elements.submitBtn
+                    .textContent;
+
+        }
+
+
+        elements.submitBtn.disabled =
+            true;
+
+
+        elements.submitBtn.textContent =
+            "MENGIRIM ORDER...";
+
+    }
+
+    else {
+
+        elements.submitBtn.disabled =
+            false;
+
+
+        elements.submitBtn.textContent =
+            elements.submitBtn.dataset
+                .originalText ||
+            "KIRIM ORDER";
+
+    }
+
+}
+
+
+/* ============================================================
+   16. TAMPILKAN KODE RESMI BACKEND
+   ============================================================ */
+
+/**
+ * Mengambil kode order resmi dari response Backend.
+ *
+ * Backend final mengirim:
+ *
+ * result.kode_order
+ *
+ * atau:
+ *
+ * result.kode
+ */
+function getOfficialOrderCode(
+    result
+) {
+
+    if (
+        !result
+    ) {
+
+        return "";
+
+    }
+
+
+    return (
+
+        result.kode_order ||
+
+        result.kode ||
+
+        result.kodeOrder ||
+
+        result.order?.kode_order ||
+
+        result.order?.kode ||
+
+        result.order?.kodeOrder ||
+
+        result.data?.kode_order ||
+
+        result.data?.kode ||
+
+        result.data?.kodeOrder ||
+
+        ""
+
+    );
+
+}
+
+
+/* ============================================================
+   17. HANDLE SUBMIT
+   ============================================================ */
+
+/**
+ * Proses utama ketika tombol
+ * KIRIM ORDER ditekan.
+ */
+async function handleSubmit(
+    event
+) {
+
+    event.preventDefault();
+
+
+    hideMessage();
+
+
+    const data =
+        getOrderData();
+
+
+    /*
+     * Normalisasi WhatsApp pelapor.
+     */
+    data.whatsapp =
+        normalizeWhatsApp(
+            data.whatsapp
+        );
+
+
+    /*
+     * Validasi.
+     */
+    const validationError =
+        validateOrderData(
+            data
+        );
+
+
+    if (
+        validationError
+    ) {
+
+        showMessage(
+            `⚠️ ${escapeHtml(validationError)}`,
+            "error"
+        );
+
+
+        return;
+
+    }
+
+
+    /*
+     * Loading.
+     */
+    setSubmitLoading(
+        true
+    );
+
+
+    try {
+
+        console.log(
+            "Mengirim order:",
+            data
+        );
+
+
+        /*
+         * Kirim ke Backend.
+         */
+        const result =
+            await sendOrderToBackend(
+                data
+            );
+
+
+        console.log(
+            "Response createOrder:",
+            result
+        );
+
+
+        /*
+         * Cek response.
+         */
+        const success =
+            result &&
+            (
+                result.success === true ||
+                result.status === true
+            );
+
+
+        if (
+            !success
+        ) {
+
+            throw new Error(
+                result?.message ||
+                result?.error ||
+                "Order gagal disimpan."
+            );
+
+        }
+
+
+        /*
+         * Ambil KODE ORDER RESMI
+         * dari Backend.
+         */
+        const kodeOrder =
+            getOfficialOrderCode(
+                result
+            );
+
+
+        if (
+            !kodeOrder
+        ) {
+
+            throw new Error(
+                "Order tersimpan tetapi kode order resmi tidak diterima dari server."
+            );
+
+        }
+
+
+        /*
+         * Tampilkan kode resmi.
+         */
+        showMessage(
+            `
+                <strong>✅ ORDER BERHASIL DIKIRIM</strong>
+                <br><br>
+
+                <strong>Kode SOW:</strong>
+                ${escapeHtml(kodeOrder)}
+
+                <br>
+
+                <strong>Nama:</strong>
+                ${escapeHtml(data.nama)}
+
+                <br>
+
+                <strong>Cabang:</strong>
+                ${escapeHtml(
+                    result.cabang ||
+                    result.nama_cabang ||
+                    data.kode_cabang
+                )}
+
+                <br>
+
+                <strong>Status:</strong>
+                MENUNGGU
+
+                <br><br>
+
+                Order sudah masuk ke sistem MY SOW BALI.
+            `,
+            "success"
+        );
+
+
+        /*
+         * Tampilkan kode resmi pada field.
+         *
+         * Jangan langsung reset field kode
+         * sebelum pengguna melihat hasil.
+         */
+        const elements =
+            getElements();
+
+
+        if (
+            elements.kode
+        ) {
+
+            elements.kode.value =
+                kodeOrder;
+
+        }
+
+
+        /*
+         * Reset field lainnya.
+         *
+         * Kode resmi tetap ditampilkan.
+         */
+        if (
+            elements.form
+        ) {
+
+            const kodeResmi =
+                kodeOrder;
+
+
+            elements.form.reset();
+
+
+            if (
+                elements.kode
+            ) {
+
+                elements.kode.value =
+                    kodeResmi;
+
+            }
+
+        }
+
+
+        /*
+         * Tanggal dan jam baru.
+         */
+        setDefaultDateTime();
+
+
+        /*
+         * Setelah beberapa detik,
+         * tampilkan kode SOW baru untuk
+         * order berikutnya.
+         *
+         * Tidak langsung dilakukan supaya
+         * kode hasil order tetap terlihat.
+         */
+        window.setTimeout(
+            function() {
+
+                const currentElements =
+                    getElements();
+
+
+                if (
+                    currentElements.kode
+                ) {
+
+                    generateTemporarySowCode();
+
+                }
+
+            },
+            5000
+        );
+
+    }
+
+    catch (
+        error
+    ) {
+
+        console.error(
+            "Gagal mengirim order:",
+            error
+        );
+
+
+        showMessage(
+            `
+                <strong>❌ ORDER GAGAL DIKIRIM</strong>
+
+                <br><br>
+
+                ${escapeHtml(
+                    error.message ||
+                    "Terjadi kesalahan pada sistem."
+                )}
+
+                <br><br>
+
+                Silakan coba lagi.
+            `,
+            "error"
+        );
+
+    }
+
+    finally {
+
+        setSubmitLoading(
+            false
+        );
+
+    }
+
+}
+
+
+/* ============================================================
+   18. INISIALISASI FORM
+   ============================================================ */
+
+/**
+ * Menjalankan konfigurasi awal User Form.
+ */
+async function initializeApp() {
+
+    console.log(
+        "===================================="
+    );
+
+    console.log(
+        "MY SOW BALI - User Form"
+    );
+
+    console.log(
+        "Initializing..."
+    );
+
+    console.log(
+        "===================================="
+    );
+
+
+    const elements =
+        getElements();
+
+
+    /*
+     * Pastikan Form ada.
+     */
+    if (
+        !elements.form
+    ) {
+
+        console.error(
+            "Form dengan ID 'orderForm' tidak ditemukan."
+        );
+
+
+        return;
+
+    }
+
+
+    /*
+     * --------------------------------------------------------
+     * KODE ORDER SEMENTARA
+     * --------------------------------------------------------
+     *
+     * Ini yang seharusnya membuat field
+     * KODE ORDER tidak lagi bertuliskan:
+     *
+     * Memuat...
+     *
+     * tetapi:
+     *
+     * SOW-XXXXXX
+     */
+    generateTemporarySowCode();
+
+
+    /*
+     * Tanggal dan jam.
+     */
+    setDefaultDateTime();
+
+
+    /*
+     * Master Data.
+     */
+    await loadMasterData();
+
+
+    /*
+     * Event Submit.
+     */
+    elements.form.addEventListener(
+        "submit",
+        handleSubmit
+    );
+
+
+    console.log(
+        "MY SOW BALI - User Form siap."
+    );
+
+}
+
+
+/* ============================================================
+   19. JALANKAN APLIKASI
+   ============================================================ */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    initializeApp
 );

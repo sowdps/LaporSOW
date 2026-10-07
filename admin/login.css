@@ -1,133 +1,525 @@
+
+/* ============================================================
+   MY SOW BALI - ADMIN LOGIN
+   FILE    : admin/login.css
+   VERSION : FINAL
+   FUNGSI  : Tampilan halaman login administrator
+   ============================================================ */
+
+
+/* ============================================================
+   1. RESET DAN VARIABEL WARNA
+   ============================================================ */
+
+:root {
+    --primary: #2563eb;
+    --primary-dark: #1d4ed8;
+    --primary-light: #eff6ff;
+
+    --text-primary: #0f172a;
+    --text-secondary: #64748b;
+
+    --border: #cbd5e1;
+    --background: #f1f5f9;
+
+    --white: #ffffff;
+    --danger: #dc2626;
+    --success: #15803d;
+
+    --radius: 14px;
+}
+
 * {
     box-sizing: border-box;
+}
+
+html {
+    min-height: 100%;
 }
 
 body {
     margin: 0;
     min-height: 100vh;
+    min-height: 100dvh;
 
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
 
-    font-family:
-        Arial,
-        sans-serif;
+    padding: 24px 16px;
 
-    background:
-        linear-gradient(
-            135deg,
-            #499ef3,
-            #e2e8f0
-            
-        );
+    font-family: Arial, Helvetica, sans-serif;
+    color: var(--text-primary);
+
+    background: linear-gradient(
+        135deg,
+        #dbeafe 0%,
+        #eff6ff 45%,
+        #e2e8f0 100%
+    );
 }
+
+
+/* ============================================================
+   2. CONTAINER LOGIN
+   ============================================================ */
 
 .login-container {
     width: 100%;
-    max-width: 400px;
-    padding: 20px;
+    max-width: 440px;
+    margin: 0 auto;
 }
 
 .login-card {
-    background: white;
+    width: 100%;
+    padding: 36px 32px;
 
-    padding: 32px;
-
-    border-radius: 16px;
+    background: var(--white);
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
 
     box-shadow:
-        0 10px 30px
-        rgba(
-            0,
-            0,
-            0,
-            0.12
-        );
+        0 18px 45px rgba(15, 23, 42, 0.09),
+        0 4px 12px rgba(15, 23, 42, 0.04);
+
+    animation: loginFadeIn 0.4s ease-out;
 }
 
+
+/* ============================================================
+   3. BRANDING SOW
+   ============================================================ */
+
+.sow-login-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+.sow-login-logo {
+    display: block;
+
+    width: 86px;
+    height: 86px;
+
+    margin: 0 auto 14px;
+
+    object-fit: contain;
+}
+
+.sow-login-brand-name {
+    margin: 0 0 5px;
+
+    font-size: 20px;
+    font-weight: 800;
+    line-height: 1.35;
+    letter-spacing: 0.3px;
+
+    color: #1e3a8a;
+}
+
+.sow-login-brand-subtitle {
+    margin: 0;
+
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.5;
+    letter-spacing: 1.1px;
+
+    color: var(--text-secondary);
+}
+
+
+/* ============================================================
+   4. JUDUL LOGIN
+   ============================================================ */
+
 .login-title {
+    margin: 0 0 8px;
+
     text-align: center;
 
-    margin-bottom: 8px;
+    font-size: 25px;
+    font-weight: 800;
+    line-height: 1.3;
 
-    font-size: 28px;
-
-    font-weight: bold;
+    color: var(--text-primary);
 }
 
 .login-subtitle {
-    text-align: center;
-
-    color: #64748b;
-
-    margin-bottom: 28px;
-}
-
-label {
-    display: block;
-
-    margin-bottom: 7px;
-
-    font-weight: bold;
-}
-
-input {
-    width: 100%;
-
-    padding: 13px;
-
-    margin-bottom: 18px;
-
-    border: 1px solid #cbd5e1;
-
-    border-radius: 8px;
-
-    font-size: 15px;
-}
-
-input:focus {
-    outline: none;
-
-    border-color: #2563eb;
-}
-
-button {
-    width: 100%;
-
-    padding: 13px;
-
-    border: none;
-
-    border-radius: 8px;
-
-    background: #2563eb;
-
-    color: white;
-
-    font-size: 16px;
-
-    font-weight: bold;
-
-    cursor: pointer;
-}
-
-button:hover {
-    background: #1d4ed8;
-}
-
-button:disabled {
-    background: #94a3b8;
-
-    cursor: not-allowed;
-}
-
-#pesanLogin {
-    margin-top: 16px;
+    margin: 0 0 28px;
 
     text-align: center;
 
     font-size: 14px;
+    line-height: 1.6;
 
-    min-height: 20px;
+    color: var(--text-secondary);
 }
+
+
+/* ============================================================
+   5. FORM LOGIN
+   ============================================================ */
+
+.login-card form {
+    width: 100%;
+}
+
+.login-card label {
+    display: block;
+
+    margin-bottom: 8px;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    color: #334155;
+}
+
+.login-card input {
+    display: block;
+
+    width: 100%;
+    min-width: 0;
+    min-height: 46px;
+
+    padding: 12px 14px;
+    margin-bottom: 20px;
+
+    border: 1px solid var(--border);
+    border-radius: 10px;
+
+    background: var(--white);
+    color: var(--text-primary);
+
+    font-family: inherit;
+    font-size: 14px;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.login-card input::placeholder {
+    color: #94a3b8;
+}
+
+.login-card input:hover {
+    border-color: #94a3b8;
+}
+
+.login-card input:focus {
+    outline: none;
+
+    border-color: var(--primary);
+
+    box-shadow:
+        0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.login-card input:disabled {
+    background: #f1f5f9;
+    cursor: not-allowed;
+}
+
+
+/* ============================================================
+   6. INPUT PASSWORD DAN TOMBOL LIHAT PASSWORD
+   ============================================================ */
+
+.password-wrapper,
+.password-container,
+.password-field {
+    position: relative;
+    width: 100%;
+}
+
+.password-wrapper input,
+.password-container input,
+.password-field input {
+    padding-right: 54px;
+}
+
+.password-wrapper button,
+.password-container button,
+.password-field button,
+.password-toggle,
+.toggle-password {
+    position: absolute;
+    top: 0;
+    right: 0;
+
+    width: 48px;
+    height: 46px;
+
+    padding: 0;
+    margin: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+    border-radius: 0 10px 10px 0;
+
+    background: transparent;
+    color: #64748b;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    box-shadow: none;
+}
+
+.password-wrapper button:hover,
+.password-container button:hover,
+.password-field button:hover,
+.password-toggle:hover,
+.toggle-password:hover {
+    background: #eff6ff;
+    color: var(--primary);
+}
+
+
+/* ============================================================
+   7. TOMBOL LOGIN UTAMA
+   ============================================================ */
+
+#loginButton,
+.login-button,
+button[type="submit"] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    min-height: 48px;
+
+    padding: 13px 18px;
+
+    border: none;
+    border-radius: 10px;
+
+    background: var(--primary);
+    color: var(--white);
+
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+#loginButton:hover:not(:disabled),
+.login-button:hover:not(:disabled),
+button[type="submit"]:hover:not(:disabled) {
+    background: var(--primary-dark);
+
+    box-shadow:
+        0 5px 15px rgba(37, 99, 235, 0.2);
+}
+
+#loginButton:active:not(:disabled),
+.login-button:active:not(:disabled),
+button[type="submit"]:active:not(:disabled) {
+    transform: translateY(1px);
+}
+
+#loginButton:disabled,
+.login-button:disabled,
+button[type="submit"]:disabled {
+    background: #94a3b8;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+button:focus-visible {
+    outline: 3px solid rgba(37, 99, 235, 0.35);
+    outline-offset: 3px;
+}
+
+
+/* ============================================================
+   8. PESAN LOGIN / ERROR / BERHASIL
+   ============================================================ */
+
+#pesanLogin {
+    min-height: 20px;
+    margin-top: 18px;
+
+    text-align: center;
+
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.6;
+
+    overflow-wrap: anywhere;
+}
+
+#pesanLogin:empty {
+    min-height: 0;
+    margin-top: 0;
+}
+
+#pesanLogin.error,
+#pesanLogin.gagal,
+.login-error {
+    color: var(--danger);
+}
+
+#pesanLogin.success,
+#pesanLogin.berhasil,
+.login-success {
+    color: var(--success);
+}
+
+#pesanLogin.info,
+.login-info {
+    color: var(--primary);
+}
+
+
+/* ============================================================
+   9. INFORMASI KEAMANAN / FOOTER
+   ============================================================ */
+
+.login-security-note,
+.security-note {
+    margin-top: 22px;
+
+    text-align: center;
+
+    font-size: 11px;
+    line-height: 1.6;
+
+    color: var(--text-secondary);
+}
+
+.login-footer {
+    margin-top: 18px;
+
+    text-align: center;
+
+    font-size: 11px;
+    line-height: 1.5;
+
+    color: #64748b;
+}
+
+
+/* ============================================================
+   10. ANIMASI MASUK
+   ============================================================ */
+
+@keyframes loginFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+/* ============================================================
+   11. RESPONSIVE TABLET
+   ============================================================ */
+
+@media (max-width: 768px) {
+
+    .login-container {
+        max-width: 420px;
+    }
+
+    .login-card {
+        padding: 30px 26px;
+    }
+
+    .login-title {
+        font-size: 23px;
+    }
+
+}
+
+
+/* ============================================================
+   12. RESPONSIVE HP
+   ============================================================ */
+
+@media (max-width: 480px) {
+
+    body {
+        padding: 16px 12px;
+    }
+
+    .login-container {
+        max-width: 100%;
+        padding: 0;
+    }
+
+    .login-card {
+        padding: 28px 22px;
+        border-radius: 16px;
+    }
+
+    .sow-login-logo {
+        width: 76px;
+        height: 76px;
+    }
+
+    .sow-login-brand-name {
+        font-size: 18px;
+    }
+
+    .sow-login-brand-subtitle {
+        font-size: 10px;
+    }
+
+    .login-title {
+        font-size: 22px;
+    }
+
+    .login-subtitle {
+        font-size: 13px;
+    }
+
+    .login-card input {
+        font-size: 16px;
+    }
+
+}
+
+
+/* ============================================================
+   13. AKSESIBILITAS
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+
+}
+
+
+/* ============================================================
+   END OF FILE - LOGIN.CSS
+   ============================================================ */

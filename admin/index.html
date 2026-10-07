@@ -2,6 +2,29 @@
 <html lang="id">
 
 <head>
+
+    <!-- =====================================================
+         ADMIN DASHBOARD - LAPOR SOW
+         FILE: admin/index.html
+
+         BAGIAN:
+         🔵 ADMIN DASHBOARD
+
+         FUNGSI:
+         - Dashboard order
+         - Rekap laporan
+         - Manajemen SOW
+         - Detail order
+         - Update status
+         - Riwayat status
+         - Logout admin
+    ====================================================== -->
+
+
+    <!-- =====================================================
+         1. CEK SESSION ADMIN
+    ====================================================== -->
+
     <script>
 
         if (
@@ -17,36 +40,67 @@
         }
 
     </script>
+
+
+    <!-- =====================================================
+         2. META
+    ====================================================== -->
+
     <meta charset="UTF-8">
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Admin Dashboard - Lapor SOW</title>
+    <meta name="description" content="Admin Dashboard LAPOR SOW IV Denpasar">
 
-    <!-- CSS -->
+
+    <!-- =====================================================
+         3. TITLE
+    ====================================================== -->
+
+    <title>
+        Admin Dashboard | LAPOR SOW IV DENPASAR
+    </title>
+
+
+    <!-- =====================================================
+         4. CSS ADMIN
+    ====================================================== -->
+
     <link rel="stylesheet" href="admin.css">
 
 </head>
 
 
 <body>
+
+
     <!-- =====================================================
-     SIDEBAR MENU ADMIN
-     TAHAP 13 - NAVIGASI
-     ===================================================== -->
+         5. TOMBOL MENU MOBILE
+    ====================================================== -->
 
-    <button type="button" id="sidebarMenuButton" class="sidebar-menu-button" aria-label="Buka Menu">
-
+    <button type="button" id="sidebarMenuButton" class="sidebar-menu-button" aria-label="Buka Menu Admin"
+        title="Buka Menu Admin">
         ☰
-
     </button>
 
 
-    <div id="sidebarOverlay" class="sidebar-overlay">
-    </div>
+    <!-- =====================================================
+         6. OVERLAY SIDEBAR
+    ====================================================== -->
 
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+
+    <!-- =====================================================
+         7. SIDEBAR ADMIN
+    ====================================================== -->
 
     <aside id="adminSidebar" class="admin-sidebar">
+
+
+        <!-- =================================================
+             HEADER SIDEBAR
+        ================================================== -->
 
         <div class="sidebar-header">
 
@@ -57,26 +111,34 @@
                 </span>
 
                 <div>
-                    <strong>MENU ADMIN</strong>
+
+                    <strong>
+                        MENU ADMIN
+                    </strong>
 
                     <small>
                         SOW IV DENPASAR
                     </small>
+
                 </div>
 
             </div>
 
 
-            <button type="button" id="sidebarCloseButton" class="sidebar-close-button">
-
+            <button type="button" id="sidebarCloseButton" class="sidebar-close-button" aria-label="Tutup Menu"
+                title="Tutup Menu">
                 ✕
-
             </button>
 
         </div>
 
 
-        <div class="sidebar-menu">
+        <!-- =================================================
+             MENU SIDEBAR
+        ================================================== -->
+
+        <nav class="sidebar-menu" aria-label="Menu Admin">
+
 
             <!-- DASHBOARD -->
 
@@ -108,7 +170,7 @@
             </button>
 
 
-            <!-- SOW -->
+            <!-- MANAJEMEN SOW -->
 
             <button type="button" class="sidebar-menu-item" data-menu-target="teknisi">
 
@@ -122,8 +184,13 @@
 
             </button>
 
-        </div>
 
+        </nav>
+
+
+        <!-- =================================================
+             FOOTER SIDEBAR
+        ================================================== -->
 
         <div class="sidebar-footer">
 
@@ -137,24 +204,35 @@
 
         </div>
 
+
     </aside>
 
-    <div class="dashboard-container">
+
+    <!-- =====================================================
+         8. CONTAINER UTAMA DASHBOARD
+    ====================================================== -->
+
+    <main class="dashboard-container">
 
 
-        <!-- =========================
-             HEADER
-        ========================== -->
+        <!-- =================================================
+             9. HEADER DASHBOARD
+        ================================================== -->
 
         <header class="dashboard-header">
 
+
             <div class="dashboard-brand">
 
-                <img src="../images/logo-sow-iv-dps-compact.png" alt="Logo SOW IV DPS" class="dashboard-logo">
+
+                <img src="../images/logo-sow-iv-dps-compact.png" alt="Logo SOW IV Denpasar" class="dashboard-logo">
+
 
                 <div class="dashboard-brand-text">
 
-                    <h1>ADMIN SOW IV DENPASAR</h1>
+                    <h1>
+                        ADMIN SOW IV DENPASAR
+                    </h1>
 
                     <p>
                         Sistem Monitoring Order
@@ -162,58 +240,83 @@
 
                 </div>
 
+
             </div>
+
+
+            <!-- LOGOUT -->
 
             <button id="logoutButton" type="button">
                 🚪 Logout
             </button>
 
+
         </header>
 
 
+        <!-- =================================================
+             10. STATISTIK ORDER
+        ================================================== -->
 
-        <!-- =========================
-             STATISTIK
-        ========================== -->
+        <section class="stats-container" aria-label="Statistik Order">
 
-        <section class="stats-container">
 
+            <!-- TOTAL -->
 
             <div class="stat-card">
 
-                <span>Total Order</span>
+                <span>
+                    Total Order
+                </span>
 
-                <h2 id="totalOrder">0</h2>
+                <h2 id="totalOrder">
+                    0
+                </h2>
 
             </div>
 
 
+            <!-- OPEN -->
 
             <div class="stat-card">
 
-                <span>OPEN</span>
+                <span>
+                    OPEN
+                </span>
 
-                <h2 id="totalOpen">0</h2>
+                <h2 id="totalOpen">
+                    0
+                </h2>
 
             </div>
 
 
+            <!-- PROSES -->
 
             <div class="stat-card">
 
-                <span>PROSES</span>
+                <span>
+                    PROSES
+                </span>
 
-                <h2 id="totalProses">0</h2>
+                <h2 id="totalProses">
+                    0
+                </h2>
 
             </div>
 
 
+            <!-- SELESAI -->
 
             <div class="stat-card">
 
-                <span>SELESAI</span>
+                <span>
+                    SELESAI
+                </span>
 
-                <h2 id="totalSelesai">0</h2>
+                <h2 id="totalSelesai">
+                    0
+                </h2>
 
             </div>
 
@@ -221,23 +324,22 @@
         </section>
 
 
+        <!-- =================================================
+             11. FILTER ORDER
+        ================================================== -->
 
-        <!-- =========================
-             FILTER
-        ========================== -->
-
-        <section class="filter-container">
-
-
-            <!-- CARI KODE -->
-
-            <input type="text" id="searchOrder" placeholder="Cari Kode Order...">
+        <section class="filter-container" aria-label="Filter Order">
 
 
+            <!-- CARI KODE ORDER -->
+
+            <input type="text" id="searchOrder" placeholder="Cari Kode Order..." autocomplete="off"
+                aria-label="Cari Kode Order">
 
 
             <!-- FILTER CABANG -->
-            <select id="filterCabang">
+
+            <select id="filterCabang" aria-label="Filter Cabang">
 
                 <option value="">
                     Semua Cabang
@@ -245,109 +347,113 @@
 
             </select>
 
-            <!-- =========================================
-     FILTER RENTANG TANGGAL
-========================================= -->
 
-            <input type="date" id="filterTanggalMulai" title="Tanggal Mulai">
+            <!-- TANGGAL MULAI -->
 
-            <input type="date" id="filterTanggalSampai" title="Tanggal Sampai">
+            <input type="date" id="filterTanggalMulai" title="Tanggal Mulai" aria-label="Tanggal Mulai">
 
-            <!-- TOMBOL CARI -->
 
-            <button id="searchButton">
+            <!-- TANGGAL SAMPAI -->
 
+            <input type="date" id="filterTanggalSampai" title="Tanggal Sampai" aria-label="Tanggal Sampai">
+
+
+            <!-- CARI -->
+
+            <button type="button" id="searchButton">
                 🔍 Cari
-
             </button>
 
 
+            <!-- RESET -->
 
-            <!-- RESET FILTER -->
-
-            <button id="resetFilter">
-
+            <button type="button" id="resetFilter">
                 Reset Filter
-
             </button>
 
 
         </section>
 
 
+        <!-- =================================================
+             12. REKAP LAPORAN
+        ================================================== -->
 
-        </section>
+        <section class="rekap-container" aria-label="Rekap Laporan">
 
 
-        <!-- =========================================
-             TAHAP B.2.1 - MENU REKAP LAPORAN
-        ========================================== -->
-
-        <section class="rekap-container">
+            <!-- HEADER REKAP -->
 
             <div class="rekap-header">
 
                 <div>
-                    <h2>📊 Rekap Laporan</h2>
+
+                    <h2>
+                        📊 Rekap Laporan
+                    </h2>
 
                     <p>
                         Rekap laporan berdasarkan periode
-                        Harian, Mingguan, Bulanan, dan Tahunan.
+                        harian, mingguan, bulanan, dan tahunan.
                     </p>
+
                 </div>
 
             </div>
 
 
-            <!-- PILIH PERIODE -->
+            <!-- =================================================
+                 PILIH PERIODE
+            ================================================== -->
 
-            <div class="rekap-menu">
+            <div class="rekap-menu" role="tablist" aria-label="Periode Rekap">
+
+
+                <!-- HARIAN -->
 
                 <button type="button" class="rekap-period-button active" data-period="harian">
-
                     📅 Harian
-
                 </button>
 
+
+                <!-- MINGGUAN -->
 
                 <button type="button" class="rekap-period-button" data-period="mingguan">
-
                     📆 Mingguan
-
                 </button>
 
+
+                <!-- BULANAN -->
 
                 <button type="button" class="rekap-period-button" data-period="bulanan">
-
                     🗓️ Bulanan
-
                 </button>
 
+
+                <!-- TAHUNAN -->
 
                 <button type="button" class="rekap-period-button" data-period="tahunan">
-
                     📈 Tahunan
-
                 </button>
+
 
             </div>
 
 
-            <!-- AREA PEMILIHAN PERIODE -->
+            <!-- =================================================
+                 FORM PERIODE
+            ================================================== -->
 
             <div id="rekapPeriodForm" class="rekap-period-form">
 
-                <!--
-                    Form periode akan diisi
-                    pada tahap B.2.2
-                --
-
                 <div class="rekap-info">
 
-                    <strong>Periode Rekap</strong>
+                    <strong>
+                        Periode Rekap
+                    </strong>
 
                     <span>
-                        Silakan pilih jenis periode di atas.
+                        Pilih jenis periode di atas.
                     </span>
 
                 </div>
@@ -355,28 +461,37 @@
             </div>
 
 
-            <!-- TOMBOL TAMPILKAN -->
+            <!-- =================================================
+                 AKSI REKAP
+            ================================================== -->
 
             <div class="rekap-action">
+
 
                 <button type="button" id="tampilkanRekapButton">
                     🔍 Tampilkan Rekap
                 </button>
 
+
                 <button type="button" id="downloadRekapExcelButton">
                     📥 Download Excel
                 </button>
 
+
             </div>
 
 
-            <!-- HASIL REKAP -->
+            <!-- =================================================
+                 HASIL REKAP
+            ================================================== -->
 
             <div id="rekapResult" class="rekap-result">
 
                 <div class="rekap-empty">
 
-                    📊
+                    <div>
+                        📊
+                    </div>
 
                     <h3>
                         Belum Ada Rekap
@@ -384,40 +499,57 @@
 
                     <p>
                         Pilih periode kemudian tekan
-                        <strong>Tampilkan Rekap</strong>.
+                        <strong>
+                            Tampilkan Rekap
+                        </strong>.
                     </p>
 
                 </div>
 
             </div>
 
-        </section>
-        <!-- =====================================================
-     TAHAP 13
-     MANAJEMEN SOW
-     ===================================================== -->
 
-        <section class="teknisi-container">
+        </section>
+
+
+        <!-- =================================================
+             13. MANAJEMEN SOW
+        ================================================== -->
+
+        <section class="teknisi-container" aria-label="Manajemen SOW">
+
+
+            <!-- HEADER -->
 
             <div class="teknisi-header">
 
                 <div>
-                    <h2>👨‍🔧 Manajemen SOW</h2>
+
+                    <h2>
+                        👨‍🔧 Manajemen SOW
+                    </h2>
 
                     <p>
                         Kelola daftar SOW yang digunakan
                         dalam proses pengerjaan order.
                     </p>
+
                 </div>
 
+
+                <!-- TAMBAH SOW -->
+
                 <button type="button" id="tambahTeknisiButton" class="btn-tambah-teknisi">
-
                     ➕ Tambah SOW
-
                 </button>
+
 
             </div>
 
+
+            <!-- =================================================
+                 TABEL SOW
+            ================================================== -->
 
             <div class="teknisi-table-wrapper">
 
@@ -427,7 +559,9 @@
 
                         <tr>
 
-                            <th>No</th>
+                            <th>
+                                No
+                            </th>
 
                             <th>
                                 Nama SOW
@@ -449,34 +583,39 @@
 
                     </thead>
 
+
                     <tbody id="teknisiTableBody">
 
                         <tr>
 
                             <td colspan="5" class="teknisi-loading">
-
-                                Memuat daftar sow...
-
+                                Memuat daftar SOW...
                             </td>
 
                         </tr>
 
                     </tbody>
 
+
                 </table>
 
             </div>
 
+
         </section>
 
 
-        <!-- =====================================================
-     MODAL TAMBAH / EDIT SOW
-     ===================================================== -->
+        <!-- =================================================
+             14. MODAL TAMBAH / EDIT SOW
+        ================================================== -->
 
-        <div id="teknisiModal" class="teknisi-modal">
+        <div id="teknisiModal" class="teknisi-modal" aria-hidden="true">
+
 
             <div class="teknisi-modal-content">
+
+
+                <!-- HEADER MODAL -->
 
                 <div class="teknisi-modal-header">
 
@@ -484,121 +623,155 @@
                         Tambah SOW
                     </h3>
 
-                    <button type="button" id="closeTeknisiModal" class="teknisi-modal-close">
 
+                    <button type="button" id="closeTeknisiModal" class="teknisi-modal-close" aria-label="Tutup">
                         ✕
-
                     </button>
 
                 </div>
 
 
+                <!-- BODY -->
+
                 <div class="teknisi-modal-body">
+
 
                     <label for="teknisiNamaInput">
                         Nama SOW
                     </label>
 
-                    <input type="text" id="teknisiNamaInput" placeholder="Contoh: BUDI S" autocomplete="off" />
 
-                    <input type="hidden" id="teknisiIdInput" value="" />
+                    <input type="text" id="teknisiNamaInput" placeholder="Contoh: BUDI S" autocomplete="off">
+
+
+                    <!-- ID SOW -->
+
+                    <input type="hidden" id="teknisiIdInput" value="">
+
 
                 </div>
 
+
+                <!-- FOOTER -->
 
                 <div class="teknisi-modal-footer">
 
+
                     <button type="button" id="batalTeknisiButton" class="btn-batal-teknisi">
-
                         Batal
-
                     </button>
+
 
                     <button type="button" id="simpanTeknisiButton" class="btn-simpan-teknisi">
-
                         💾 Simpan
-
                     </button>
+
 
                 </div>
 
+
             </div>
 
+
         </div>
-        <!-- =========================
-             TABEL ORDER
-        ========================== -->
-
-        <section class="table-container">
 
 
-            <table>
+        <!-- =================================================
+             15. TABEL ORDER
+        ================================================== -->
+
+        <section class="table-container" aria-label="Daftar Order">
 
 
-                <thead>
-
-                    <tr>
-
-                        <th>No</th>
-
-                        <th>Kode Order</th>
-
-                        <th>Nama</th>
-
-                        <th>Cabang</th>
-
-                        <th>Jenis Kendala</th>
-
-                        <th>Tanggal</th>
-
-                        <th>Status</th>
-
-                        <th>SOW</th>
-
-                        <th>Aksi</th>
-
-                    </tr>
-
-                </thead>
+            <div class="table-wrapper">
 
 
-
-                <tbody id="orderTableBody">
-
-                    <tr>
-
-                        <td colspan="9">
-
-                            Belum ada data order
-
-                        </td>
-
-                    </tr>
-
-                </tbody>
+                <table>
 
 
-            </table>
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                No
+                            </th>
+
+                            <th>
+                                Kode Order
+                            </th>
+
+                            <th>
+                                Nama
+                            </th>
+
+                            <th>
+                                Cabang
+                            </th>
+
+                            <th>
+                                Jenis Kendala
+                            </th>
+
+                            <th>
+                                Tanggal
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                            <th>
+                                SOW
+                            </th>
+
+                            <th>
+                                Aksi
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="orderTableBody">
+
+                        <tr>
+
+                            <td colspan="9">
+                                Memuat data order...
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+
+                </table>
+
+
+            </div>
 
 
         </section>
 
 
-    </div>
+    </main>
 
 
+    <!-- =====================================================
+         16. MODAL DETAIL ORDER
+    ====================================================== -->
 
-    <!-- =====================================
-         MODAL DETAIL ORDER
-    ====================================== -->
-
-    <div id="detailModal" class="modal">
+    <div id="detailModal" class="modal" aria-hidden="true">
 
 
         <div class="modal-content">
 
 
-            <!-- HEADER MODAL -->
+            <!-- =================================================
+                 HEADER MODAL
+            ================================================== -->
 
             <div class="modal-header">
 
@@ -616,42 +789,34 @@
                 </div>
 
 
-                <!-- TOMBOL TUTUP -->
-
-                <button id="closeModal" class="close-modal">
-
+                <button type="button" id="closeModal" class="close-modal" aria-label="Tutup Detail">
                     ✕
-
                 </button>
 
 
             </div>
 
 
-
-            <!-- BODY MODAL -->
+            <!-- =================================================
+                 BODY DETAIL
+            ================================================== -->
 
             <div class="modal-body">
 
 
-                <!-- KODE ORDER -->
+                <!-- KODE -->
 
                 <div class="detail-item">
 
                     <span class="detail-label">
-
                         Kode Order
-
                     </span>
 
                     <span class="detail-value" id="detailKode">
-
                         -
-
                     </span>
 
                 </div>
-
 
 
                 <!-- NAMA -->
@@ -659,23 +824,20 @@
                 <div class="detail-item">
 
                     <span class="detail-label">
-
                         Nama
-
                     </span>
 
                     <span class="detail-value" id="detailNama">
-
                         -
-
                     </span>
 
                 </div>
 
 
-
                 <!-- UNIT KERJA -->
+
                 <div class="detail-item">
+
                     <span class="detail-label">
                         Unit Kerja
                     </span>
@@ -683,8 +845,8 @@
                     <span class="detail-value" id="detailUnitKerja">
                         -
                     </span>
-                </div>
 
+                </div>
 
 
                 <!-- CABANG -->
@@ -692,19 +854,14 @@
                 <div class="detail-item">
 
                     <span class="detail-label">
-
                         Cabang
-
                     </span>
 
                     <span class="detail-value" id="detailCabang">
-
                         -
-
                     </span>
 
                 </div>
-
 
 
                 <!-- JENIS KENDALA -->
@@ -712,19 +869,14 @@
                 <div class="detail-item">
 
                     <span class="detail-label">
-
                         Jenis Kendala
-
                     </span>
 
                     <span class="detail-value" id="detailJenisKendala">
-
                         -
-
                     </span>
 
                 </div>
-
 
 
                 <!-- DESKRIPSI -->
@@ -732,19 +884,14 @@
                 <div class="detail-item detail-full">
 
                     <span class="detail-label">
-
                         Deskripsi Kendala
-
                     </span>
 
                     <div class="detail-description" id="detailDeskripsi">
-
                         -
-
                     </div>
 
                 </div>
-
 
 
                 <!-- WHATSAPP -->
@@ -752,19 +899,14 @@
                 <div class="detail-item">
 
                     <span class="detail-label">
-
                         WhatsApp
-
                     </span>
 
                     <span class="detail-value" id="detailWhatsapp">
-
                         -
-
                     </span>
 
                 </div>
-
 
 
                 <!-- TANGGAL -->
@@ -772,19 +914,14 @@
                 <div class="detail-item">
 
                     <span class="detail-label">
-
                         Tanggal
-
                     </span>
 
                     <span class="detail-value" id="detailTanggal">
-
                         -
-
                     </span>
 
                 </div>
-
 
 
                 <!-- JAM -->
@@ -792,19 +929,14 @@
                 <div class="detail-item">
 
                     <span class="detail-label">
-
                         Jam
-
                     </span>
 
                     <span class="detail-value" id="detailJam">
-
                         -
-
                     </span>
 
                 </div>
-
 
 
                 <!-- STATUS -->
@@ -812,19 +944,14 @@
                 <div class="detail-item">
 
                     <span class="detail-label">
-
                         Status
-
                     </span>
 
                     <span class="detail-status" id="detailStatus">
-
                         -
-
                     </span>
 
                 </div>
-
 
 
                 <!-- SOW -->
@@ -832,39 +959,29 @@
                 <div class="detail-item">
 
                     <span class="detail-label">
-
                         SOW
-
                     </span>
 
                     <span class="detail-value" id="detailTeknisi">
-
                         -
-
                     </span>
 
                 </div>
 
 
-
-                <!-- CATATAN PROGRES -->
+                <!-- CATATAN -->
 
                 <div class="detail-item detail-full">
 
                     <span class="detail-label">
-
                         Catatan Progres
-
                     </span>
 
                     <div class="detail-description" id="detailCatatan">
-
                         -
-
                     </div>
 
                 </div>
-
 
 
                 <!-- TANGGAL UPDATE -->
@@ -872,47 +989,44 @@
                 <div class="detail-item">
 
                     <span class="detail-label">
-
                         Terakhir Update
-
                     </span>
 
                     <span class="detail-value" id="detailTanggalUpdate">
-
                         -
-
                     </span>
 
                 </div>
 
 
-
-                <!-- RIWAYAT -->
+                <!-- RIWAYAT STATUS -->
 
                 <div class="detail-item detail-full">
 
                     <span class="detail-label">
-
                         Riwayat Status
-
                     </span>
 
                     <div class="detail-history" id="detailRiwayat">
-
                         -
-
                     </div>
 
                 </div>
 
 
             </div>
-            <!-- FOOTER MODAL -->
-            <!-- AREA UPDATE ORDER -->
+
+
+            <!-- =================================================
+                 17. UPDATE ORDER
+            ================================================== -->
 
             <div class="update-order-section">
 
-                <h3>UPDATE ORDER</h3>
+
+                <h3>
+                    UPDATE ORDER
+                </h3>
 
 
                 <!-- UPDATE STATUS -->
@@ -922,6 +1036,7 @@
                     <label for="updateStatus">
                         Update Status
                     </label>
+
 
                     <select id="updateStatus">
 
@@ -950,38 +1065,19 @@
                         Pilih SOW
                     </label>
 
+
                     <select id="updateTeknisi">
 
                         <option value="">
                             -- Pilih SOW --
                         </option>
 
-                        <option value="NINA WIRAYUNI">
-                            NINA WIRAYUNI
-                        </option>
-
-                        <option value="OKA W">
-                            OKA W
-                        </option>
-
-                        <option value="DIDI WAHYUDI">
-                            DIDI WAHYUDI
-                        </option>
-
-                        <option value="WAYAN HENDY">
-                            WAYAN HENDY
-                        </option>
-                        <option value="ANOM S">
-                            ANOM S
-                        </option>
-                        <option value="YOGA S">
-                            YOGA S
-                        </option>
-
                     </select>
 
                 </div>
-                <!-- CATATAN PROGRES -->
+
+
+                <!-- CATATAN -->
 
                 <div class="update-item">
 
@@ -989,32 +1085,31 @@
                         Catatan Progres
                     </label>
 
+
                     <textarea id="updateCatatan" placeholder="Tulis catatan progres pekerjaan..." rows="4"></textarea>
 
                 </div>
 
+
                 <!-- SIMPAN -->
 
-                <button id="saveUpdateButton">
-
+                <button type="button" id="saveUpdateButton">
                     Simpan Update
-
                 </button>
 
 
             </div>
 
 
-
-            <!-- FOOTER MODAL -->
+            <!-- =================================================
+                 18. FOOTER MODAL
+            ================================================== -->
 
             <div class="modal-footer">
 
 
-                <button id="closeModalButton" class="btn-close">
-
+                <button type="button" id="closeModalButton" class="btn-close">
                     Tutup
-
                 </button>
 
 
@@ -1027,15 +1122,26 @@
     </div>
 
 
+    <!-- =====================================================
+         19. LIBRARY SHEETJS
+         Digunakan untuk proses Excel
+    ====================================================== -->
 
-    <!-- LIBRARY EXCEL - SHEETJS -->
-    <script type="text/javascript" src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js">
-    </script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 
-    <!-- LIBRARY EXCELJS - UNTUK EXCEL DENGAN DESAIN/WARNA -->
+
+    <!-- =====================================================
+         20. LIBRARY EXCELJS
+         Digunakan untuk Excel dengan format/desain
+    ====================================================== -->
+
     <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
 
-    <!-- JAVASCRIPT -->
+
+    <!-- =====================================================
+         21. JAVASCRIPT ADMIN
+    ====================================================== -->
+
     <script src="admin.js"></script>
 
 
