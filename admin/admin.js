@@ -35,7 +35,7 @@ if (
 // =====================================================
 
 const ADMIN_IDLE_MINUTES =
-    10;
+    60;
 
 const ADMIN_IDLE_MS =
     ADMIN_IDLE_MINUTES *
@@ -333,7 +333,7 @@ resetAdminIdleTimer();
 // =====================================================
 
 console.log(
-    "TAHAP 15A.3 - Auto Logout aktif: 10 menit"
+    "TAHAP 15A.3 - Auto Logout aktif: 60 menit"
 );
 
 // =====================================================
@@ -399,8 +399,8 @@ const detailKode =
 const detailNama =
     document.getElementById("detailNama");
 
-const detailNip =
-    document.getElementById("detailNip");
+const detailUnitKerja =
+    document.getElementById("detailUnitKerja");
 
 const detailCabang =
     document.getElementById("detailCabang");
@@ -789,7 +789,7 @@ async function loadOrders() {
 
                 <td colspan="9">
 
-                    âŒ Gagal memuat data:
+                    Gagal memuat data:
                     ${error.message}
 
                 </td>
@@ -1198,10 +1198,8 @@ function lihatDetail(kode) {
         order.nama || "-";
 
 
-    detailNip.textContent =
-    order.unit_kerja ||
-    order.unitkerja ||
-    "-";
+    detailUnitKerja.textContent =
+        order.unit_kerja || "-";
 
 
     detailCabang.textContent =
@@ -3325,7 +3323,6 @@ async function ambilRekap(
         rekapResult.innerHTML = `
             <div class="rekap-empty">
 
-                âŒ
 
                 <h3>Rekap Gagal</h3>
 
@@ -5012,7 +5009,7 @@ function tampilkanHasilRekap(
 
             <div class="rekap-table-title">
 
-                🕵️‍♂️ REKAP BERDASARKAN SOW
+                👩‍💻 REKAP BERDASARKAN SOW
 
             </div>
 
@@ -5203,7 +5200,7 @@ function tampilkanHasilRekap(
 
             <div class="rekap-table-title">
 
-                ðŸ“‹ DETAIL ORDER
+                DETAIL ORDER
 
             </div>
 
@@ -5297,7 +5294,7 @@ function tampilkanHasilRekap(
                         </td>
 
                         <td>
-                            ${order.unit_kerja || order.nip || "-"}
+                            ${order.unit_kerja || "-"}
                         </td>
 
                         <td>
@@ -5480,7 +5477,7 @@ async function loadTeknisiAdmin() {
                 <td colspan="5"
                     class="teknisi-loading">
 
-                    âŒ Gagal memuat daftar Teknisi.
+                    Gagal memuat daftar Teknisi.
 
                 </td>
             </tr>
@@ -5574,7 +5571,7 @@ function renderTeknisiAdmin() {
                                         class="btn-edit-teknisi"
                                         onclick="editTeknisiAdmin(${item.id})">
 
-                                        âœï¸ Edit
+                                        Edit
 
                                     </button>
 
@@ -5584,8 +5581,8 @@ function renderTeknisiAdmin() {
                                         onclick="ubahStatusTeknisiAdmin(${item.id})">
 
                                         ${aktif
-                            ? "â›” Nonaktifkan"
-                            : "âœ… Aktifkan"}
+                            ? "Nonaktifkan"
+                            : "Aktifkan"}
 
                                     </button>
 
@@ -5934,7 +5931,7 @@ async function simpanTeknisiAdmin() {
         );
 
         alert(
-            "âŒ " +
+            "" +
             error.message
         );
 
@@ -5944,7 +5941,7 @@ async function simpanTeknisiAdmin() {
         button.disabled = false;
 
         button.textContent =
-            "ðŸ’¾ Simpan";
+            "Simpan";
 
     }
 
@@ -6074,7 +6071,7 @@ async function ubahStatusTeknisiAdmin(id) {
         );
 
         alert(
-            "âŒ " +
+            "tidak bisa" +
             error.message
         );
 
