@@ -71,7 +71,7 @@
  * menggunakan URL ini.
  */
 const WEB_APP_URL =
-    "https://script.google.com/macros/s/AKfycbyOcM6jK4OHqHwd7203Do9Za0W23ZpA4wfmvBd2UsqQT_7v359DkjKTxdeaEqjQlqhV/exec";
+    "https://script.google.com/macros/s/AKfycbwMyIJyYAX2Ioik1Bv_TM5lx-XgLdmhay0vwbl3jNc_rQ7fN_ShL3rPbEAefk381_o/exec";
 
 
 /* ============================================================
@@ -567,7 +567,7 @@ async function loadMasterData() {
         }
 
         catch (
-            error
+        error
         ) {
 
             console.error(
@@ -621,7 +621,7 @@ async function loadMasterData() {
         ) {
 
             data.cabang.forEach(
-                function(item) {
+                function (item) {
 
                     const option =
                         document.createElement(
@@ -716,7 +716,7 @@ async function loadMasterData() {
 
                     option.textContent =
                         label &&
-                        label !== value
+                            label !== value
                             ? `${value} - ${label}`
                             : value;
 
@@ -747,7 +747,7 @@ async function loadMasterData() {
         ) {
 
             data.kendala.forEach(
-                function(item) {
+                function (item) {
 
                     const option =
                         document.createElement(
@@ -872,7 +872,7 @@ async function loadMasterData() {
     }
 
     catch (
-        error
+    error
     ) {
 
         console.error(
@@ -1221,7 +1221,7 @@ async function sendOrderToBackend(
     }
 
     catch (
-        error
+    error
     ) {
 
         console.error(
@@ -1511,10 +1511,10 @@ async function handleSubmit(
 
                 <strong>Cabang:</strong>
                 ${escapeHtml(
-                    result.cabang ||
-                    result.nama_cabang ||
-                    data.kode_cabang
-                )}
+                result.cabang ||
+                result.nama_cabang ||
+                data.kode_cabang
+            )}
 
                 <br>
 
@@ -1592,7 +1592,7 @@ async function handleSubmit(
          * kode hasil order tetap terlihat.
          */
         window.setTimeout(
-            function() {
+            function () {
 
                 const currentElements =
                     getElements();
@@ -1613,7 +1613,7 @@ async function handleSubmit(
     }
 
     catch (
-        error
+    error
     ) {
 
         console.error(
@@ -1629,9 +1629,9 @@ async function handleSubmit(
                 <br><br>
 
                 ${escapeHtml(
-                    error.message ||
-                    "Terjadi kesalahan pada sistem."
-                )}
+                error.message ||
+                "Terjadi kesalahan pada sistem."
+            )}
 
                 <br><br>
 
