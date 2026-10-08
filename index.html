@@ -3,141 +3,305 @@
 
 <head>
 
+    <!-- =========================================================
+         MY SOW BALI
+         FORM ORDER SOW
+         FILE : index.html
+
+         FUNGSI :
+         - Menampilkan Form LAPOR SOW
+         - Memuat CSS utama
+         - Memuat JavaScript utama
+         - Menampilkan kode order
+         - Mengirim order ke Google Apps Script
+
+         CATATAN :
+         ---------------------------------------------------------
+         WhatsApp Admin
+         WhatsApp Group
+         WhatsApp Pelapor
+         Email
+
+         seluruhnya diproses oleh BACKEND Google Apps Script.
+
+         Browser TIDAK mengirim WhatsApp secara langsung.
+         ========================================================= -->
+
+
+    <!-- =========================================================
+         META
+         ========================================================= -->
+
     <meta charset="UTF-8">
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Form Order Kendala Teknisi</title>
+    <meta name="description" content="LAPOR SOW - Sistem Laporan dan Permintaan SOW IT">
+
+    <meta name="theme-color" content="#2563eb">
+
+
+    <!-- =========================================================
+         TITLE
+         ========================================================= -->
+
+    <title>
+        LAPOR SOW | SOW IV DENPASAR
+    </title>
+
+
+    <!-- =========================================================
+         CSS UTAMA
+         ========================================================= -->
 
     <link rel="stylesheet" href="css/style.css">
 
 </head>
 
+
 <body>
 
-    <div class="form-container">
 
-        <div class="sow-brand-header">
+    <!-- =========================================================
+         CONTAINER UTAMA
+         ========================================================= -->
 
-            <img class="sow-brand-logo" src="images/logo-sow-iv-dps-compact.png" alt="Logo SOW IV DPS">
+    <main class="form-container">
 
-        </div>
 
-        <h1 class="sow-form-title">
-            LAPOR SOW
-        </h1>
-        <p class="sow-form-subtitle">
-            Sistem Laporan dan Permintaan Teknisi IT
-        </p>
-        <form id="orderForm">
+        <!-- =====================================================
+             BRAND / LOGO
+             ===================================================== -->
+
+        <header class="sow-brand-header">
+
+            <img class="sow-brand-logo" src="images/logo-sow-iv-dps-compact.png" alt="Logo SOW IV Denpasar"
+                loading="eager">
+
+        </header>
+
+
+        <!-- =====================================================
+             JUDUL FORM
+             ===================================================== -->
+
+        <section class="form-header">
+
+            <h1 class="sow-form-title">
+                LAPOR SOW
+            </h1>
+
+            <p class="sow-form-subtitle">
+                Sistem Laporan dan Permintaan SOW
+            </p>
+
+        </section>
+
+
+        <!-- =====================================================
+             FORM ORDER
+             ===================================================== -->
+
+        <form id="orderForm" novalidate>
+
+
+            <!-- =================================================
+                 1. NAMA
+                 ================================================= -->
 
             <div class="form-group">
 
-                <label for="nama">NAMA</label>
+                <label for="nama">
+                    NAMA
+                </label>
 
-                <input type="text" id="nama" required placeholder="Nama Lengkap">
+                <input type="text" id="nama" name="nama" placeholder="Nama Lengkap" autocomplete="name" maxlength="100"
+                    required>
 
             </div>
 
 
+            <!-- =================================================
+                 2. UNIT KERJA
+                 ================================================= -->
+
             <div class="form-group">
 
-                <label for="unit_kerja">UNIT KERJA</label>
+                <label for="unit_kerja">
+                    UNIT KERJA
+                </label>
 
-                <input type="text" id="unit_kerja" required placeholder="contoh CSO/KABAG">
+                <input type="text" id="unit_kerja" name="unit_kerja" placeholder="Contoh: CSO / KABAG" maxlength="100"
+                    autocomplete="organization-title" required>
 
             </div>
 
 
+            <!-- =================================================
+                 3. KODE CABANG
+                 ================================================= -->
+
             <div class="form-group">
 
-                <label for="kode_cabang">KODE CABANG</label>
+                <label for="kode_cabang">
+                    KODE CABANG
+                </label>
 
-                <select id="kode_cabang" required>
+                <select id="kode_cabang" name="kode_cabang" required>
 
-                    <option value="">Pilih Cabang</option>
+                    <option value="">
+                        Memuat daftar cabang...
+                    </option>
 
                 </select>
 
             </div>
 
 
+            <!-- =================================================
+                 4. JENIS KENDALA
+                 ================================================= -->
+
             <div class="form-group">
 
-                <label for="jenis_kendala">JENIS KENDALA</label>
+                <label for="jenis_kendala">
+                    JENIS KENDALA
+                </label>
 
-                <select id="jenis_kendala" required>
+                <select id="jenis_kendala" name="jenis_kendala" required>
 
-                    <option value="">Pilih Jenis Kendala</option>
+                    <option value="">
+                        Memuat jenis kendala...
+                    </option>
+
                 </select>
 
             </div>
 
 
+            <!-- =================================================
+                 5. DESKRIPSI
+                 ================================================= -->
+
             <div class="form-group">
 
-                <label for="deskripsi">DESKRIPSI</label>
+                <label for="deskripsi">
+                    DESKRIPSI
+                </label>
 
-                <textarea id="deskripsi" required placeholder="Jelaskan detail kendala..."></textarea>
+                <textarea id="deskripsi" name="deskripsi" placeholder="Jelaskan detail kendala yang terjadi..."
+                    maxlength="2000" rows="5" required></textarea>
 
             </div>
 
 
+            <!-- =================================================
+                 6. WHATSAPP PELAPOR
+                 ================================================= -->
+
             <div class="form-group">
 
-                <label for="whatsapp">WHATSAPP</label>
+                <label for="whatsapp">
+                    WHATSAPP PELAPOR
+                </label>
 
-                <input type="tel" id="whatsapp" required placeholder="08123456789">
+                <input type="tel" id="whatsapp" name="whatsapp" placeholder="08123456789" inputmode="numeric"
+                    autocomplete="tel" maxlength="20" required>
 
             </div>
 
 
+            <!-- =================================================
+                 7. TANGGAL DAN JAM
+                 ================================================= -->
+
             <div class="form-group">
 
-                <label for="tanggal">TANGGAL</label>
+                <label for="tanggal">
+                    TANGGAL
+                </label>
 
-                <input type="date" id="tanggal" required>
+                <input type="date" id="tanggal" name="tanggal" required>
 
 
                 <label for="jam" class="label-jam">
-
                     JAM
-
                 </label>
 
-                <input type="time" id="jam" required>
+                <input type="time" id="jam" name="jam" required>
 
             </div>
 
+
+            <!-- =================================================
+                 8. KODE ORDER
+                 ================================================= -->
 
             <div class="form-group">
 
-                <label>KODE ORDER</label>
+                <label for="kode">
+                    KODE ORDER
+                </label>
 
-                <div id="kode">
 
-                    Memuat...
+                <!--
+                ===================================================
+                PENTING
+                ---------------------------------------------------
+                Sebelumnya menggunakan DIV:
 
-                </div>
+                    <div id="kode">
+                        Memuat...
+                    </div>
+
+                Itu salah karena script.js menggunakan:
+
+                    element.value
+
+                Sekarang menggunakan INPUT readonly sehingga
+                JavaScript dapat mengisi:
+
+                    SOW-XXXXXX
+
+                Kode resmi setelah order disimpan akan berasal
+                dari BACKEND Google Apps Script.
+                ===================================================
+                -->
+
+                <input type="text" id="kode" name="kode" value="Memuat..." readonly aria-live="polite"
+                    autocomplete="off">
 
             </div>
 
 
+            <!-- =================================================
+                 9. TOMBOL KIRIM ORDER
+                 ================================================= -->
+
             <button type="submit" class="btn-submit" id="submitBtn">
-
                 KIRIM ORDER
-
             </button>
 
 
-            <div id="success"></div>
+            <!-- =================================================
+                 10. PESAN HASIL
+                 ================================================= -->
+
+            <div id="success" role="status" aria-live="polite"></div>
+
 
         </form>
 
-    </div>
+
+    </main>
 
 
-    <script src="js/script.js"></script>
+    <!-- =========================================================
+         JAVASCRIPT UTAMA
+         ========================================================= -->
+
+    <script src="js/script.js" defer></script>
+
 
 </body>
 
