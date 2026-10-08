@@ -1,566 +1,625 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
-    <script>
-
-        if (
-            !localStorage.getItem(
-                "MY_SOW_ADMIN_TOKEN"
-            )
-        ) {
-
-            window.location.replace(
-                "login.html"
-            );
-
-        }
-
-    </script>
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Admin Dashboard - Lapor SOW</title>
+    <meta
+        name="description"
+        content="Admin Dashboard LAPOR SOW IV Denpasar"
+    >
 
-    <!-- CSS -->
-    <link rel="stylesheet" href="admin.css">
+    <title>
+        Admin Dashboard | LAPOR SOW IV DENPASAR
+    </title>
 
+    <link
+        rel="stylesheet"
+        href="admin.css"
+    >
 </head>
 
-
 <body>
-    <!-- =====================================================
-     SIDEBAR MENU ADMIN
-     TAHAP 13 - NAVIGASI
-     ===================================================== -->
 
-    <button type="button" id="sidebarMenuButton" class="sidebar-menu-button" aria-label="Buka Menu">
+<!-- ============================================================
+     SIDEBAR BUTTON
+     ============================================================ -->
 
-        ☰
+<button
+    type="button"
+    id="sidebarMenuButton"
+    class="sidebar-menu-button"
+    aria-label="Buka Menu Admin"
+    title="Buka Menu Admin"
+>
+    ☰
+</button>
 
-    </button>
+
+<!-- ============================================================
+     SIDEBAR OVERLAY
+     ============================================================ -->
+
+<div
+    id="sidebarOverlay"
+    class="sidebar-overlay"
+></div>
 
 
-    <div id="sidebarOverlay" class="sidebar-overlay">
+<!-- ============================================================
+     SIDEBAR ADMIN
+     ============================================================ -->
+
+<aside
+    id="adminSidebar"
+    class="admin-sidebar"
+    aria-label="Menu Admin"
+>
+
+    <div class="sidebar-header">
+
+        <div class="sidebar-title">
+
+            <span class="sidebar-title-icon">
+                ☰
+            </span>
+
+            <div>
+
+                <strong>
+                    MENU ADMIN
+                </strong>
+
+                <small>
+                    SOW IV DENPASAR
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <button
+            type="button"
+            id="sidebarCloseButton"
+            class="sidebar-close-button"
+            aria-label="Tutup Menu"
+            title="Tutup Menu"
+        >
+            ✕
+        </button>
+
     </div>
 
 
-    <aside id="adminSidebar" class="admin-sidebar">
+    <nav
+        class="sidebar-menu"
+        aria-label="Menu Admin"
+    >
 
-        <div class="sidebar-header">
+        <button
+            type="button"
+            class="sidebar-menu-item active"
+            data-menu-target="dashboard"
+        >
 
-            <div class="sidebar-title">
-
-                <span class="sidebar-title-icon">
-                    ☰
-                </span>
-
-                <div>
-                    <strong>MENU ADMIN</strong>
-
-                    <small>
-                        SOW IV DENPASAR
-                    </small>
-                </div>
-
-            </div>
-
-
-            <button type="button" id="sidebarCloseButton" class="sidebar-close-button">
-
-                ✕
-
-            </button>
-
-        </div>
-
-
-        <div class="sidebar-menu">
-
-            <!-- DASHBOARD -->
-
-            <button type="button" class="sidebar-menu-item" data-menu-target="dashboard">
-
-                <span class="sidebar-menu-icon">
-                    🏠
-                </span>
-
-                <span>
-                    Dashboard
-                </span>
-
-            </button>
-
-
-            <!-- REKAP -->
-
-            <button type="button" class="sidebar-menu-item" data-menu-target="rekap">
-
-                <span class="sidebar-menu-icon">
-                    📊
-                </span>
-
-                <span>
-                    Rekap Laporan
-                </span>
-
-            </button>
-
-
-            <!-- SOW -->
-
-            <button type="button" class="sidebar-menu-item" data-menu-target="teknisi">
-
-                <span class="sidebar-menu-icon">
-                    👨‍🔧
-                </span>
-
-                <span>
-                    Manajemen SOW
-                </span>
-
-            </button>
-
-        </div>
-
-
-        <div class="sidebar-footer">
-
-            <span>
-                Sistem Monitoring Order
+            <span class="sidebar-menu-icon">
+                🏠
             </span>
 
-            <strong>
-                SOW IV DENPASAR
-            </strong>
+            <span>
+                Dashboard
+            </span>
+
+        </button>
+
+
+        <button
+            type="button"
+            class="sidebar-menu-item"
+            data-menu-target="rekap"
+        >
+
+            <span class="sidebar-menu-icon">
+                📊
+            </span>
+
+            <span>
+                Rekap Laporan
+            </span>
+
+        </button>
+
+
+        <button
+            type="button"
+            class="sidebar-menu-item"
+            data-menu-target="teknisi"
+        >
+
+            <span class="sidebar-menu-icon">
+                👨‍🔧
+            </span>
+
+            <span>
+                Manajemen SOW
+            </span>
+
+        </button>
+
+    </nav>
+
+
+    <div class="sidebar-footer">
+
+        <span>
+            Sistem Monitoring Order
+        </span>
+
+        <strong>
+            SOW IV DENPASAR
+        </strong>
+
+    </div>
+
+</aside>
+
+
+<!-- ============================================================
+     DASHBOARD UTAMA
+     ============================================================ -->
+
+<main class="dashboard-container">
+
+
+    <!-- ========================================================
+         HEADER
+         ======================================================== -->
+
+    <header class="dashboard-header">
+
+        <div class="dashboard-brand">
+
+            <img
+                src="../images/logo-sow-iv-dps-compact.png"
+                alt="Logo SOW IV Denpasar"
+                class="dashboard-logo"
+            >
+
+            <div class="dashboard-brand-text">
+
+                <h1>
+                    ADMIN SOW IV DENPASAR
+                </h1>
+
+                <p>
+                    Sistem Monitoring Order
+                </p>
+
+            </div>
 
         </div>
 
-    </aside>
 
-    <div class="dashboard-container">
+        <button
+            id="logoutButton"
+            type="button"
+        >
+            🚪 Logout
+        </button>
+
+    </header>
 
 
-        <!-- =========================
-             HEADER
-        ========================== -->
+    <!-- ========================================================
+         STATISTIK
+         ======================================================== -->
 
-        <header class="dashboard-header">
+    <section
+        class="stats-container"
+        aria-label="Statistik Order"
+    >
 
-            <div class="dashboard-brand">
+        <div class="stat-card">
 
-                <img src="../images/logo-sow-iv-dps-compact.png" alt="Logo SOW IV DPS" class="dashboard-logo">
+            <span>
+                Total Order
+            </span>
 
-                <div class="dashboard-brand-text">
+            <h2 id="totalOrder">
+                0
+            </h2>
 
-                    <h1>ADMIN SOW IV DENPASAR</h1>
+        </div>
 
-                    <p>
-                        Sistem Monitoring Order
-                    </p>
 
-                </div>
+        <div class="stat-card">
+
+            <span>
+                OPEN
+            </span>
+
+            <h2 id="totalOpen">
+                0
+            </h2>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <span>
+                PROSES
+            </span>
+
+            <h2 id="totalProses">
+                0
+            </h2>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <span>
+                SELESAI
+            </span>
+
+            <h2 id="totalSelesai">
+                0
+            </h2>
+
+        </div>
+
+    </section>
+
+
+    <!-- ========================================================
+         FILTER ORDER
+         ======================================================== -->
+
+    <section
+        class="filter-container"
+        aria-label="Filter Order"
+    >
+
+        <input
+            type="text"
+            id="searchOrder"
+            placeholder="Cari Kode Order..."
+            autocomplete="off"
+        >
+
+
+        <select
+            id="filterCabang"
+            aria-label="Filter Cabang"
+        >
+
+            <option value="">
+                Semua Cabang
+            </option>
+
+        </select>
+
+
+        <input
+            type="date"
+            id="filterTanggalMulai"
+            title="Tanggal Mulai"
+        >
+
+
+        <input
+            type="date"
+            id="filterTanggalSampai"
+            title="Tanggal Sampai"
+        >
+
+
+        <button
+            type="button"
+            id="searchButton"
+        >
+            🔍 Cari
+        </button>
+
+
+        <button
+            type="button"
+            id="resetFilter"
+        >
+            Reset Filter
+        </button>
+
+    </section>
+
+
+    <!-- ========================================================
+         REKAP
+         ======================================================== -->
+
+    <section
+        class="rekap-container"
+        aria-label="Rekap Laporan"
+    >
+
+        <div class="rekap-header">
+
+            <div>
+
+                <h2>
+                    📊 Rekap Laporan
+                </h2>
+
+                <p>
+                    Rekap laporan berdasarkan periode.
+                </p>
 
             </div>
 
-            <button id="logoutButton" type="button">
-                🚪 Logout
+        </div>
+
+
+        <div
+            class="rekap-menu"
+            role="tablist"
+        >
+
+            <button
+                type="button"
+                class="rekap-period-button active"
+                data-period="harian"
+            >
+                📅 Harian
             </button>
 
-        </header>
 
-
-
-        <!-- =========================
-             STATISTIK
-        ========================== -->
-
-        <section class="stats-container">
-
-
-            <div class="stat-card">
-
-                <span>Total Order</span>
-
-                <h2 id="totalOrder">0</h2>
-
-            </div>
-
-
-
-            <div class="stat-card">
-
-                <span>OPEN</span>
-
-                <h2 id="totalOpen">0</h2>
-
-            </div>
-
-
-
-            <div class="stat-card">
-
-                <span>PROSES</span>
-
-                <h2 id="totalProses">0</h2>
-
-            </div>
-
-
-
-            <div class="stat-card">
-
-                <span>SELESAI</span>
-
-                <h2 id="totalSelesai">0</h2>
-
-            </div>
-
-
-        </section>
-
-
-
-        <!-- =========================
-             FILTER
-        ========================== -->
-
-        <section class="filter-container">
-
-
-            <!-- CARI KODE -->
-
-            <input type="text" id="searchOrder" placeholder="Cari Kode Order...">
-
-
-
-
-            <!-- FILTER CABANG -->
-            <select id="filterCabang">
-
-                <option value="">
-                    Semua Cabang
-                </option>
-
-            </select>
-
-            <!-- =========================================
-     FILTER RENTANG TANGGAL
-========================================= -->
-
-            <input type="date" id="filterTanggalMulai" title="Tanggal Mulai">
-
-            <input type="date" id="filterTanggalSampai" title="Tanggal Sampai">
-
-            <!-- TOMBOL CARI -->
-
-            <button id="searchButton">
-
-                🔍 Cari
-
+            <button
+                type="button"
+                class="rekap-period-button"
+                data-period="mingguan"
+            >
+                📆 Mingguan
             </button>
 
 
-
-            <!-- RESET FILTER -->
-
-            <button id="resetFilter">
-
-                Reset Filter
-
+            <button
+                type="button"
+                class="rekap-period-button"
+                data-period="bulanan"
+            >
+                🗓️ Bulanan
             </button>
 
 
-        </section>
+            <button
+                type="button"
+                class="rekap-period-button"
+                data-period="tahunan"
+            >
+                📈 Tahunan
+            </button>
+
+        </div>
 
 
+        <div
+            id="rekapPeriodForm"
+            class="rekap-period-form"
+        >
 
-        </section>
+            <div class="rekap-info">
+
+                <strong>
+                    Periode Rekap
+                </strong>
+
+                <span>
+                    Harian dipilih.
+                </span>
+
+            </div>
+
+        </div>
 
 
-        <!-- =========================================
-             TAHAP B.2.1 - MENU REKAP LAPORAN
-        ========================================== -->
+        <div class="rekap-action">
 
-        <section class="rekap-container">
+            <button
+                type="button"
+                id="tampilkanRekapButton"
+            >
+                🔍 Tampilkan Rekap
+            </button>
 
-            <div class="rekap-header">
+
+            <button
+                type="button"
+                id="downloadRekapExcelButton"
+            >
+                📥 Download Excel
+            </button>
+
+        </div>
+
+
+        <div
+            id="rekapResult"
+            class="rekap-result"
+        >
+
+            <div class="rekap-empty">
 
                 <div>
-                    <h2>📊 Rekap Laporan</h2>
-
-                    <p>
-                        Rekap laporan berdasarkan periode
-                        Harian, Mingguan, Bulanan, dan Tahunan.
-                    </p>
-                </div>
-
-            </div>
-
-
-            <!-- PILIH PERIODE -->
-
-            <div class="rekap-menu">
-
-                <button type="button" class="rekap-period-button active" data-period="harian">
-
-                    📅 Harian
-
-                </button>
-
-
-                <button type="button" class="rekap-period-button" data-period="mingguan">
-
-                    📆 Mingguan
-
-                </button>
-
-
-                <button type="button" class="rekap-period-button" data-period="bulanan">
-
-                    🗓️ Bulanan
-
-                </button>
-
-
-                <button type="button" class="rekap-period-button" data-period="tahunan">
-
-                    📈 Tahunan
-
-                </button>
-
-            </div>
-
-
-            <!-- AREA PEMILIHAN PERIODE -->
-
-            <div id="rekapPeriodForm" class="rekap-period-form">
-
-                <!--
-                    Form periode akan diisi
-                    pada tahap B.2.2
-                --
-
-                <div class="rekap-info">
-
-                    <strong>Periode Rekap</strong>
-
-                    <span>
-                        Silakan pilih jenis periode di atas.
-                    </span>
-
-                </div>
-
-            </div>
-
-
-            <!-- TOMBOL TAMPILKAN -->
-
-            <div class="rekap-action">
-
-                <button type="button" id="tampilkanRekapButton">
-                    🔍 Tampilkan Rekap
-                </button>
-
-                <button type="button" id="downloadRekapExcelButton">
-                    📥 Download Excel
-                </button>
-
-            </div>
-
-
-            <!-- HASIL REKAP -->
-
-            <div id="rekapResult" class="rekap-result">
-
-                <div class="rekap-empty">
-
                     📊
-
-                    <h3>
-                        Belum Ada Rekap
-                    </h3>
-
-                    <p>
-                        Pilih periode kemudian tekan
-                        <strong>Tampilkan Rekap</strong>.
-                    </p>
-
                 </div>
 
-            </div>
+                <h3>
+                    Belum Ada Rekap
+                </h3>
 
-        </section>
-        <!-- =====================================================
-     TAHAP 13
-     MANAJEMEN SOW
-     ===================================================== -->
-
-        <section class="teknisi-container">
-
-            <div class="teknisi-header">
-
-                <div>
-                    <h2>👨‍🔧 Manajemen SOW</h2>
-
-                    <p>
-                        Kelola daftar SOW yang digunakan
-                        dalam proses pengerjaan order.
-                    </p>
-                </div>
-
-                <button type="button" id="tambahTeknisiButton" class="btn-tambah-teknisi">
-
-                    ➕ Tambah SOW
-
-                </button>
-
-            </div>
-
-
-            <div class="teknisi-table-wrapper">
-
-                <table class="teknisi-table">
-
-                    <thead>
-
-                        <tr>
-
-                            <th>No</th>
-
-                            <th>
-                                Nama SOW
-                            </th>
-
-                            <th>
-                                Status
-                            </th>
-
-                            <th>
-                                Tanggal Update
-                            </th>
-
-                            <th>
-                                Aksi
-                            </th>
-
-                        </tr>
-
-                    </thead>
-
-                    <tbody id="teknisiTableBody">
-
-                        <tr>
-
-                            <td colspan="5" class="teknisi-loading">
-
-                                Memuat daftar sow...
-
-                            </td>
-
-                        </tr>
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-        </section>
-
-
-        <!-- =====================================================
-     MODAL TAMBAH / EDIT SOW
-     ===================================================== -->
-
-        <div id="teknisiModal" class="teknisi-modal">
-
-            <div class="teknisi-modal-content">
-
-                <div class="teknisi-modal-header">
-
-                    <h3 id="teknisiModalTitle">
-                        Tambah SOW
-                    </h3>
-
-                    <button type="button" id="closeTeknisiModal" class="teknisi-modal-close">
-
-                        ✕
-
-                    </button>
-
-                </div>
-
-
-                <div class="teknisi-modal-body">
-
-                    <label for="teknisiNamaInput">
-                        Nama SOW
-                    </label>
-
-                    <input type="text" id="teknisiNamaInput" placeholder="Contoh: BUDI S" autocomplete="off" />
-
-                    <input type="hidden" id="teknisiIdInput" value="" />
-
-                </div>
-
-
-                <div class="teknisi-modal-footer">
-
-                    <button type="button" id="batalTeknisiButton" class="btn-batal-teknisi">
-
-                        Batal
-
-                    </button>
-
-                    <button type="button" id="simpanTeknisiButton" class="btn-simpan-teknisi">
-
-                        💾 Simpan
-
-                    </button>
-
-                </div>
+                <p>
+                    Pilih periode kemudian tekan
+                    <strong>
+                        Tampilkan Rekap
+                    </strong>.
+                </p>
 
             </div>
 
         </div>
-        <!-- =========================
-             TABEL ORDER
-        ========================== -->
 
-        <section class="table-container">
+    </section>
 
 
-            <table>
+    <!-- ========================================================
+         MANAJEMEN SOW
+         ======================================================== -->
 
+    <section
+        class="teknisi-container"
+        aria-label="Manajemen SOW"
+    >
+
+        <div class="teknisi-header">
+
+            <div>
+
+                <h2>
+                    👨‍🔧 Manajemen SOW
+                </h2>
+
+                <p>
+                    Kelola daftar SOW yang digunakan
+                    dalam proses pengerjaan order.
+                </p>
+
+            </div>
+
+
+            <button
+                type="button"
+                id="tambahTeknisiButton"
+                class="btn-tambah-teknisi"
+            >
+                ➕ Tambah SOW
+            </button>
+
+        </div>
+
+
+        <div class="teknisi-table-wrapper">
+
+            <table class="teknisi-table">
 
                 <thead>
 
                     <tr>
 
-                        <th>No</th>
+                        <th>
+                            No
+                        </th>
 
-                        <th>Kode Order</th>
+                        <th>
+                            Nama SOW
+                        </th>
 
-                        <th>Nama</th>
+                        <th>
+                            Status
+                        </th>
 
-                        <th>Cabang</th>
+                        <th>
+                            Tanggal Update
+                        </th>
 
-                        <th>Jenis Kendala</th>
-
-                        <th>Tanggal</th>
-
-                        <th>Status</th>
-
-                        <th>SOW</th>
-
-                        <th>Aksi</th>
+                        <th>
+                            Aksi
+                        </th>
 
                     </tr>
 
                 </thead>
 
+
+                <tbody id="teknisiTableBody">
+
+                    <tr>
+
+                        <td
+                            colspan="5"
+                            class="teknisi-loading"
+                        >
+                            Memuat daftar SOW...
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+
+    <!-- ========================================================
+         TABEL ORDER
+         ======================================================== -->
+
+    <section
+        class="table-container"
+        aria-label="Daftar Order"
+    >
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            No
+                        </th>
+
+                        <th>
+                            Kode Order
+                        </th>
+
+                        <th>
+                            Nama
+                        </th>
+
+                        <th>
+                            Cabang
+                        </th>
+
+                        <th>
+                            Jenis Kendala
+                        </th>
+
+                        <th>
+                            Tanggal
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                        <th>
+                            SOW
+                        </th>
+
+                        <th>
+                            Aksi
+                        </th>
+
+                    </tr>
+
+                </thead>
 
 
                 <tbody id="orderTableBody">
@@ -568,454 +627,487 @@
                     <tr>
 
                         <td colspan="9">
-
-                            Belum ada data order
-
+                            Memuat data order...
                         </td>
 
                     </tr>
 
                 </tbody>
 
-
             </table>
 
+        </div>
 
-        </section>
+    </section>
 
+</main>
 
-    </div>
 
+<!-- ============================================================
+     MODAL TAMBAH / EDIT SOW
+     ============================================================ -->
 
+<div
+    id="teknisiModal"
+    class="teknisi-modal"
+    aria-hidden="true"
+>
 
-    <!-- =====================================
-         MODAL DETAIL ORDER
-    ====================================== -->
+    <div class="teknisi-modal-content">
 
-    <div id="detailModal" class="modal">
+        <div class="teknisi-modal-header">
 
+            <h3 id="teknisiModalTitle">
+                Tambah SOW
+            </h3>
 
-        <div class="modal-content">
-
-
-            <!-- HEADER MODAL -->
-
-            <div class="modal-header">
-
-
-                <div>
-
-                    <h2>
-                        DETAIL ORDER
-                    </h2>
-
-                    <p>
-                        Informasi lengkap laporan SOW
-                    </p>
-
-                </div>
-
-
-                <!-- TOMBOL TUTUP -->
-
-                <button id="closeModal" class="close-modal">
-
-                    ✕
-
-                </button>
-
-
-            </div>
-
-
-
-            <!-- BODY MODAL -->
-
-            <div class="modal-body">
-
-
-                <!-- KODE ORDER -->
-
-                <div class="detail-item">
-
-                    <span class="detail-label">
-
-                        Kode Order
-
-                    </span>
-
-                    <span class="detail-value" id="detailKode">
-
-                        -
-
-                    </span>
-
-                </div>
-
-
-
-                <!-- NAMA -->
-
-                <div class="detail-item">
-
-                    <span class="detail-label">
-
-                        Nama
-
-                    </span>
-
-                    <span class="detail-value" id="detailNama">
-
-                        -
-
-                    </span>
-
-                </div>
-
-
-
-                <!-- UNIT KERJA -->
-                <div class="detail-item">
-                    <span class="detail-label">
-                        Unit Kerja
-                    </span>
-
-                    <span class="detail-value" id="detailUnitKerja">
-                        -
-                    </span>
-                </div>
-
-
-
-                <!-- CABANG -->
-
-                <div class="detail-item">
-
-                    <span class="detail-label">
-
-                        Cabang
-
-                    </span>
-
-                    <span class="detail-value" id="detailCabang">
-
-                        -
-
-                    </span>
-
-                </div>
-
-
-
-                <!-- JENIS KENDALA -->
-
-                <div class="detail-item">
-
-                    <span class="detail-label">
-
-                        Jenis Kendala
-
-                    </span>
-
-                    <span class="detail-value" id="detailJenisKendala">
-
-                        -
-
-                    </span>
-
-                </div>
-
-
-
-                <!-- DESKRIPSI -->
-
-                <div class="detail-item detail-full">
-
-                    <span class="detail-label">
-
-                        Deskripsi Kendala
-
-                    </span>
-
-                    <div class="detail-description" id="detailDeskripsi">
-
-                        -
-
-                    </div>
-
-                </div>
-
-
-
-                <!-- WHATSAPP -->
-
-                <div class="detail-item">
-
-                    <span class="detail-label">
-
-                        WhatsApp
-
-                    </span>
-
-                    <span class="detail-value" id="detailWhatsapp">
-
-                        -
-
-                    </span>
-
-                </div>
-
-
-
-                <!-- TANGGAL -->
-
-                <div class="detail-item">
-
-                    <span class="detail-label">
-
-                        Tanggal
-
-                    </span>
-
-                    <span class="detail-value" id="detailTanggal">
-
-                        -
-
-                    </span>
-
-                </div>
-
-
-
-                <!-- JAM -->
-
-                <div class="detail-item">
-
-                    <span class="detail-label">
-
-                        Jam
-
-                    </span>
-
-                    <span class="detail-value" id="detailJam">
-
-                        -
-
-                    </span>
-
-                </div>
-
-
-
-                <!-- STATUS -->
-
-                <div class="detail-item">
-
-                    <span class="detail-label">
-
-                        Status
-
-                    </span>
-
-                    <span class="detail-status" id="detailStatus">
-
-                        -
-
-                    </span>
-
-                </div>
-
-
-
-                <!-- SOW -->
-
-                <div class="detail-item">
-
-                    <span class="detail-label">
-
-                        SOW
-
-                    </span>
-
-                    <span class="detail-value" id="detailTeknisi">
-
-                        -
-
-                    </span>
-
-                </div>
-
-
-
-                <!-- CATATAN PROGRES -->
-
-                <div class="detail-item detail-full">
-
-                    <span class="detail-label">
-
-                        Catatan Progres
-
-                    </span>
-
-                    <div class="detail-description" id="detailCatatan">
-
-                        -
-
-                    </div>
-
-                </div>
-
-
-
-                <!-- TANGGAL UPDATE -->
-
-                <div class="detail-item">
-
-                    <span class="detail-label">
-
-                        Terakhir Update
-
-                    </span>
-
-                    <span class="detail-value" id="detailTanggalUpdate">
-
-                        -
-
-                    </span>
-
-                </div>
-
-
-
-                <!-- RIWAYAT -->
-
-                <div class="detail-item detail-full">
-
-                    <span class="detail-label">
-
-                        Riwayat Status
-
-                    </span>
-
-                    <div class="detail-history" id="detailRiwayat">
-
-                        -
-
-                    </div>
-
-                </div>
-
-
-            </div>
-            <!-- FOOTER MODAL -->
-            <!-- AREA UPDATE ORDER -->
-
-            <div class="update-order-section">
-
-                <h3>UPDATE ORDER</h3>
-
-
-                <!-- UPDATE STATUS -->
-
-                <div class="update-item">
-
-                    <label for="updateStatus">
-                        Update Status
-                    </label>
-
-                    <select id="updateStatus">
-
-                        <option value="OPEN">
-                            OPEN
-                        </option>
-
-                        <option value="PROSES">
-                            PROSES
-                        </option>
-
-                        <option value="SELESAI">
-                            SELESAI
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <!-- PILIH SOW -->
-
-                <div class="update-item">
-
-                    <label for="updateTeknisi">
-                        Pilih SOW
-                    </label>
-
-                    <select id="updateTeknisi">
-
-                        <option value="">
-                            -- Pilih SOW --
-                        </option>
-                    </select>
-
-                </div>
-                <!-- CATATAN PROGRES -->
-
-                <div class="update-item">
-
-                    <label for="updateCatatan">
-                        Catatan Progres
-                    </label>
-
-                    <textarea id="updateCatatan" placeholder="Tulis catatan progres pekerjaan..." rows="4"></textarea>
-
-                </div>
-
-                <!-- SIMPAN -->
-
-                <button id="saveUpdateButton">
-
-                    Simpan Update
-
-                </button>
-
-
-            </div>
-
-
-
-            <!-- FOOTER MODAL -->
-
-            <div class="modal-footer">
-
-
-                <button id="closeModalButton" class="btn-close">
-
-                    Tutup
-
-                </button>
-
-
-            </div>
-
+            <button
+                type="button"
+                id="closeTeknisiModal"
+                class="teknisi-modal-close"
+            >
+                ✕
+            </button>
 
         </div>
 
 
+        <div class="teknisi-modal-body">
+
+            <label for="teknisiNamaInput">
+                Nama SOW
+            </label>
+
+            <input
+                type="text"
+                id="teknisiNamaInput"
+                placeholder="Contoh: BUDI S"
+                autocomplete="off"
+            >
+
+            <input
+                type="hidden"
+                id="teknisiIdInput"
+                value=""
+            >
+
+        </div>
+
+
+        <div class="teknisi-modal-footer">
+
+            <button
+                type="button"
+                id="batalTeknisiButton"
+                class="btn-batal-teknisi"
+            >
+                Batal
+            </button>
+
+
+            <button
+                type="button"
+                id="simpanTeknisiButton"
+                class="btn-simpan-teknisi"
+            >
+                💾 Simpan
+            </button>
+
+        </div>
+
     </div>
 
+</div>
 
 
-    <!-- LIBRARY EXCEL - SHEETJS -->
-    <script type="text/javascript" src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js">
-    </script>
+<!-- ============================================================
+     MODAL DETAIL ORDER
+     ============================================================ -->
 
-    <!-- LIBRARY EXCELJS - UNTUK EXCEL DENGAN DESAIN/WARNA -->
-    <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+<div
+    id="detailModal"
+    class="modal"
+    aria-hidden="true"
+>
 
-    <!-- JAVASCRIPT -->
-    <script src="admin.js"></script>
+    <div class="modal-content">
 
+
+        <!-- HEADER MODAL -->
+
+        <div class="modal-header">
+
+            <div>
+
+                <h2>
+                    DETAIL ORDER
+                </h2>
+
+                <p>
+                    Informasi lengkap laporan SOW
+                </p>
+
+            </div>
+
+
+            <button
+                type="button"
+                id="closeModal"
+                class="close-modal"
+                aria-label="Tutup Detail"
+            >
+                ✕
+            </button>
+
+        </div>
+
+
+        <!-- DETAIL -->
+
+        <div class="modal-body">
+
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Kode Order
+                </span>
+
+                <span
+                    class="detail-value"
+                    id="detailKode"
+                >
+                    -
+                </span>
+
+            </div>
+
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Nama
+                </span>
+
+                <span
+                    class="detail-value"
+                    id="detailNama"
+                >
+                    -
+                </span>
+
+            </div>
+
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Unit Kerja
+                </span>
+
+                <span
+                    class="detail-value"
+                    id="detailUnitKerja"
+                >
+                    -
+                </span>
+
+            </div>
+
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Cabang
+                </span>
+
+                <span
+                    class="detail-value"
+                    id="detailCabang"
+                >
+                    -
+                </span>
+
+            </div>
+
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Jenis Kendala
+                </span>
+
+                <span
+                    class="detail-value"
+                    id="detailJenisKendala"
+                >
+                    -
+                </span>
+
+            </div>
+
+
+            <div class="detail-item detail-full">
+
+                <span class="detail-label">
+                    Deskripsi Kendala
+                </span>
+
+                <div
+                    class="detail-description"
+                    id="detailDeskripsi"
+                >
+                    -
+                </div>
+
+            </div>
+
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    WhatsApp
+                </span>
+
+                <span
+                    class="detail-value"
+                    id="detailWhatsapp"
+                >
+                    -
+                </span>
+
+            </div>
+
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Tanggal
+                </span>
+
+                <span
+                    class="detail-value"
+                    id="detailTanggal"
+                >
+                    -
+                </span>
+
+            </div>
+
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Jam
+                </span>
+
+                <span
+                    class="detail-value"
+                    id="detailJam"
+                >
+                    -
+                </span>
+
+            </div>
+
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Status
+                </span>
+
+                <span
+                    class="detail-status"
+                    id="detailStatus"
+                >
+                    -
+                </span>
+
+            </div>
+
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    SOW
+                </span>
+
+                <span
+                    class="detail-value"
+                    id="detailTeknisi"
+                >
+                    -
+                </span>
+
+            </div>
+
+
+            <div class="detail-item detail-full">
+
+                <span class="detail-label">
+                    Catatan Progres
+                </span>
+
+                <div
+                    class="detail-description"
+                    id="detailCatatan"
+                >
+                    -
+                </div>
+
+            </div>
+
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Terakhir Update
+                </span>
+
+                <span
+                    class="detail-value"
+                    id="detailTanggalUpdate"
+                >
+                    -
+                </span>
+
+            </div>
+
+
+            <div class="detail-item detail-full">
+
+                <span class="detail-label">
+                    Riwayat Status
+                </span>
+
+                <div
+                    class="detail-history"
+                    id="detailRiwayat"
+                >
+                    -
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ====================================================
+             UPDATE ORDER
+             ==================================================== -->
+
+        <div class="update-order-section">
+
+            <h3>
+                UPDATE ORDER
+            </h3>
+
+
+            <div class="update-item">
+
+                <label for="updateStatus">
+                    Update Status
+                </label>
+
+                <select id="updateStatus">
+
+                    <option value="OPEN">
+                        OPEN
+                    </option>
+
+                    <option value="PROSES">
+                        PROSES
+                    </option>
+
+                    <option value="SELESAI">
+                        SELESAI
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="update-item">
+
+                <label for="updateTeknisi">
+                    Pilih SOW
+                </label>
+
+                <select id="updateTeknisi">
+
+                    <option value="">
+                        -- Pilih SOW --
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="update-item">
+
+                <label for="updateCatatan">
+                    Catatan Progres
+                </label>
+
+                <textarea
+                    id="updateCatatan"
+                    placeholder="Tulis catatan progres pekerjaan..."
+                    rows="4"
+                ></textarea>
+
+            </div>
+
+
+            <button
+                type="button"
+                id="saveUpdateButton"
+            >
+                Simpan Update
+            </button>
+
+        </div>
+
+
+        <!-- FOOTER -->
+
+        <div class="modal-footer">
+
+            <button
+                type="button"
+                id="closeModalButton"
+                class="btn-close"
+            >
+                Tutup
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ============================================================
+     LIBRARY EXCEL
+     ============================================================ -->
+
+<script
+    src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"
+></script>
+
+<script
+    src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"
+></script>
+
+
+<!-- ============================================================
+     ADMIN JAVASCRIPT
+     ============================================================ -->
+
+<script src="admin.js"></script>
 
 </body>
-
 </html>
