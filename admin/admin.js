@@ -1,2261 +1,1388 @@
-// =====================================================
-// ADMIN DASHBOARD - LAPOR SOW
-// =====================================================
+/**
+ * ============================================================
+ * MY SOW BALI
+ * ADMIN DASHBOARD
+ * FILE : admin/admin.js
+ * VERSION : FINAL FIX CABANG
+ * ============================================================
+ *
+ * FUNGSI:
+ * - Dashboard order
+ * - Kode + nama cabang
+ * - Filter order
+ * - Detail order
+ * - Update status
+ * - Penugasan SOW
+ * - Manajemen SOW
+ * - Rekap
+ * - Download Excel
+ * - Sidebar
+ * - Logout
+ *
+ * FORMAT CABANG:
+ * 0040-KCU DENPASAR
+ * 6113-NAMA CABANG
+ * 7065-NAMA CABANG
+ * ============================================================
+ */
 
 
-// =====================================================
-// URL GOOGLE APPS SCRIPT WEB APP
-// =====================================================
+/* ============================================================
+   01. API & SESSION
+   ============================================================ */
 
 const API_URL =
     "https://script.google.com/macros/s/AKfycbwMyIJyYAX2Ioik1Bv_TM5lx-XgLdmhay0vwbl3jNc_rQ7fN_ShL3rPbEAefk381_o/exec";
-// =====================================================
-// TAHAP 10
-// TOKEN LOGIN ADMIN
-// =====================================================
 
 const ADMIN_TOKEN =
-    localStorage.getItem(
-        "MY_SOW_ADMIN_TOKEN"
-    );
+    localStorage.getItem("MY_SOW_ADMIN_TOKEN") || "";
 
-
-if (
-    !ADMIN_TOKEN
-) {
-
-    window.location.replace(
-        "login.html"
-    );
-
+if (!ADMIN_TOKEN) {
+    window.location.replace("login.html");
 }
-// =====================================================
-// TAHAP 15A.3
-// AUTO LOGOUT ADMIN - 10 MENIT
-// =====================================================
-
-const ADMIN_IDLE_MINUTES =
-    10;
-
-const ADMIN_IDLE_MS =
-    ADMIN_IDLE_MINUTES *
-    60 *
-    1000;
 
 
-// -----------------------------------------------------
-// WAKTU AKTIVITAS TERAKHIR
-// -----------------------------------------------------
+/* ============================================================
+   02. DATA GLOBAL
+   ============================================================ */
 
-let adminLastActivity =
-    Date.now();
+let semuaOrders = [];
+let orderAktif = null;
+let daftarSow = [];
+let hasilRekapTerakhir = null;
+let periodeRekapAktif = "harian";
 
-
-// -----------------------------------------------------
-// WAKTU TERAKHIR SERVER DIHUBUNGI
-// -----------------------------------------------------
-
-let adminLastServerTouch =
-    0;
+let sessionCheckTimer = null;
+let sessionExpired = false;
 
 
-// -----------------------------------------------------
-// TIMER AUTO LOGOUT
-// -----------------------------------------------------
-
-let adminIdleTimer =
-    null;
-
-
-// -----------------------------------------------------
-// PENGAMAN AGAR LOGOUT TIDAK BERULANG
-// -----------------------------------------------------
-
-let adminLogoutInProgress =
-    false;
+/*
+ * MASTER CABANG
+ *
+ * Contoh:
+ *
+ * masterCabangMap["7065"] = "NAMA CABANG";
+ * masterCabangMap["0040"] = "KCU DENPASAR";
+ */
+let masterCabangMap = {};
 
 
-// =====================================================
-// FUNGSI LOGOUT OTOMATIS
-// =====================================================
+/* ============================================================
+   03. ELEMENT DOM
+   ============================================================ */
 
-async function forceLogoutAdmin(
-    alasan
-) {
+let orderTableBody;
+let totalOrder;
+let totalOpen;
+let totalProses;
+let totalSelesai;
+
+let searchOrder;
+let filterCabang;
+let filterTanggalMulai;
+let filterTanggalSampai;
+let searchButton;
+let resetFilter;
+
+let detailModal;
+let detailKode;
+let detailNama;
+let detailUnitKerja;
+let detailCabang;
+let detailJenisKendala;
+let detailDeskripsi;
+let detailWhatsapp;
+let detailTanggal;
+let detailJam;
+let detailStatus;
+let detailTeknisi;
+let detailCatatan;
+let detailTanggalUpdate;
+let detailRiwayat;
+
+let updateStatus;
+let updateTeknisi;
+let updateCatatan;
+let saveUpdateButton;
+
+let rekapPeriodForm;
+let tampilkanRekapButton;
+let downloadRekapExcelButton;
+let rekapResult;
+
+let teknisiTableBody;
+let tambahTeknisiButton;
+let teknisiModal;
+let teknisiModalTitle;
+let closeTeknisiModal;
+let teknisiNamaInput;
+let teknisiIdInput;
+let batalTeknisiButton;
+let simpanTeknisiButton;
+
+let sidebarMenuButton;
+let sidebarOverlay;
+let adminSidebar;
+let sidebarCloseButton;
+let logoutButton;
+
+
+/* ============================================================
+   04. AMBIL ELEMENT DOM
+   ============================================================ */
+
+function ambilElementDOM() {
+
+    orderTableBody =
+        document.getElementById("orderTableBody");
+
+    totalOrder =
+        document.getElementById("totalOrder");
+
+    totalOpen =
+        document.getElementById("totalOpen");
+
+    totalProses =
+        document.getElementById("totalProses");
+
+    totalSelesai =
+        document.getElementById("totalSelesai");
+
+    searchOrder =
+        document.getElementById("searchOrder");
+
+    filterCabang =
+        document.getElementById("filterCabang");
+
+    filterTanggalMulai =
+        document.getElementById("filterTanggalMulai");
+
+    filterTanggalSampai =
+        document.getElementById("filterTanggalSampai");
+
+    searchButton =
+        document.getElementById("searchButton");
+
+    resetFilter =
+        document.getElementById("resetFilter");
+
+
+    detailModal =
+        document.getElementById("detailModal");
+
+    detailKode =
+        document.getElementById("detailKode");
+
+    detailNama =
+        document.getElementById("detailNama");
+
+    detailUnitKerja =
+        document.getElementById("detailUnitKerja");
+
+    detailCabang =
+        document.getElementById("detailCabang");
+
+    detailJenisKendala =
+        document.getElementById("detailJenisKendala");
+
+    detailDeskripsi =
+        document.getElementById("detailDeskripsi");
+
+    detailWhatsapp =
+        document.getElementById("detailWhatsapp");
+
+    detailTanggal =
+        document.getElementById("detailTanggal");
+
+    detailJam =
+        document.getElementById("detailJam");
+
+    detailStatus =
+        document.getElementById("detailStatus");
+
+    detailTeknisi =
+        document.getElementById("detailTeknisi");
+
+    detailCatatan =
+        document.getElementById("detailCatatan");
+
+    detailTanggalUpdate =
+        document.getElementById("detailTanggalUpdate");
+
+    detailRiwayat =
+        document.getElementById("detailRiwayat");
+
+
+    updateStatus =
+        document.getElementById("updateStatus");
+
+    updateTeknisi =
+        document.getElementById("updateTeknisi");
+
+    updateCatatan =
+        document.getElementById("updateCatatan");
+
+    saveUpdateButton =
+        document.getElementById("saveUpdateButton");
+
+
+    rekapPeriodForm =
+        document.getElementById("rekapPeriodForm");
+
+    tampilkanRekapButton =
+        document.getElementById("tampilkanRekapButton");
+
+    downloadRekapExcelButton =
+        document.getElementById("downloadRekapExcelButton");
+
+    rekapResult =
+        document.getElementById("rekapResult");
+
+
+    teknisiTableBody =
+        document.getElementById("teknisiTableBody");
+
+    tambahTeknisiButton =
+        document.getElementById("tambahTeknisiButton");
+
+    teknisiModal =
+        document.getElementById("teknisiModal");
+
+    teknisiModalTitle =
+        document.getElementById("teknisiModalTitle");
+
+    closeTeknisiModal =
+        document.getElementById("closeTeknisiModal");
+
+    teknisiNamaInput =
+        document.getElementById("teknisiNamaInput");
+
+    teknisiIdInput =
+        document.getElementById("teknisiIdInput");
+
+    batalTeknisiButton =
+        document.getElementById("batalTeknisiButton");
+
+    simpanTeknisiButton =
+        document.getElementById("simpanTeknisiButton");
+
+
+    sidebarMenuButton =
+        document.getElementById("sidebarMenuButton");
+
+    sidebarOverlay =
+        document.getElementById("sidebarOverlay");
+
+    adminSidebar =
+        document.getElementById("adminSidebar");
+
+    sidebarCloseButton =
+        document.getElementById("sidebarCloseButton");
+
+    logoutButton =
+        document.getElementById("logoutButton");
+}
+
+
+/* ============================================================
+   05. UTILITAS
+   ============================================================ */
+
+function escapeHtml(value) {
+
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+function escapeAttribute(value) {
+    return escapeHtml(value);
+}
+
+
+function formatTanggal(value) {
+
+    if (!value) {
+        return "-";
+    }
+
+    const text = String(value).trim();
+
+    if (/^\d{4}-\d{2}-\d{2}$/.test(text)) {
+
+        const p = text.split("-");
+
+        return `${p[2]}/${p[1]}/${p[0]}`;
+    }
+
+    return text;
+}
+
+
+/* ============================================================
+   06. NORMALISASI KODE CABANG
+   ============================================================ */
+
+function normalisasiKodeCabang(value) {
 
     if (
-        adminLogoutInProgress
+        value === null ||
+        value === undefined
     ) {
+        return "";
+    }
+
+    let kode =
+        String(value).trim();
+
+    /*
+     * Kalau data berbentuk:
+     *
+     * 7065-NAMA CABANG
+     *
+     * ambil hanya 7065.
+     */
+    if (kode.includes("-")) {
+
+        kode =
+            kode
+                .split("-")[0]
+                .trim();
+    }
+
+    return kode;
+}
+
+
+/* ============================================================
+   07. FORMAT CABANG FINAL
+   ============================================================
+ *
+ * INI BAGIAN UTAMA PERBAIKAN.
+ *
+ * Contoh:
+ *
+ * order.kode_cabang = 7065
+ *
+ * MASTER_DATA:
+ * 7065 = NAMA CABANG
+ *
+ * HASIL:
+ * 7065-NAMA CABANG
+ *
+ * ============================================================ */
+
+function formatCabang(order) {
+
+    let kode =
+        normalisasiKodeCabang(
+            order?.kode_cabang ||
+            order?.kodeCabang ||
+            ""
+        );
+
+
+    /*
+     * Kalau kode kosong tetapi backend
+     * sudah mengirim cabang lengkap.
+     */
+    if (!kode) {
+
+        const cabang =
+            String(
+                order?.cabang ||
+                ""
+            ).trim();
+
+        if (cabang) {
+
+            return cabang.replace(
+                /\s*-\s*/,
+                "-"
+            );
+        }
+
+        const nama =
+            String(
+                order?.nama_cabang ||
+                order?.namaCabang ||
+                ""
+            ).trim();
+
+        return nama || "-";
+    }
+
+
+    /*
+     * ========================================================
+     * CARI NAMA CABANG DARI MASTER_DATA
+     * ========================================================
+     */
+
+    const namaMaster =
+        masterCabangMap[
+        kode.toUpperCase()
+        ] || "";
+
+
+    if (namaMaster) {
+
+        return (
+            kode +
+            "-" +
+            namaMaster
+        );
+    }
+
+
+    /*
+     * Fallback jika backend sudah
+     * mengirim nama cabang.
+     */
+
+    const namaBackend =
+        String(
+            order?.nama_cabang ||
+            order?.namaCabang ||
+            ""
+        ).trim();
+
+
+    if (namaBackend) {
+
+        return (
+            kode +
+            "-" +
+            namaBackend
+        );
+    }
+
+
+    /*
+     * Fallback terakhir.
+     */
+
+    if (order?.cabang) {
+
+        return String(
+            order.cabang
+        )
+            .trim()
+            .replace(
+                /\s*-\s*/,
+                "-"
+            );
+    }
+
+
+    return kode;
+}
+
+
+/* ============================================================
+   08. API GET
+   ============================================================ */
+
+async function apiGet(params = {}) {
+
+    const query =
+        new URLSearchParams(params);
+
+    const response =
+        await fetch(
+            API_URL +
+            "?" +
+            query.toString(),
+            {
+                method: "GET",
+                cache: "no-store"
+            }
+        );
+
+    const text =
+        await response.text();
+
+    try {
+
+        return JSON.parse(text);
+
+    } catch (error) {
+
+        console.error(
+            "RESPON GET:",
+            text
+        );
+
+        throw new Error(
+            "Respon server tidak valid."
+        );
+    }
+}
+
+
+/* ============================================================
+   09. API POST
+   ============================================================ */
+
+async function apiPost(data = {}) {
+
+    const response =
+        await fetch(
+            API_URL,
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type":
+                        "text/plain;charset=utf-8"
+                },
+
+                body:
+                    JSON.stringify(data)
+            }
+        );
+
+    const text =
+        await response.text();
+
+    try {
+
+        return JSON.parse(text);
+
+    } catch (error) {
+
+        console.error(
+            "RESPON POST:",
+            text
+        );
+
+        throw new Error(
+            "Respon server tidak valid."
+        );
+    }
+}
+
+
+/* ============================================================
+   10. SESSION
+   ============================================================ */
+
+function logoutLocal(reason = "") {
+
+    if (sessionExpired) {
         return;
     }
 
-    adminLogoutInProgress =
-        true;
+    sessionExpired = true;
 
+    if (sessionCheckTimer) {
 
-    console.warn(
-        "ADMIN LOGOUT:",
-        alasan
-    );
+        clearInterval(
+            sessionCheckTimer
+        );
 
+        sessionCheckTimer = null;
+    }
 
-    // -------------------------------------------------
-    // HAPUS TOKEN DARI BROWSER
-    // -------------------------------------------------
+    if (reason) {
+
+        console.warn(reason);
+    }
 
     localStorage.removeItem(
         "MY_SOW_ADMIN_TOKEN"
     );
 
-
-    // -------------------------------------------------
-    // KEMBALI KE LOGIN
-    // -------------------------------------------------
-
     window.location.replace(
         "login.html"
     );
-
 }
 
 
-// =====================================================
-// RESET TIMER AKTIVITAS
-// =====================================================
-
-function resetAdminIdleTimer() {
-
-    adminLastActivity =
-        Date.now();
-
-
-    if (
-        adminIdleTimer
-    ) {
-
-        clearTimeout(
-            adminIdleTimer
-        );
-
-    }
-
-
-    adminIdleTimer =
-        setTimeout(
-            function () {
-
-                forceLogoutAdmin(
-                    "Tidak ada aktivitas selama 10 menit."
-                );
-
-            },
-            ADMIN_IDLE_MS
-        );
-
-}
-
-
-// =====================================================
-// PERBARUI AKTIVITAS KE SERVER
-// =====================================================
-
-async function touchAdminSessionServer() {
-
-    const sekarang =
-        Date.now();
-
-
-    // Jangan request terlalu sering
-    if (
-        sekarang -
-        adminLastServerTouch
-        <
-        60000
-    ) {
-
-        return;
-
-    }
-
-
-    adminLastServerTouch =
-        sekarang;
-
+async function logoutAdmin() {
 
     try {
 
-        const response =
-            await fetch(
-                API_URL,
-                {
-                    method:
-                        "POST",
+        await apiPost({
 
-                    headers: {
-                        "Content-Type":
-                            "text/plain;charset=utf-8"
-                    },
+            action:
+                "logoutAdmin",
 
-                    body:
-                        JSON.stringify({
-                            action:
-                                "touchAdminSession",
+            token:
+                ADMIN_TOKEN
 
-                            token:
-                                ADMIN_TOKEN
-                        })
-                }
-            );
+        });
 
+    } catch (error) {
 
-        const result =
-            await response.json();
-
-
-        if (
-            !result.success ||
-            result.unauthorized
-        ) {
-
-            forceLogoutAdmin(
-                result.message ||
-                "Session admin sudah berakhir."
-            );
-
-        }
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "Gagal memperbarui session:",
+        console.warn(
+            "Logout server:",
             error
         );
 
-    }
+    } finally {
 
+        logoutLocal(
+            "Admin logout."
+        );
+    }
 }
 
 
-// =====================================================
-// CATAT AKTIVITAS ADMIN
-// =====================================================
-
-function catatAktivitasAdmin() {
-
-    const sekarang =
-        Date.now();
-
-
-    // -----------------------------------------------
-    // JIKA SUDAH MELEWATI 10 MENIT
-    // -----------------------------------------------
+async function cekSessionAdmin() {
 
     if (
-        sekarang -
-        adminLastActivity
-        >=
-        ADMIN_IDLE_MS
+        !ADMIN_TOKEN ||
+        sessionExpired
     ) {
-
-        forceLogoutAdmin(
-            "Session berakhir karena tidak ada aktivitas selama 10 menit."
-        );
-
         return;
-
     }
-
-
-    resetAdminIdleTimer();
-
-    touchAdminSessionServer();
-
-}
-
-
-// =====================================================
-// DETEKSI AKTIVITAS ADMIN
-// =====================================================
-
-[
-    "click",
-    "keydown",
-    "scroll",
-    "touchstart",
-    "mousemove"
-].forEach(
-    function (eventName) {
-
-        document.addEventListener(
-            eventName,
-            catatAktivitasAdmin,
-            {
-                passive: true
-            }
-        );
-
-    }
-);
-
-
-// =====================================================
-// CEK SAAT KEMBALI KE TAB
-// =====================================================
-
-document.addEventListener(
-    "visibilitychange",
-    function () {
-
-        if (
-            document.visibilityState ===
-            "visible"
-        ) {
-
-            catatAktivitasAdmin();
-
-        }
-
-    }
-);
-
-
-// =====================================================
-// MULAI TIMER
-// =====================================================
-
-resetAdminIdleTimer();
-
-
-// =====================================================
-// LOG TAHAP 15A.3
-// =====================================================
-
-console.log(
-    "TAHAP 15A.3 - Auto Logout aktif: 10 menit"
-);
-
-// =====================================================
-// AMBIL ELEMENT HTML
-// =====================================================
-
-const searchOrder =
-    document.getElementById("searchOrder");
-
-const filterCabang =
-    document.getElementById("filterCabang");
-// =====================================================
-// FILTER RENTANG TANGGAL
-// =====================================================
-
-const filterTanggalMulai =
-    document.getElementById(
-        "filterTanggalMulai"
-    );
-
-const filterTanggalSampai =
-    document.getElementById(
-        "filterTanggalSampai"
-    );
-
-
-const searchButton =
-    document.getElementById("searchButton");
-
-const resetFilter =
-    document.getElementById("resetFilter");
-
-const orderTableBody =
-    document.getElementById("orderTableBody");
-
-const totalOrder =
-    document.getElementById("totalOrder");
-
-const totalOpen =
-    document.getElementById("totalOpen");
-
-const totalProses =
-    document.getElementById("totalProses");
-
-const totalSelesai =
-    document.getElementById("totalSelesai");
-// =====================================================
-// ELEMENT MODAL DETAIL
-// =====================================================
-
-const detailModal =
-    document.getElementById("detailModal");
-
-const closeModal =
-    document.getElementById("closeModal");
-
-const closeModalButton =
-    document.getElementById("closeModalButton");
-
-const detailKode =
-    document.getElementById("detailKode");
-
-const detailNama =
-    document.getElementById("detailNama");
-
-const detailUnitKerja =
-    document.getElementById("detailUnitKerja");
-
-const detailCabang =
-    document.getElementById("detailCabang");
-
-const detailJenisKendala =
-    document.getElementById("detailJenisKendala");
-
-const detailDeskripsi =
-    document.getElementById("detailDeskripsi");
-
-const detailWhatsapp =
-    document.getElementById("detailWhatsapp");
-
-const detailTanggal =
-    document.getElementById("detailTanggal");
-
-const detailJam =
-    document.getElementById("detailJam");
-
-const detailStatus =
-    document.getElementById("detailStatus");
-
-const detailTeknisi =
-    document.getElementById("detailTeknisi");
-
-const detailCatatan =
-    document.getElementById("detailCatatan");
-
-const detailTanggalUpdate =
-    document.getElementById("detailTanggalUpdate");
-
-const detailRiwayat =
-    document.getElementById("detailRiwayat");
-// =====================================================
-// ELEMENT UPDATE ORDER
-// =====================================================
-
-const updateStatus =
-    document.getElementById(
-        "updateStatus"
-    );
-
-const updateTeknisi =
-    document.getElementById(
-        "updateTeknisi"
-    );
-const updateCatatan =
-    document.getElementById(
-        "updateCatatan"
-    );
-
-const saveUpdateButton =
-    document.getElementById(
-        "saveUpdateButton"
-    );
-// =====================================================
-// DATA SEMUA ORDER
-// =====================================================
-
-let semuaOrders = [];
-let orderAktif = null;
-// =====================================================
-// DATA REKAP TERAKHIR
-// Digunakan untuk Download Excel
-// =====================================================
-
-let hasilRekapTerakhir = null;
-let periodeRekapTerakhir = "";
-
-// =====================================================
-// TAHAP 15A.6
-// LOAD CABANG DARI MASTER_DATA
-// =====================================================
-
-async function loadCabangMasterData() {
 
     try {
 
-        const response =
-            await fetch(
-                API_URL + "?master=true"
-            );
+        const result =
+            await apiPost({
 
-        if (!response.ok) {
-            throw new Error(
-                "Gagal mengambil MASTER_DATA"
+                action:
+                    "touchAdminSession",
+
+                token:
+                    ADMIN_TOKEN
+
+            });
+
+        if (
+            result &&
+            result.success === false &&
+            result.unauthorized
+        ) {
+
+            logoutLocal(
+                "Session admin sudah berakhir."
             );
         }
+
+    } catch (error) {
+
+        console.warn(
+            "Pemeriksaan session gagal:",
+            error
+        );
+    }
+}
+
+
+function setupAdminSession() {
+
+    cekSessionAdmin();
+
+    sessionCheckTimer =
+        setInterval(
+            cekSessionAdmin,
+            5 * 60 * 1000
+        );
+}
+
+
+/* ============================================================
+   11. LOAD MASTER CABANG
+   ============================================================
+ *
+ * MASTER_DATA:
+ *
+ * KODE -> NAMA
+ *
+ * Kemudian disimpan ke:
+ *
+ * masterCabangMap
+ *
+ * ============================================================ */
+
+async function loadCabangMasterData() {
+
+    /*
+     * RESET MAPPING
+     */
+    masterCabangMap = {};
+
+
+    try {
 
         const result =
-            await response.json();
+            await apiGet({
+                master: "true"
+            });
 
-        if (!result.success) {
+
+        if (
+            !result ||
+            result.success !== true
+        ) {
+
             throw new Error(
-                result.message ||
-                "MASTER_DATA gagal dimuat"
+                result?.message ||
+                "Master cabang gagal dimuat."
             );
         }
 
-        // Reset dropdown
-        filterCabang.innerHTML = `
-            <option value="">
-                Semua Cabang
-            </option>
-        `;
 
-        // Isi CABANG aktif dari MASTER_DATA
-        (result.cabang || []).forEach(
+        const cabang =
+            Array.isArray(
+                result.cabang
+            )
+                ? result.cabang
+                : [];
+
+
+        /*
+         * SIMPAN KODE -> NAMA
+         */
+        cabang.forEach(
             function (item) {
 
-                const option =
-                    document.createElement(
-                        "option"
+                const kode =
+                    normalisasiKodeCabang(
+                        item?.kode
                     );
 
-                option.value =
-                    item.kode +
-                    "-" +
-                    item.nama;
+                const nama =
+                    String(
+                        item?.nama ||
+                        ""
+                    ).trim();
 
-                option.textContent =
-                    item.kode +
-                    "-" +
-                    item.nama;
 
-                filterCabang.appendChild(
-                    option
-                );
+                if (!kode) {
+                    return;
+                }
+
+
+                masterCabangMap[
+                    kode.toUpperCase()
+                ] =
+                    nama;
             }
         );
 
+
+        /*
+         * Isi dropdown filter.
+         */
+        if (filterCabang) {
+
+            filterCabang.innerHTML =
+                '<option value="">Semua Cabang</option>';
+
+
+            cabang.forEach(
+                function (item) {
+
+                    const kode =
+                        normalisasiKodeCabang(
+                            item?.kode
+                        );
+
+                    const nama =
+                        String(
+                            item?.nama ||
+                            ""
+                        ).trim();
+
+
+                    if (!kode) {
+                        return;
+                    }
+
+
+                    const option =
+                        document.createElement(
+                            "option"
+                        );
+
+
+                    option.value =
+                        kode;
+
+
+                    option.textContent =
+                        nama
+                            ? `${kode}-${nama}`
+                            : kode;
+
+
+                    filterCabang.appendChild(
+                        option
+                    );
+                }
+            );
+        }
+
+
         console.log(
-            "CABANG MASTER_DATA berhasil dimuat:",
-            result.cabang
+            "MASTER CABANG BERHASIL DIMUAT:",
+            masterCabangMap
         );
+
 
     } catch (error) {
 
         console.error(
-            "Gagal load CABANG MASTER_DATA:",
+            "MASTER CABANG:",
             error
-        );
-
-        alert(
-            "Data cabang gagal dimuat dari MASTER_DATA."
         );
     }
 }
-// =====================================================
-// SAAT HALAMAN PERTAMA KALI DIBUKA
-// =====================================================
-
-document.addEventListener(
-    "DOMContentLoaded",
-    async function () {
-
-        console.log(
-            "Admin Dashboard berhasil dimuat"
-        );
-
-        await loadCabangMasterData();
-
-        loadOrders();
-
-    }
-);
 
 
-// =====================================================
-// FUNGSI LOAD ORDER
-// =====================================================
+/* ============================================================
+   12. LOAD ORDER
+   ============================================================ */
 
 async function loadOrders() {
 
-    try {
-
-        // =============================================
-        // TAMPILKAN LOADING
-        // =============================================
-
-        orderTableBody.innerHTML = `
-
-            <tr>
-
-                <td colspan="9">
-
-                    Memuat data order...
-
-                </td>
-
-            </tr>
-
-        `;
-
-
-        // =============================================
-        // AMBIL NILAI FILTER
-        // =============================================
-
-        const kode =
-            searchOrder.value.trim();
-
-        const cabang =
-            filterCabang.value.trim()
-        // =============================================
-        // AMBIL NILAI FILTER RENTANG TANGGAL
-        // =============================================
-
-        const tanggalMulai =
-            filterTanggalMulai.value;
-
-        const tanggalSampai =
-            filterTanggalSampai.value;
-        // =============================================
-        // BUAT URL API
-        // =============================================
-
-        let url =
-            API_URL;
-
-
-        const params =
-            new URLSearchParams();
-
-        params.append(
-            "token",
-            ADMIN_TOKEN
-        );
-        // FILTER KODE
-
-        if (kode !== "") {
-
-            params.append(
-                "kode",
-                kode
-            );
-
-        }
-        // =============================================
-        // FILTER TANGGAL MULAI
-        // =============================================
-
-        if (tanggalMulai !== "") {
-
-            params.append(
-                "tanggalMulai",
-                tanggalMulai
-            );
-
-        }
-
-
-        // =============================================
-        // FILTER TANGGAL SAMPAI
-        // =============================================
-
-        if (tanggalSampai !== "") {
-
-            params.append(
-                "tanggalSampai",
-                tanggalSampai
-            );
-
-        }
-
-        // FILTER CABANG
-
-        if (cabang !== "") {
-
-            params.append(
-                "cabang",
-                cabang
-            );
-
-        }
-
-
-        // =============================================
-        // TAMBAHKAN PARAMETER KE URL
-        // =============================================
-
-        if (
-            params.toString() !== ""
-        ) {
-
-            url +=
-                "?" +
-                params.toString();
-
-        }
-
-
-        console.log(
-            "URL API:",
-            url
-        );
-
-
-        // =============================================
-        // REQUEST KE GOOGLE APPS SCRIPT
-        // =============================================
-
-        const response =
-            await fetch(url);
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                "Gagal menghubungkan ke API"
-            );
-
-        }
-
-
-        const result =
-            await response.json();
-
-
-        console.log(
-            "HASIL API:",
-            result
-        );
-
-
-        // =============================================
-        // CEK RESPONSE
-        // =============================================
-
-        if (
-            !result.success
-        ) {
-
-            throw new Error(
-                result.message ||
-                "Gagal mengambil data"
-            );
-
-        }
-
-
-        // =============================================
-        // SIMPAN DATA
-        // =============================================
-
-        semuaOrders =
-            result.orders || [];
-
-
-        // =============================================
-        // UPDATE STATISTIK
-        // =============================================
-
-        updateStatistics(
-            result.statistik || {
-                total: 0,
-                open: 0,
-                proses: 0,
-                selesai: 0
-            }
-        );
-
-
-        // =============================================
-        // TAMPILKAN TABEL
-        // =============================================
-
-        renderOrders(
-            semuaOrders
-        );
-
-
+    if (!orderTableBody) {
+        return;
     }
 
-    catch (error) {
+
+    orderTableBody.innerHTML = `
+        <tr>
+            <td colspan="9">
+                Memuat data order...
+            </td>
+        </tr>
+    `;
+
+
+    const params = {
+
+        token:
+            ADMIN_TOKEN
+
+    };
+
+
+    const kode =
+        searchOrder
+            ? searchOrder.value.trim()
+            : "";
+
+
+    const cabang =
+        filterCabang
+            ? filterCabang.value.trim()
+            : "";
+
+
+    const tanggalMulai =
+        filterTanggalMulai
+            ? filterTanggalMulai.value
+            : "";
+
+
+    const tanggalSampai =
+        filterTanggalSampai
+            ? filterTanggalSampai.value
+            : "";
+
+
+    if (kode) {
+
+        params.kode =
+            kode;
+    }
+
+
+    if (cabang) {
+
+        params.cabang =
+            cabang;
+    }
+
+
+    if (tanggalMulai) {
+
+        params.tanggalMulai =
+            tanggalMulai;
+    }
+
+
+    if (tanggalSampai) {
+
+        params.tanggalSampai =
+            tanggalSampai;
+    }
+
+
+    try {
+
+        const result =
+            await apiGet(params);
+
+
+        if (
+            !result ||
+            result.success !== true
+        ) {
+
+            if (
+                result?.unauthorized
+            ) {
+
+                logoutLocal(
+                    "Session admin tidak valid."
+                );
+
+                return;
+            }
+
+
+            throw new Error(
+                result?.message ||
+                "Gagal mengambil data order."
+            );
+        }
+
+
+        semuaOrders =
+            Array.isArray(
+                result.orders
+            )
+                ? result.orders
+                : [];
+
+
+        updateStatistics(
+            result.statistik || {}
+        );
+
+
+        renderOrders();
+
+
+    } catch (error) {
 
         console.error(
-            "ERROR LOAD ORDER:",
+            "LOAD ORDER:",
             error
         );
 
 
         orderTableBody.innerHTML = `
-
             <tr>
-
                 <td colspan="9">
-
-                    Gagal memuat data:
-                    ${error.message}
-
+                    Gagal memuat data order.<br>
+                    ${escapeHtml(
+            error.message
+        )}
                 </td>
-
             </tr>
-
         `;
-
-
-        // RESET STATISTIK
-
-        totalOrder.textContent = "0";
-
-        totalOpen.textContent = "0";
-
-        totalProses.textContent = "0";
-
-        totalSelesai.textContent = "0";
-
     }
-
 }
 
 
-// =====================================================
-// RENDER DATA KE TABEL
-// =====================================================
+/* ============================================================
+   13. RENDER DASHBOARD
+   ============================================================ */
 
-function renderOrders(orders) {
+function renderOrders() {
 
-    // =============================================
-    // JIKA TIDAK ADA DATA
-    // =============================================
+    if (!orderTableBody) {
+        return;
+    }
 
-    if (
-        !orders ||
-        orders.length === 0
-    ) {
+
+    if (!semuaOrders.length) {
 
         orderTableBody.innerHTML = `
-
             <tr>
-
                 <td colspan="9">
-
-                    Belum ada data order
-
+                    Belum ada data order.
                 </td>
-
             </tr>
-
         `;
 
         return;
-
     }
 
 
-    // =============================================
-    // KOSONGKAN TABEL
-    // =============================================
+    orderTableBody.innerHTML =
+        semuaOrders.map(
+            function (order, index) {
 
-    orderTableBody.innerHTML = "";
-
-
-    // =============================================
-    // LOOP DATA ORDER
-    // =============================================
-
-    orders.forEach(
-        function (
-            order,
-            index
-        ) {
+                const status =
+                    String(
+                        order?.status ||
+                        "OPEN"
+                    ).toUpperCase();
 
 
-            const tr =
-                document.createElement(
-                    "tr"
-                );
+                const sow =
+                    order?.sow ||
+                    order?.teknisi ||
+                    "-";
 
 
-            // =========================================
-            // STATUS
-            // =========================================
-
-            const status =
-                order.status ||
-                "OPEN";
-
-
-            // =========================================
-            // ISI TABEL
-            // =========================================
-
-            tr.innerHTML = `
-
-                <td>
-
-                    ${index + 1}
-
-                </td>
+                /*
+                 * HASIL FINAL CABANG:
+                 *
+                 * 7065-NAMA CABANG
+                 */
+                const cabang =
+                    formatCabang(
+                        order
+                    );
 
 
-                <td>
+                return `
+                    <tr>
 
-                    ${escapeHtml(
-                order.kode
-            )}
+                        <td>
+                            ${index + 1}
+                        </td>
 
-                </td>
+                        <td>
+                            ${escapeHtml(
+                    order?.kode ||
+                    "-"
+                )}
+                        </td>
 
+                        <td>
+                            ${escapeHtml(
+                    order?.nama ||
+                    "-"
+                )}
+                        </td>
 
-                <td>
+                        <td>
+                            ${escapeHtml(
+                    cabang
+                )}
+                        </td>
 
-                    ${escapeHtml(
-                order.nama
-            )}
+                        <td>
+                            ${escapeHtml(
+                    order?.jenis_kendala ||
+                    "-"
+                )}
+                        </td>
 
-                </td>
+                        <td>
+                            ${escapeHtml(
+                    formatTanggal(
+                        order?.tanggal
+                    )
+                )}
+                        </td>
 
+                        <td>
+                            ${escapeHtml(
+                    status
+                )}
+                        </td>
 
-                <td>
+                        <td>
+                            ${escapeHtml(
+                    sow
+                )}
+                        </td>
 
-                    ${escapeHtml(
-                order.kode_cabang
-            )}
+                        <td>
 
-                </td>
+                            <button
+                                type="button"
+                                class="btn-detail"
+                                onclick="lihatDetail('${escapeAttribute(
+                    order?.kode || ""
+                )}')"
+                            >
+                                Detail
+                            </button>
 
+                        </td>
 
-                <td>
-
-                    ${escapeHtml(
-                order.jenis_kendala
-            )}
-
-                </td>
-
-
-                <td>
-
-                    ${escapeHtml(
-                formatTanggalTampilan(
-                    order.tanggal
-                )
-            )}
-
-                </td>
-
-
-                <td>
-
-                    <span class="status ${status.toLowerCase()}">
-
-                        ${escapeHtml(
-                status
-            )}
-
-                    </span>
-
-                </td>
-
-
-                <td>
-
-                    ${escapeHtml(
-                order.teknisi || "-"
-            )}
-
-                </td>
-
-
-                <td>
-
-                    <button
-                        class="btn-detail"
-                        onclick="lihatDetail('${escapeAttribute(order.kode)}')">
-
-                        Detail
-
-                    </button>
-
-                </td>
-
-            `;
-
-
-            // =========================================
-            // MASUKKAN KE TABEL
-            // =========================================
-
-            orderTableBody.appendChild(
-                tr
-            );
-
-
-        }
-    );
-
+                    </tr>
+                `;
+            }
+        ).join("");
 }
 
 
-// =====================================================
-// UPDATE STATISTIK
-// =====================================================
-
-// =====================================================
-// UPDATE STATISTIK
-// =====================================================
+/* ============================================================
+   14. STATISTIK
+   ============================================================ */
 
 function updateStatistics(statistik) {
 
-    // TOTAL ORDER
-    totalOrder.textContent =
-        statistik.total || 0;
+    if (totalOrder) {
+
+        totalOrder.textContent =
+            statistik.total ?? 0;
+    }
 
 
-    // OPEN
-    totalOpen.textContent =
-        statistik.open || 0;
+    if (totalOpen) {
+
+        totalOpen.textContent =
+            statistik.open ?? 0;
+    }
 
 
-    // PROSES
-    totalProses.textContent =
-        statistik.proses || 0;
+    if (totalProses) {
+
+        totalProses.textContent =
+            statistik.proses ?? 0;
+    }
 
 
-    // SELESAI
-    totalSelesai.textContent =
-        statistik.selesai || 0;
+    if (totalSelesai) {
 
+        totalSelesai.textContent =
+            statistik.selesai ?? 0;
+    }
 }
 
 
-// =====================================================
-// TOMBOL CARI
-// =====================================================
+/* ============================================================
+   15. DETAIL ORDER
+   ============================================================ */
 
-searchButton.addEventListener(
-    "click",
-    function () {
+function cariOrderLokal(kode) {
 
-        console.log(
-            "Tombol Cari ditekan"
-        );
+    return (
+        semuaOrders.find(
+            function (order) {
 
-        loadOrders();
+                return (
+                    String(
+                        order?.kode ||
+                        ""
+                    ) ===
+                    String(
+                        kode ||
+                        ""
+                    )
+                );
+            }
+        ) || null
+    );
+}
 
-    }
-);
-
-
-// =====================================================
-// TEKAN ENTER UNTUK MENCARI
-// =====================================================
-
-searchOrder.addEventListener(
-    "keydown",
-    function (event) {
-
-        if (
-            event.key === "Enter"
-        ) {
-
-            event.preventDefault();
-
-            loadOrders();
-
-        }
-
-    }
-);
-
-
-// =====================================================
-// FILTER CABANG
-// =====================================================
-
-filterCabang.addEventListener(
-    "change",
-    function () {
-
-        loadOrders();
-
-    }
-);
-// =====================================================
-// FILTER TANGGAL MULAI
-// =====================================================
-
-filterTanggalMulai.addEventListener(
-    "change",
-    function () {
-
-        loadOrders();
-
-    }
-);
-
-
-// =====================================================
-// FILTER TANGGAL SAMPAI
-// =====================================================
-
-filterTanggalSampai.addEventListener(
-    "change",
-    function () {
-
-        loadOrders();
-
-    }
-);
-
-// =====================================================
-// RESET FILTER
-// =====================================================
-
-resetFilter.addEventListener(
-    "click",
-    function () {
-
-
-        // KOSONGKAN KODE
-
-        searchOrder.value =
-            "";
-
-
-        // RESET CABANG
-
-        filterCabang.value =
-            "";
-        // =============================================
-        // RESET RENTANG TANGGAL
-        // =============================================
-
-        filterTanggalMulai.value =
-            "";
-
-        filterTanggalSampai.value =
-            "";
-
-        console.log(
-            "Filter direset"
-        );
-
-
-        // LOAD SEMUA DATA
-
-        loadOrders();
-
-
-    }
-);
-
-
-// =====================================================
-// FUNGSI LIHAT DETAIL
-// =====================================================
-
-// =====================================================
-// FUNGSI LIHAT DETAIL
-// =====================================================
 
 function lihatDetail(kode) {
 
     const order =
-        semuaOrders.find(
-            function (item) {
+        cariOrderLokal(kode);
 
-                return String(
-                    item.kode
-                ) === String(
-                    kode
-                );
-
-            }
-        );
-
-
-    // =============================================
-    // JIKA DATA TIDAK DITEMUKAN
-    // =============================================
 
     if (!order) {
 
         alert(
-            "Data order tidak ditemukan"
+            "Data order tidak ditemukan."
         );
 
         return;
-
     }
-    // SIMPAN ORDER YANG SEDANG DIBUKA
 
-    orderAktif = order;
-    // =============================================
-    // ISI DATA KE MODAL
-    // =============================================
+
+    orderAktif =
+        order;
+
+
     detailKode.textContent =
-        order.kode || "-";
+        order.kode ||
+        "-";
 
 
     detailNama.textContent =
-        order.nama || "-";
+        order.nama ||
+        "-";
 
 
     detailUnitKerja.textContent =
-        order.unit_kerja || "-";
+        order.unit_kerja ||
+        order.unitKerja ||
+        "-";
 
 
     detailCabang.textContent =
-        order.kode_cabang || "-";
+        formatCabang(
+            order
+        );
 
 
     detailJenisKendala.textContent =
-        order.jenis_kendala || "-";
+        order.jenis_kendala ||
+        "-";
 
 
     detailDeskripsi.textContent =
-        order.deskripsi || "-";
+        order.deskripsi ||
+        "-";
 
 
     detailWhatsapp.textContent =
-        order.whatsapp || "-";
+        order.whatsapp ||
+        "-";
+
 
     detailTanggal.textContent =
-        formatTanggalTampilan(
+        formatTanggal(
             order.tanggal
         );
 
 
     detailJam.textContent =
-        order.jam || "-";
+        order.jam ||
+        "-";
 
 
     detailStatus.textContent =
-        order.status || "OPEN";
+        order.status ||
+        "OPEN";
 
 
     detailTeknisi.textContent =
-        order.teknisi || "-";
-    // =============================================
-    // ISI STATUS UPDATE
-    // =============================================
-
-    updateStatus.value =
-        order.status || "OPEN";
-
-
-    // =============================================
-    // ISI SOW UPDATE
-    // =============================================
-
-    const teknisiSekarang =
-        order.teknisi || "";
-
-
-    // CEK APAKAH SOW SUDAH ADA
-    // DI DALAM PILIHAN
-
-    let teknisiAda =
-        false;
-
-
-    Array.from(
-        updateTeknisi.options
-    ).forEach(
-        function (option) {
-
-            if (
-                option.value === teknisiSekarang
-            ) {
-
-                teknisiAda =
-                    true;
-
-            }
-
-        }
-    );
-
-
-    // JIKA BELUM ADA,
-    // TAMBAHKAN OTOMATIS
-
-    if (
-        teknisiSekarang !== "" &&
-        teknisiSekarang !== "-" &&
-        !teknisiAda
-    ) {
-
-        const option =
-            document.createElement(
-                "option"
-            );
-
-        option.value =
-            teknisiSekarang;
-
-        option.textContent =
-            teknisiSekarang;
-
-        updateTeknisi.appendChild(
-            option
-        );
-
-    }
-
-
-    // PILIH SOW SEKARANG
-
-    updateTeknisi.value =
-        teknisiSekarang;
+        order.sow ||
+        order.teknisi ||
+        "-";
 
 
     detailCatatan.textContent =
-        order.catatan_progres || "-";
+        order.catatan_progres ||
+        order.catatan ||
+        "-";
 
 
     detailTanggalUpdate.textContent =
-        order.tanggal_update || "-";
+        order.tanggal_update ||
+        "-";
 
 
-    // =============================================
-    // RIWAYAT STATUS
-    // =============================================
+    detailRiwayat.textContent =
+        order.riwayat_status ||
+        "Belum ada riwayat.";
 
-    renderRiwayatTimeline(
-        order.riwayat_status
+
+    updateStatus.value =
+        order.status ||
+        "OPEN";
+
+
+    updateSelectTeknisi();
+
+
+    updateTeknisi.value =
+        order.sow ||
+        order.teknisi ||
+        "";
+
+
+    updateCatatan.value =
+        order.catatan_progres ||
+        order.catatan ||
+        "";
+
+
+    detailModal.style.display =
+        "flex";
+
+
+    detailModal.setAttribute(
+        "aria-hidden",
+        "false"
     );
-
-
-    // =============================================
-    // TAMPILKAN MODAL
-    // =============================================
-
-    detailModal.classList.add(
-        "show"
-    );
-
-}
-// =====================================================
-// FORMAT RIWAYAT STATUS
-// =====================================================
-
-// =====================================================
-// FORMAT RIWAYAT STATUS
-// =====================================================
-
-function formatRiwayatStatus(riwayat) {
-
-    // =============================================
-    // JIKA TIDAK ADA RIWAYAT
-    // =============================================
-
-    if (
-        riwayat === null ||
-        riwayat === undefined ||
-        riwayat === ""
-    ) {
-
-        return "Belum ada riwayat status";
-
-    }
-
-
-    // =============================================
-    // JIKA DATA BERUPA ARRAY
-    // =============================================
-
-    if (
-        Array.isArray(riwayat)
-    ) {
-
-        if (
-            riwayat.length === 0
-        ) {
-
-            return "Belum ada riwayat status";
-
-        }
-
-        return riwayat.join("\n");
-
-    }
-
-
-    // =============================================
-    // JIKA DATA BERUPA OBJECT
-    // =============================================
-
-    if (
-        typeof riwayat === "object"
-    ) {
-
-        try {
-
-            return JSON.stringify(
-                riwayat,
-                null,
-                2
-            );
-
-        }
-
-        catch (error) {
-
-            return String(
-                riwayat
-            );
-
-        }
-
-    }
-
-
-    // =============================================
-    // JIKA DATA BERUPA TEXT
-    // =============================================
-
-    return String(
-        riwayat
-    );
-
 }
 
 
+function tutupDetailModal() {
 
-// =====================================================
-// TAHAP 4.9
-// RENDER TIMELINE RIWAYAT STATUS
-// =====================================================
+    if (detailModal) {
 
-function renderRiwayatTimeline(riwayat) {
+        detailModal.style.display =
+            "none";
+
+        detailModal.setAttribute(
+            "aria-hidden",
+            "true"
+        );
+    }
 
 
-    // =============================================
-    // CEK ELEMENT
-    // =============================================
+    orderAktif =
+        null;
+}
 
-    if (!detailRiwayat) {
 
-        console.warn(
-            "Element detailRiwayat tidak ditemukan"
+/* ============================================================
+   16. UPDATE ORDER
+   ============================================================ */
+
+async function simpanUpdateOrder() {
+
+    if (!orderAktif) {
+
+        alert(
+            "Order belum dipilih."
         );
 
         return;
-
     }
 
 
-    // =============================================
-    // FORMAT RIWAYAT
-    // =============================================
+    const statusBaru =
+        updateStatus.value.trim();
 
-    const riwayatText =
-        formatRiwayatStatus(
-            riwayat
+
+    const sowBaru =
+        updateTeknisi.value.trim();
+
+
+    const catatanBaru =
+        updateCatatan.value.trim();
+
+
+    if (!statusBaru) {
+
+        alert(
+            "Status wajib dipilih."
         );
-
-
-    // =============================================
-    // JIKA BELUM ADA RIWAYAT
-    // =============================================
-
-    if (
-        !riwayatText ||
-        riwayatText ===
-        "Belum ada riwayat status"
-    ) {
-
-        detailRiwayat.innerHTML = `
-
-            <div class="timeline-empty">
-
-                Belum ada riwayat progres
-
-            </div>
-
-        `;
 
         return;
-
     }
 
 
-    // =============================================
-    // PECAH RIWAYAT PER BARIS
-    // =============================================
-
-    const daftarRiwayat =
-        String(
-            riwayatText
-        )
-            .split("\n")
-            .map(
-                function (item) {
-
-                    return item.trim();
-
-                }
-            )
-            .filter(
-                function (item) {
-
-                    return item !== "";
-
-                }
-            );
-
-
-    // =============================================
-    // JIKA DATA KOSONG
-    // =============================================
-
     if (
-        daftarRiwayat.length === 0
+        !confirm(
+            "Simpan perubahan order " +
+            orderAktif.kode +
+            "?"
+        )
     ) {
-
-        detailRiwayat.innerHTML = `
-
-            <div class="timeline-empty">
-
-                Belum ada riwayat progres
-
-            </div>
-
-        `;
-
         return;
-
     }
 
 
-    // =============================================
-    // BUAT HTML TIMELINE
-    // =============================================
+    saveUpdateButton.disabled =
+        true;
 
-    let html =
-        `<div class="riwayat-timeline">`;
 
+    try {
 
-    // =============================================
-    // LOOP RIWAYAT
-    // =============================================
-
-    daftarRiwayat.forEach(
-        function (item) {
-
-
-            // =========================================
-            // STATUS DEFAULT
-            // =========================================
-
-            let status =
-                "OPEN";
-
-
-            // =========================================
-            // DETEKSI STATUS
-            // =========================================
-
-            const itemUpper =
-                item.toUpperCase();
-
-
-            if (
-                itemUpper.includes(
-                    "SELESAI"
-                )
-            ) {
-
-                status =
-                    "SELESAI";
-
-            }
-
-            else if (
-                itemUpper.includes(
-                    "PROSES"
-                )
-            ) {
-
-                status =
-                    "PROSES";
-
-            }
-
-            else if (
-                itemUpper.includes(
-                    "OPEN"
-                )
-            ) {
-
-                status =
-                    "OPEN";
-
-            }
-
-
-            // =========================================
-            // CLASS STATUS
-            // =========================================
-
-            const statusClass =
-                status.toLowerCase();
-
-
-            // =========================================
-            // AMBIL TANGGAL / WAKTU
-            // =========================================
-
-            let waktu =
-                "";
-
-
-            const waktuMatch =
-                item.match(
-                    /\d{2}\/\d{2}\/\d{4}\s+\d{2}:\d{2}:\d{2}/
-                );
-
-
-            if (
-                waktuMatch
-            ) {
-
-                waktu =
-                    waktuMatch[0];
-
-            }
-
-
-            // =========================================
-            // BERSIHKAN DETAIL
-            // =========================================
-
-            let detail =
-                item;
-
-
-            if (
-                waktu !== ""
-            ) {
-
-                detail =
-                    detail.replace(
-                        waktu,
-                        ""
-                    );
-
-            }
-
-
-            // =========================================
-            // BERSIHKAN KARAKTER AWAL
-            // =========================================
-
-            detail =
-                detail
-                    .replace(
-                        /^OPEN\s*[-â†’]?\s*/i,
-                        ""
-                    )
-                    .replace(
-                        /^PROSES\s*[-â†’]?\s*/i,
-                        ""
-                    )
-                    .replace(
-                        /^SELESAI\s*[-â†’]?\s*/i,
-                        ""
-                    )
-                    .trim();
-
-
-            detail =
-                detail.replace(
-                    /^[-â†’\s]+/,
-                    ""
-                );
-
-
-            // =========================================
-            // TAMBAHKAN TIMELINE
-            // =========================================
-
-            html += `
-
-                <div
-                    class="timeline-item ${statusClass}"
-                >
-
-                    <div
-                        class="timeline-marker"
-                    >
-
-                        <div
-                            class="timeline-dot"
-                        ></div>
-
-                        <div
-                            class="timeline-line"
-                        ></div>
-
-                    </div>
-
-
-                    <div
-                        class="timeline-content"
-                    >
-
-                        <div
-                            class="
-                                timeline-status
-                                ${statusClass}
-                            "
-                        >
-
-                            ${escapeHtml(
-                status
-            )}
-
-                        </div>
-
-
-                        ${waktu !== ""
-
-                    ?
-
-                    `
-
-                            <div
-                                class="timeline-time"
-                            >
-
-                                ${escapeHtml(
-                        waktu
-                    )}
-
-                            </div>
-
-                            `
-
-                    :
-
-                    ""
-
-                }
-
-
-                        ${detail !== ""
-
-                    ?
-
-                    `
-
-                            <div
-                                class="timeline-detail"
-                            >
-
-                                ${escapeHtml(
-                        detail
-                    )}
-
-                            </div>
-
-                            `
-
-                    :
-
-                    ""
-
-                }
-
-                    </div>
-
-                </div>
-
-            `;
-
-
-        }
-    );
-
-
-    // =============================================
-    // TUTUP TIMELINE
-    // =============================================
-
-    html +=
-        `</div>`;
-
-
-    // =============================================
-    // TAMPILKAN TIMELINE
-    // =============================================
-
-    detailRiwayat.innerHTML =
-        html;
-
-}
-// =====================================================
-// TUTUP MODAL
-// =====================================================
-
-function tutupModal() {
-
-    detailModal.classList.remove(
-        "show"
-    );
-
-}
-
-
-// =====================================================
-// TOMBOL X
-// =====================================================
-
-closeModal.addEventListener(
-    "click",
-    function () {
-
-        tutupModal();
-
-    }
-);
-
-
-// =====================================================
-// TOMBOL TUTUP
-// =====================================================
-
-closeModalButton.addEventListener(
-    "click",
-    function () {
-
-        tutupModal();
-
-    }
-);
-
-
-// =====================================================
-// KLIK AREA LUAR MODAL
-// =====================================================
-
-detailModal.addEventListener(
-    "click",
-    function (event) {
-
-        if (
-            event.target === detailModal
-        ) {
-
-            tutupModal();
-
-        }
-
-    }
-);
-
-
-// =====================================================
-// TOMBOL ESC
-// =====================================================
-
-document.addEventListener(
-    "keydown",
-    function (event) {
-
-        if (
-            event.key === "Escape"
-        ) {
-
-            tutupModal();
-
-        }
-
-    }
-);
-
-// =====================================================
-// FORMAT TANGGAL UNTUK TAMPILAN DASHBOARD
-// =====================================================
-
-// =====================================================
-// FORMAT TANGGAL UNTUK TAMPILAN DASHBOARD
-// MENGGUNAKAN WAKTU INDONESIA / BALI
-// =====================================================
-
-function formatTanggalTampilan(value) {
-
-    if (
-        value === null ||
-        value === undefined ||
-        value === ""
-    ) {
-
-        return "-";
-
-    }
-
-    const text =
-        String(value).trim();
-
-    // =============================================
-    // JIKA SUDAH FORMAT yyyy-MM-dd
-    // =============================================
-
-    if (
-        /^\d{4}-\d{2}-\d{2}$/.test(text)
-    ) {
-
-        return text;
-
-    }
-
-    // =============================================
-    // JIKA DATA DARI API BERUPA ISO UTC
-    //
-    // Contoh:
-    // 2026-08-30T16:00:00.000Z
-    //
-    // Waktu tersebut = 31/08/2026 00:00
-    // waktu Indonesia bagian tengah
-    // =============================================
-
-    if (
-        /^\d{4}-\d{2}-\d{2}T/.test(text)
-    ) {
-
-        const date =
-            new Date(text);
-
-        if (
-            !isNaN(date.getTime())
-        ) {
-
-            const formatter =
-                new Intl.DateTimeFormat(
-                    "en-CA",
-                    {
-                        timeZone:
-                            "Asia/Makassar",
-
-                        year:
-                            "numeric",
-
-                        month:
-                            "2-digit",
-
-                        day:
-                            "2-digit"
-                    }
-                );
-
-            return formatter.format(date);
-
-        }
-
-    }
-
-    // =============================================
-    // JIKA FORMAT LAIN
-    // =============================================
-
-    return text;
-
-}
-// =====================================================
-// AMANKAN TEXT HTML
-// =====================================================
-
-function escapeHtml(value) {
-
-    if (
-        value === null ||
-        value === undefined
-    ) {
-
-        return "";
-
-    }
-
-
-    return String(value)
-
-        .replace(
-            /&/g,
-            "&amp;"
-        )
-
-        .replace(
-            /</g,
-            "&lt;"
-        )
-
-        .replace(
-            />/g,
-            "&gt;"
-        )
-
-        .replace(
-            /"/g,
-            "&quot;"
-        )
-
-        .replace(
-            /'/g,
-            "&#039;"
-        );
-
-}
-
-
-// =====================================================
-// AMANKAN ATTRIBUTE HTML
-// =====================================================
-
-function escapeAttribute(value) {
-
-    if (
-        value === null ||
-        value === undefined
-    ) {
-
-        return "";
-
-    }
-
-
-    return String(value)
-
-        .replace(
-            /'/g,
-            "\\'"
-        )
-
-        .replace(
-            /"/g,
-            "&quot;"
-        );
-
-}
-// =====================================================
-// AMBIL TANGGAL UPDATE SAAT INI
-// =====================================================
-
-function getTanggalUpdate() {
-
-    const sekarang =
-        new Date();
-
-
-    const tanggal =
-        String(
-            sekarang.getDate()
-        ).padStart(
-            2,
-            "0"
-        );
-
-
-    const bulan =
-        String(
-            sekarang.getMonth() + 1
-        ).padStart(
-            2,
-            "0"
-        );
-
-
-    const tahun =
-        sekarang.getFullYear();
-
-
-    const jam =
-        String(
-            sekarang.getHours()
-        ).padStart(
-            2,
-            "0"
-        );
-
-
-    const menit =
-        String(
-            sekarang.getMinutes()
-        ).padStart(
-            2,
-            "0"
-        );
-
-
-    const detik =
-        String(
-            sekarang.getSeconds()
-        ).padStart(
-            2,
-            "0"
-        );
-
-
-    return (
-        tanggal +
-        "/" +
-        bulan +
-        "/" +
-        tahun +
-        " " +
-        jam +
-        ":" +
-        menit +
-        ":" +
-        detik
-    );
-
-}
-// =====================================================
-// SIMPAN UPDATE
-// TAHAP 4.8
-//
-// SIMPAN KE GOOGLE SPREADSHEET
-// MELALUI GOOGLE APPS SCRIPT
-// =====================================================
-
-saveUpdateButton.addEventListener(
-    "click",
-    async function () {
-
-        // =============================================
-        // CEK APAKAH ADA ORDER AKTIF
-        // =============================================
-
-        if (!orderAktif) {
-
-            alert(
-                "Silakan buka Detail Order terlebih dahulu"
-            );
-
-            return;
-
-        }
-
-
-
-        // =============================================
-        // AMBIL STATUS LAMA
-        // =============================================
-
-        const statusLama =
-            orderAktif.status || "OPEN";
-
-
-
-        // =============================================
-        // AMBIL STATUS BARU
-        // =============================================
-
-        const statusBaru =
-            updateStatus.value;
-
-
-
-        // =============================================
-        // AMBIL SOW
-        // =============================================
-
-        const teknisiBaru =
-            updateTeknisi.value;
-
-
-
-        // =============================================
-        // AMBIL CATATAN PROGRES
-        // =============================================
-
-        const catatanBaru =
-            updateCatatan.value.trim();
-
-
-
-        // =============================================
-        // VALIDASI
-        // =============================================
-
-        if (
-            statusBaru === ""
-        ) {
-
-            alert(
-                "Status wajib dipilih"
-            );
-
-            return;
-
-        }
-
-
-
-        // =============================================
-        // KONFIRMASI
-        // =============================================
-
-        const konfirmasi =
-            confirm(
-
-                "Simpan update order?\n\n" +
-
-                "Kode Order: " +
-                orderAktif.kode +
-
-                "\nStatus: " +
-                statusLama +
-                " â†’ " +
-                statusBaru +
-
-                "\nTeknisi/SOW: " +
-                (
-                    teknisiBaru || "-"
-                )
-
-            );
-
-
-
-        if (!konfirmasi) {
-
-            return;
-
-        }
-
-
-
-        // =============================================
-        // NONAKTIFKAN TOMBOL
-        // =============================================
-
-        const textButton =
-            saveUpdateButton.textContent;
-
-
-
-        saveUpdateButton.disabled =
-            true;
-
-
-
-        saveUpdateButton.textContent =
-            "Menyimpan...";
-
-
-
-        try {
-
-
-
-            // =========================================
-            // DATA YANG DIKIRIM KE GOOGLE APPS SCRIPT
-            // =========================================
-
-            const payload = {
+        const result =
+            await apiPost({
 
                 action:
                     "updateOrder",
+
+                token:
+                    ADMIN_TOKEN,
 
                 kode:
                     orderAktif.kode,
@@ -2264,3194 +1391,284 @@ saveUpdateButton.addEventListener(
                     statusBaru,
 
                 teknisi:
-                    teknisiBaru,
+                    sowBaru,
 
                 catatan_progres:
-                    catatanBaru,
+                    catatanBaru
 
-                status_lama:
-                    statusLama,
-
-                token:
-                    ADMIN_TOKEN
-
-            };
-
-
-
-            console.log(
-                "KIRIM UPDATE:",
-                payload
-            );
-
-
-
-            // =========================================
-            // KIRIM POST KE API
-            // =========================================
-
-            const response =
-                await fetch(
-
-                    API_URL,
-
-                    {
-
-                        method:
-                            "POST",
-
-                        headers: {
-
-                            "Content-Type":
-                                "text/plain;charset=utf-8"
-
-                        },
-
-                        body:
-                            JSON.stringify(
-                                payload
-                            )
-
-                    }
-
-                );
-
-
-
-            // =========================================
-            // AMBIL RESPONSE
-            // =========================================
-
-            const result =
-                await response.json();
-
-
-
-            console.log(
-                "HASIL UPDATE API:",
-                result
-            );
-
-
-
-            // =========================================
-            // CEK ERROR DARI SERVER
-            // =========================================
-
-            if (
-                !result.success
-            ) {
-
-                throw new Error(
-
-                    result.message ||
-                    "Gagal menyimpan update"
-
-                );
-
-            }
-
-
-
-            // =========================================
-            // UPDATE DATA LOKAL
-            // =============================================
-
-            orderAktif.status =
-                result.status ||
-                statusBaru;
-
-
-
-            orderAktif.teknisi =
-                result.teknisi !== undefined
-                    ? result.teknisi
-                    : teknisiBaru;
-
-
-
-            orderAktif.catatan_progres =
-                result.catatan_progres !== undefined
-                    ? result.catatan_progres
-                    : catatanBaru;
-
-
-
-            // =========================================
-            // JIKA SERVER MENGIRIM TANGGAL UPDATE
-            // =========================================
-
-            if (
-                result.tanggal_update
-            ) {
-
-                orderAktif.tanggal_update =
-                    result.tanggal_update;
-
-            }
-
-
-
-            // =========================================
-            // JIKA SERVER MENGIRIM RIWAYAT
-            // =========================================
-
-            if (
-                result.riwayat_status
-            ) {
-
-                orderAktif.riwayat_status =
-                    result.riwayat_status;
-
-            }
-
-
-
-            // =========================================
-            // UPDATE TAMPILAN DETAIL
-            // =========================================
-
-            detailStatus.textContent =
-                orderAktif.status ||
-                "OPEN";
-
-
-
-            detailTeknisi.textContent =
-                orderAktif.teknisi ||
-                "-";
-
-
-
-            detailCatatan.textContent =
-                orderAktif.catatan_progres ||
-                "-";
-
-
-
-            detailTanggalUpdate.textContent =
-                orderAktif.tanggal_update ||
-                "-";
-
-
-
-            detailRiwayat.textContent =
-                formatRiwayatStatus(
-                    orderAktif.riwayat_status
-                );
-
-
-
-            // =========================================
-            // REFRESH DATA DASHBOARD
-            // =========================================
-
-            await loadOrders();
-
-
-
-            // =========================================
-            // TAMPILKAN BERHASIL
-            // =========================================
-
-            alert(
-
-                "Update berhasil disimpan!\n\n" +
-
-                "Kode Order: " +
-                orderAktif.kode +
-
-                "\nStatus: " +
-                statusLama +
-                " â†’ " +
-                statusBaru +
-
-                "\nTeknisi/SOW: " +
-                (
-                    teknisiBaru || "-"
-                ) +
-
-                "\n\nData sudah disimpan ke Spreadsheet."
-
-            );
-
-
-
-        }
-
-        catch (error) {
-
-
-
-            console.error(
-                "ERROR UPDATE:",
-                error
-            );
-
-
-
-            alert(
-
-                "âŒ Update gagal disimpan.\n\n" +
-
-                error.message
-
-            );
-
-
-
-        }
-
-        finally {
-
-
-
-            // =========================================
-            // AKTIFKAN KEMBALI TOMBOL
-            // =========================================
-
-            saveUpdateButton.disabled =
-                false;
-
-
-
-            saveUpdateButton.textContent =
-                textButton;
-
-        }
-
-    }
-);
-// =====================================================
-// TAHAP 10
-// LOGOUT ADMIN
-// =====================================================
-
-const logoutButton =
-    document.getElementById(
-        "logoutButton"
-    );
-
-
-if (
-    logoutButton
-) {
-
-    logoutButton.addEventListener(
-        "click",
-        async function () {
-
-            const yakin =
-                confirm(
-                    "Apakah Anda yakin ingin logout?"
-                );
-
-
-            if (
-                !yakin
-            ) {
-
-                return;
-
-            }
-
-
-            try {
-
-                await fetch(
-                    API_URL,
-                    {
-
-                        method:
-                            "POST",
-
-                        headers: {
-
-                            "Content-Type":
-                                "text/plain;charset=utf-8"
-
-                        },
-
-                        body:
-                            JSON.stringify({
-
-                                action:
-                                    "logoutAdmin",
-
-                                token:
-                                    ADMIN_TOKEN
-
-                            })
-
-                    }
-                );
-
-            }
-
-            catch (error) {
-
-                console.error(
-                    "ERROR LOGOUT:",
-                    error
-                );
-
-            }
-
-
-            // -----------------------------------------
-            // HAPUS TOKEN
-            // -----------------------------------------
-
-            localStorage.removeItem(
-                "MY_SOW_ADMIN_TOKEN"
-            );
-
-
-            // -----------------------------------------
-            // KEMBALI KE LOGIN
-            // -----------------------------------------
-
-            window.location.replace(
-                "login.html"
-            );
-
-        }
-    );
-
-}
-// =====================================================
-// B.2.3 - REKAP LAPORAN
-// MENGAKTIFKAN PILIHAN PERIODE & TOMBOL REKAP
-// =====================================================
-
-const rekapPeriodButtons =
-    document.querySelectorAll(
-        ".rekap-period-button"
-    );
-
-const rekapPeriodForm =
-    document.getElementById(
-        "rekapPeriodForm"
-    );
-
-const tampilkanRekapButton =
-    document.getElementById(
-        "tampilkanRekapButton"
-    );
-
-const rekapResult =
-    document.getElementById(
-        "rekapResult"
-    );
-
-
-// =====================================================
-// PERIODE AKTIF
-// =====================================================
-
-let periodeRekapAktif =
-    "harian";
-
-
-// =====================================================
-// FUNGSI TAMPILKAN FORM PERIODE
-// =====================================================
-
-function tampilkanFormPeriode(
-    periode
-) {
-
-    periodeRekapAktif =
-        periode;
-
-
-    // -------------------------------------------------
-    // HARIAN
-    // -------------------------------------------------
-
-    if (
-        periode === "harian"
-    ) {
-
-        rekapPeriodForm.innerHTML = `
-            <div class="rekap-info">
-                <strong>Periode Harian</strong>
-                <span>Pilih tanggal laporan yang ingin direkap.</span>
-            </div>
-
-            <div class="rekap-input-group">
-                <div class="rekap-input-item">
-                    <label for="rekapTanggal">
-                        Tanggal
-                    </label>
-
-                    <input
-                        type="date"
-                        id="rekapTanggal"
-                    >
-                </div>
-            </div>
-        `;
-
-        return;
-    }
-
-
-    // -------------------------------------------------
-    // MINGGUAN
-    // -------------------------------------------------
-
-    if (
-        periode === "mingguan"
-    ) {
-
-        rekapPeriodForm.innerHTML = `
-            <div class="rekap-info">
-                <strong>Periode Mingguan</strong>
-                <span>Pilih tanggal awal minggu dan tanggal akhir minggu.</span>
-            </div>
-
-            <div class="rekap-input-group">
-
-                <div class="rekap-input-item">
-                    <label for="rekapTanggalMulai">
-                        Tanggal Mulai
-                    </label>
-
-                    <input
-                        type="date"
-                        id="rekapTanggalMulai"
-                    >
-                </div>
-
-                <div class="rekap-input-item">
-                    <label for="rekapTanggalSampai">
-                        Tanggal Sampai
-                    </label>
-
-                    <input
-                        type="date"
-                        id="rekapTanggalSampai"
-                    >
-                </div>
-
-            </div>
-        `;
-
-        return;
-    }
-
-
-    // -------------------------------------------------
-    // BULANAN
-    // -------------------------------------------------
-
-    if (
-        periode === "bulanan"
-    ) {
-
-        rekapPeriodForm.innerHTML = `
-            <div class="rekap-info">
-                <strong>Periode Bulanan</strong>
-                <span>Pilih bulan dan tahun laporan.</span>
-            </div>
-
-            <div class="rekap-input-group">
-
-                <div class="rekap-input-item">
-                    <label for="rekapBulan">
-                        Bulan
-                    </label>
-
-                    <select id="rekapBulan">
-
-                        <option value="">
-                            Pilih Bulan
-                        </option>
-
-                        <option value="01">
-                            Januari
-                        </option>
-
-                        <option value="02">
-                            Februari
-                        </option>
-
-                        <option value="03">
-                            Maret
-                        </option>
-
-                        <option value="04">
-                            April
-                        </option>
-
-                        <option value="05">
-                            Mei
-                        </option>
-
-                        <option value="06">
-                            Juni
-                        </option>
-
-                        <option value="07">
-                            Juli
-                        </option>
-
-                        <option value="08">
-                            Agustus
-                        </option>
-
-                        <option value="09">
-                            September
-                        </option>
-
-                        <option value="10">
-                            Oktober
-                        </option>
-
-                        <option value="11">
-                            November
-                        </option>
-
-                        <option value="12">
-                            Desember
-                        </option>
-
-                    </select>
-                </div>
-
-
-                <div class="rekap-input-item">
-                    <label for="rekapTahun">
-                        Tahun
-                    </label>
-
-                    <input
-                        type="number"
-                        id="rekapTahun"
-                        min="2020"
-                        max="2100"
-                        placeholder="Contoh: 2026"
-                    >
-                </div>
-
-            </div>
-        `;
-
-        return;
-    }
-
-
-    // -------------------------------------------------
-    // TAHUNAN
-    // -------------------------------------------------
-
-    if (
-        periode === "tahunan"
-    ) {
-
-        rekapPeriodForm.innerHTML = `
-            <div class="rekap-info">
-                <strong>Periode Tahunan</strong>
-                <span>Pilih tahun laporan.</span>
-            </div>
-
-            <div class="rekap-input-group">
-
-                <div class="rekap-input-item">
-                    <label for="rekapTahun">
-                        Tahun
-                    </label>
-
-                    <input
-                        type="number"
-                        id="rekapTahun"
-                        min="2020"
-                        max="2100"
-                        placeholder="Contoh: 2026"
-                    >
-                </div>
-
-            </div>
-        `;
-
-        return;
-    }
-
-}
-
-
-// =====================================================
-// KLIK PILIHAN PERIODE
-// =====================================================
-
-rekapPeriodButtons.forEach(
-    function (button) {
-
-        button.addEventListener(
-            "click",
-            function () {
-
-                // Hapus active dari semua tombol
-                rekapPeriodButtons.forEach(
-                    function (btn) {
-                        btn.classList.remove(
-                            "active"
-                        );
-                    }
-                );
-
-
-                // Aktifkan tombol yang dipilih
-                button.classList.add(
-                    "active"
-                );
-
-
-                // Ambil periode
-                const periode =
-                    button.dataset.period;
-
-
-                // Tampilkan form periode
-                tampilkanFormPeriode(
-                    periode
-                );
-
-            }
-        );
-
-    }
-);
-
-
-// =====================================================
-// PERIODE DEFAULT
-// =====================================================
-
-document.addEventListener(
-    "DOMContentLoaded",
-    function () {
-
-        tampilkanFormPeriode(
-            "harian"
-        );
-
-    }
-);
-
-
-// =====================================================
-// TOMBOL TAMPILKAN REKAP
-// =====================================================
-
-if (
-    tampilkanRekapButton
-) {
-
-    tampilkanRekapButton.addEventListener(
-        "click",
-        function () {
-
-            console.log(
-                "Periode Rekap:",
-                periodeRekapAktif
-            );
-            // =====================================================
-            // B.3.2.2
-            // EVENT DOWNLOAD REKAP EXCEL
-            // =====================================================
-
-            const downloadRekapExcelButton =
-                document.getElementById(
-                    "downloadRekapExcelButton"
-                );
-
-
-            if (
-                downloadRekapExcelButton
-            ) {
-
-                downloadRekapExcelButton.addEventListener(
-                    "click",
-                    downloadRekapExcel
-                );
-
-            }
-
-            // -------------------------------------------------
-            // HARIAN
-            // -------------------------------------------------
-
-            if (
-                periodeRekapAktif ===
-                "harian"
-            ) {
-
-                const tanggal =
-                    document.getElementById(
-                        "rekapTanggal"
-                    )?.value;
-
-
-                if (
-                    !tanggal
-                ) {
-
-                    alert(
-                        "Silakan pilih tanggal terlebih dahulu."
-                    );
-
-                    return;
-                }
-
-
-                ambilRekap(
-                    "harian",
-                    {
-                        tanggal:
-                            tanggal
-                    }
-                );
-
-                return;
-            }
-
-
-            // -------------------------------------------------
-            // MINGGUAN
-            // -------------------------------------------------
-
-            if (
-                periodeRekapAktif ===
-                "mingguan"
-            ) {
-
-                const tanggalMulai =
-                    document.getElementById(
-                        "rekapTanggalMulai"
-                    )?.value;
-
-
-                const tanggalSampai =
-                    document.getElementById(
-                        "rekapTanggalSampai"
-                    )?.value;
-
-
-                if (
-                    !tanggalMulai ||
-                    !tanggalSampai
-                ) {
-
-                    alert(
-                        "Silakan pilih tanggal mulai dan tanggal sampai."
-                    );
-
-                    return;
-                }
-
-
-                if (
-                    tanggalMulai >
-                    tanggalSampai
-                ) {
-
-                    alert(
-                        "Tanggal mulai tidak boleh lebih besar dari tanggal sampai."
-                    );
-
-                    return;
-                }
-
-
-                ambilRekap(
-                    "mingguan",
-                    {
-                        tanggalMulai:
-                            tanggalMulai,
-
-                        tanggalSampai:
-                            tanggalSampai
-                    }
-                );
-
-                return;
-            }
-
-
-            // -------------------------------------------------
-            // BULANAN
-            // -------------------------------------------------
-
-            if (
-                periodeRekapAktif ===
-                "bulanan"
-            ) {
-
-                const bulan =
-                    document.getElementById(
-                        "rekapBulan"
-                    )?.value;
-
-
-                const tahun =
-                    document.getElementById(
-                        "rekapTahun"
-                    )?.value;
-
-
-                if (
-                    !bulan ||
-                    !tahun
-                ) {
-
-                    alert(
-                        "Silakan pilih bulan dan tahun."
-                    );
-
-                    return;
-                }
-
-
-                ambilRekap(
-                    "bulanan",
-                    {
-                        bulan:
-                            bulan,
-
-                        tahun:
-                            tahun
-                    }
-                );
-
-                return;
-            }
-
-
-            // -------------------------------------------------
-            // TAHUNAN
-            // -------------------------------------------------
-
-            if (
-                periodeRekapAktif ===
-                "tahunan"
-            ) {
-
-                const tahun =
-                    document.getElementById(
-                        "rekapTahun"
-                    )?.value;
-
-
-                if (
-                    !tahun
-                ) {
-
-                    alert(
-                        "Silakan pilih tahun."
-                    );
-
-                    return;
-                }
-
-
-                ambilRekap(
-                    "tahunan",
-                    {
-                        tahun:
-                            tahun
-                    }
-                );
-
-            }
-
-        }
-    );
-
-}
-
-
-// =====================================================
-// FUNGSI AMBIL DATA REKAP DARI API
-// =====================================================
-
-async function ambilRekap(
-    periode,
-    dataPeriode
-) {
-
-    try {
-
-        rekapResult.innerHTML = `
-            <div class="rekap-empty">
-                â³
-                <h3>Memuat Rekap...</h3>
-                <p>Mohon tunggu.</p>
-            </div>
-        `;
-
-
-        // =================================================
-        // BUAT URL API
-        // =================================================
-
-        const params =
-            new URLSearchParams();
-
-
-        params.append(
-            "token",
-            ADMIN_TOKEN
-        );
-
-
-        params.append(
-            "rekap",
-            "true"
-        );
-
-
-        params.append(
-            "tipe",
-            periode
-        );
-
-
-        // Tambahkan parameter periode
-        Object.keys(
-            dataPeriode
-        ).forEach(
-            function (key) {
-
-                params.append(
-                    key,
-                    dataPeriode[key]
-                );
-
-            }
-        );
-
-
-        const url =
-            API_URL +
-            "?" +
-            params.toString();
-
-
-        console.log(
-            "URL API REKAP:",
-            url
-        );
-
-
-        // =================================================
-        // REQUEST API
-        // =================================================
-
-        const response =
-            await fetch(
-                url
-            );
+            });
 
 
         if (
-            !response.ok
+            !result ||
+            result.success !== true
         ) {
+
+            if (
+                result?.unauthorized
+            ) {
+
+                logoutLocal(
+                    "Session admin berakhir."
+                );
+
+                return;
+            }
+
 
             throw new Error(
-                "Gagal menghubungkan ke API Rekap."
+                result?.message ||
+                "Update order gagal."
             );
-
         }
 
 
-        const result =
-            await response.json();
-
-
-        console.log(
-            "HASIL API REKAP:",
-            result
+        alert(
+            result.message ||
+            "Order berhasil diperbarui."
         );
 
 
-        // =================================================
-        // CEK RESPONSE
-        // =================================================
+        tutupDetailModal();
 
-        if (
-            !result.success
-        ) {
 
-            throw new Error(
-                result.message ||
-                "Gagal mengambil data rekap."
-            );
-
-        }
-        // =================================================
-        // SIMPAN HASIL REKAP TERAKHIR
-        // Untuk digunakan oleh Download Excel
-        // =================================================
-
-        hasilRekapTerakhir = result;
-        periodeRekapTerakhir = periode;
-
-
-        // =================================================
-        // TAMPILKAN HASIL
-        // =================================================
-
-        tampilkanHasilRekap(
-            result,
-            periode
-        );
-
-    }
-
-    catch (
-    error
-    ) {
-
-        console.error(
-            "ERROR REKAP:",
-            error
-        );
-
-
-        rekapResult.innerHTML = `
-            <div class="rekap-empty">
-
-
-                <h3>Rekap Gagal</h3>
-
-                <p>
-                    ${error.message}
-                </p>
-
-            </div>
-        `;
-
-    }
-
-}
-
-// =====================================================
-// B.3.3.1
-// DOWNLOAD EXCEL - LAPORAN PROFESIONAL BERWARNA
-// =====================================================
-
-async function downloadRekapExcel() {
-
-    try {
-
-        // -------------------------------------------------
-        // VALIDASI
-        // -------------------------------------------------
-
-        if (!hasilRekapTerakhir) {
-            alert("Silakan tampilkan rekap terlebih dahulu.");
-            return;
-        }
-
-        if (typeof ExcelJS === "undefined") {
-            alert(
-                "Library ExcelJS belum berhasil dimuat.\n\n" +
-                "Pastikan koneksi internet aktif lalu refresh halaman."
-            );
-            return;
-        }
-
-        const result = hasilRekapTerakhir;
-
-        const statistik = result.statistik || {};
-
-        const rekapCabang =
-            Array.isArray(result.rekapCabang)
-                ? result.rekapCabang
-                : [];
-
-        const rekapTeknisi =
-            Array.isArray(result.rekapTeknisi)
-                ? result.rekapTeknisi
-                : [];
-
-        const orders =
-            Array.isArray(result.orders)
-                ? result.orders
-                : [];
-
-        const periode = result.periode || {};
-
-        // -------------------------------------------------
-        // LABEL PERIODE
-        // -------------------------------------------------
-
-        const tipe = String(
-            result.tipe ||
-            periodeRekapTerakhir ||
-            "bulanan"
-        ).toLowerCase();
-
-        const periodeLabelMap = {
-            harian: "HARIAN",
-            mingguan: "MINGGUAN",
-            bulanan: "BULANAN",
-            tahunan: "TAHUNAN"
-        };
-
-        const periodeLabel =
-            periodeLabelMap[tipe] || tipe.toUpperCase();
-
-
-        // -------------------------------------------------
-        // FORMAT TANGGAL
-        // -------------------------------------------------
-
-        function formatTanggalIndonesia(tanggal) {
-
-            if (!tanggal) return "-";
-
-            const bagian =
-                String(tanggal).split("-");
-
-            if (bagian.length === 3) {
-                return (
-                    bagian[2] +
-                    "/" +
-                    bagian[1] +
-                    "/" +
-                    bagian[0]
-                );
-            }
-
-            return String(tanggal);
-        }
-
-
-        // -------------------------------------------------
-        // NAMA FILE
-        // -------------------------------------------------
-
-        const tanggalMulai =
-            periode.mulai || "";
-
-        const tanggalSampai =
-            periode.sampai || "";
-
-        const namaFile =
-            "Laporan_SOW_IV_Denpasar_" +
-            tipe +
-            "_" +
-            tanggalMulai +
-            "_sampai_" +
-            tanggalSampai +
-            ".xlsx";
-
-
-        // =================================================
-        // BUAT WORKBOOK
-        // =================================================
-
-        const workbook = new ExcelJS.Workbook();
-
-        workbook.creator = "SOW IV Denpasar";
-        workbook.lastModifiedBy = "SOW IV Denpasar";
-        workbook.created = new Date();
-        workbook.modified = new Date();
-
-        const worksheet =
-            workbook.addWorksheet("Laporan SOW");
-
-
-        // =================================================
-        // WARNA DESAIN
-        // =================================================
-
-        const WARNA = {
-
-            biruTua: "17365D",
-
-            biru: "2F75B5",
-
-            biruMuda: "D9EAF7",
-
-            header: "4472C4",
-
-            headerTabel: "5B9BD5",
-
-            putih: "FFFFFF",
-
-            hitam: "000000",
-
-            abu: "D9E1F2",
-
-            abuMuda: "F2F2F2",
-
-            border: "B7B7B7",
-
-            open: "FFF2CC",
-
-            proses: "DDEBF7",
-
-            selesai: "E2F0D9",
-
-            ditolak: "F4CCCC"
-
-        };
-
-
-        // =================================================
-        // FONT
-        // =================================================
-
-        const FONT_NORMAL = {
-            name: "Calibri",
-            size: 11,
-            color: {
-                argb: WARNA.hitam
-            }
-        };
-
-        const FONT_BOLD = {
-            name: "Calibri",
-            size: 11,
-            bold: true,
-            color: {
-                argb: WARNA.hitam
-            }
-        };
-
-
-        // =================================================
-        // BORDER
-        // =================================================
-
-        const BORDER = {
-            top: {
-                style: "thin",
-                color: {
-                    argb: WARNA.border
-                }
-            },
-
-            left: {
-                style: "thin",
-                color: {
-                    argb: WARNA.border
-                }
-            },
-
-            bottom: {
-                style: "thin",
-                color: {
-                    argb: WARNA.border
-                }
-            },
-
-            right: {
-                style: "thin",
-                color: {
-                    argb: WARNA.border
-                }
-            }
-        };
-
-
-        // =================================================
-        // LEBAR KOLOM
-        // =================================================
-
-        worksheet.columns = [
-
-            {
-                key: "kode",
-                width: 24
-            },
-
-            {
-                key: "nama",
-                width: 25
-            },
-
-            {
-                key: "cabang",
-                width: 24
-            },
-
-            {
-                key: "kendala",
-                width: 34
-            },
-
-            {
-                key: "tanggal",
-                width: 17
-            },
-
-            {
-                key: "status",
-                width: 16
-            },
-
-            {
-                key: "teknisi",
-                width: 28
-            }
-
-        ];
-
-
-        // =================================================
-        // JUDUL UTAMA
-        // =================================================
-
-        worksheet.mergeCells("A1:G1");
-
-        const cellJudul =
-            worksheet.getCell("A1");
-
-        cellJudul.value =
-            "LAPORAN DETAIL SOW IV DENPASAR";
-
-        cellJudul.font = {
-            name: "Calibri",
-            size: 16,
-            bold: true,
-            color: {
-                argb: WARNA.putih
-            }
-        };
-
-        cellJudul.fill = {
-            type: "pattern",
-            pattern: "solid",
-            fgColor: {
-                argb: WARNA.biruTua
-            }
-        };
-
-        cellJudul.alignment = {
-            horizontal: "center",
-            vertical: "middle"
-        };
-
-        cellJudul.border = BORDER;
-
-        worksheet.getRow(1).height = 30;
-
-
-        // =================================================
-        // SUB JUDUL
-        // =================================================
-
-        worksheet.mergeCells("A2:G2");
-
-        const cellSubJudul =
-            worksheet.getCell("A2");
-
-        cellSubJudul.value =
-            "REKAP LAPORAN SOW";
-
-        cellSubJudul.font = {
-            name: "Calibri",
-            size: 13,
-            bold: true,
-            color: {
-                argb: WARNA.putih
-            }
-        };
-
-        cellSubJudul.fill = {
-            type: "pattern",
-            pattern: "solid",
-            fgColor: {
-                argb: WARNA.biru
-            }
-        };
-
-        cellSubJudul.alignment = {
-            horizontal: "center",
-            vertical: "middle"
-        };
-
-        cellSubJudul.border = BORDER;
-
-        worksheet.getRow(2).height = 24;
-
-
-        // =================================================
-        // PERIODE
-        // =================================================
-
-        worksheet.getCell("A4").value = "PERIODE";
-        worksheet.getCell("B4").value = ":";
-        worksheet.getCell("C4").value = periodeLabel;
-
-        worksheet.getCell("A5").value = "TANGGAL MULAI";
-        worksheet.getCell("B5").value = ":";
-        worksheet.getCell("C5").value =
-            formatTanggalIndonesia(tanggalMulai);
-
-        worksheet.getCell("A6").value = "TANGGAL SAMPAI";
-        worksheet.getCell("B6").value = ":";
-        worksheet.getCell("C6").value =
-            formatTanggalIndonesia(tanggalSampai);
-
-
-        for (let row = 4; row <= 6; row++) {
-
-            const cellA =
-                worksheet.getCell(`A${row}`);
-
-            const cellB =
-                worksheet.getCell(`B${row}`);
-
-            const cellC =
-                worksheet.getCell(`C${row}`);
-
-            cellA.font = FONT_BOLD;
-
-            cellA.fill = {
-                type: "pattern",
-                pattern: "solid",
-                fgColor: {
-                    argb: WARNA.biruMuda
-                }
-            };
-
-            cellA.border = BORDER;
-            cellB.border = BORDER;
-            cellC.border = BORDER;
-
-            cellB.alignment = {
-                horizontal: "center"
-            };
-
-            cellC.font = {
-                name: "Calibri",
-                size: 11,
-                bold: true,
-                color: {
-                    argb: WARNA.biruTua
-                }
-            };
-
-            cellC.alignment = {
-                horizontal: "left"
-            };
-        }
-
-
-        // =================================================
-        // STATISTIK
-        // =================================================
-
-        const statistikTitleRow = 8;
-
-        worksheet.mergeCells(
-            `A${statistikTitleRow}:G${statistikTitleRow}`
-        );
-
-        const statistikTitle =
-            worksheet.getCell(
-                `A${statistikTitleRow}`
-            );
-
-        statistikTitle.value =
-            "STATISTIK LAPORAN";
-
-        statistikTitle.font = {
-            name: "Calibri",
-            size: 12,
-            bold: true,
-            color: {
-                argb: WARNA.putih
-            }
-        };
-
-        statistikTitle.fill = {
-            type: "pattern",
-            pattern: "solid",
-            fgColor: {
-                argb: WARNA.header
-            }
-        };
-
-        statistikTitle.alignment = {
-            horizontal: "center",
-            vertical: "middle"
-        };
-
-        statistikTitle.border = BORDER;
-
-
-        // Header statistik
-
-        worksheet.getCell("A9").value =
-            "Keterangan";
-
-        worksheet.getCell("B9").value =
-            "Jumlah";
-
-        for (let col = 1; col <= 2; col++) {
-
-            const cell =
-                worksheet.getCell(9, col);
-
-            cell.font = {
-                name: "Calibri",
-                size: 11,
-                bold: true,
-                color: {
-                    argb: WARNA.putih
-                }
-            };
-
-            cell.fill = {
-                type: "pattern",
-                pattern: "solid",
-                fgColor: {
-                    argb: WARNA.headerTabel
-                }
-            };
-
-            cell.alignment = {
-                horizontal: "center",
-                vertical: "middle"
-            };
-
-            cell.border = BORDER;
-        }
-
-
-        // Data statistik
-
-        const dataStatistik = [
-
-            ["Total Order", statistik.total || 0],
-
-            ["OPEN", statistik.open || 0],
-
-            ["PROSES", statistik.proses || 0],
-
-            ["SELESAI", statistik.selesai || 0],
-
-            ["DITOLAK", statistik.ditolak || 0]
-
-        ];
-
-
-        dataStatistik.forEach(
-            (data, index) => {
-
-                const rowNumber =
-                    10 + index;
-
-                worksheet.getCell(
-                    `A${rowNumber}`
-                ).value = data[0];
-
-                worksheet.getCell(
-                    `B${rowNumber}`
-                ).value = data[1];
-
-                for (let col = 1; col <= 2; col++) {
-
-                    const cell =
-                        worksheet.getCell(
-                            rowNumber,
-                            col
-                        );
-
-                    cell.font =
-                        col === 1
-                            ? FONT_BOLD
-                            : FONT_NORMAL;
-
-                    cell.border = BORDER;
-
-                    cell.alignment = {
-                        vertical: "middle",
-                        horizontal:
-                            col === 2
-                                ? "center"
-                                : "left"
-                    };
-                }
-
-
-                // Warna status
-
-                let fillColor = null;
-
-                if (data[0] === "OPEN") {
-                    fillColor = WARNA.open;
-                }
-
-                if (data[0] === "PROSES") {
-                    fillColor = WARNA.proses;
-                }
-
-                if (data[0] === "SELESAI") {
-                    fillColor = WARNA.selesai;
-                }
-
-                if (data[0] === "DITOLAK") {
-                    fillColor = WARNA.ditolak;
-                }
-
-                if (fillColor) {
-
-                    worksheet.getCell(
-                        `A${rowNumber}`
-                    ).fill = {
-                        type: "pattern",
-                        pattern: "solid",
-                        fgColor: {
-                            argb: fillColor
-                        }
-                    };
-
-                    worksheet.getCell(
-                        `B${rowNumber}`
-                    ).fill = {
-                        type: "pattern",
-                        pattern: "solid",
-                        fgColor: {
-                            argb: fillColor
-                        }
-                    };
-                }
-
-            }
-        );
-
-
-        // =================================================
-        // REKAP CABANG
-        // =================================================
-
-        const cabangTitleRow = 16;
-
-        worksheet.mergeCells(
-            `A${cabangTitleRow}:G${cabangTitleRow}`
-        );
-
-        const cabangTitle =
-            worksheet.getCell(
-                `A${cabangTitleRow}`
-            );
-
-        cabangTitle.value =
-            "REKAP BERDASARKAN CABANG";
-
-        cabangTitle.font = {
-            name: "Calibri",
-            size: 12,
-            bold: true,
-            color: {
-                argb: WARNA.putih
-            }
-        };
-
-        cabangTitle.fill = {
-            type: "pattern",
-            pattern: "solid",
-            fgColor: {
-                argb: WARNA.header
-            }
-        };
-
-        cabangTitle.alignment = {
-            horizontal: "center",
-            vertical: "middle"
-        };
-
-        cabangTitle.border = BORDER;
-
-
-        worksheet.getCell("A17").value =
-            "Cabang";
-
-        worksheet.getCell("B17").value =
-            "Jumlah";
-
-
-        for (let col = 1; col <= 2; col++) {
-
-            const cell =
-                worksheet.getCell(17, col);
-
-            cell.font = {
-                name: "Calibri",
-                size: 11,
-                bold: true,
-                color: {
-                    argb: WARNA.putih
-                }
-            };
-
-            cell.fill = {
-                type: "pattern",
-                pattern: "solid",
-                fgColor: {
-                    argb: WARNA.headerTabel
-                }
-            };
-
-            cell.alignment = {
-                horizontal: "center",
-                vertical: "middle"
-            };
-
-            cell.border = BORDER;
-        }
-
-
-        rekapCabang.forEach(
-            (item, index) => {
-
-                const rowNumber =
-                    18 + index;
-
-                worksheet.getCell(
-                    `A${rowNumber}`
-                ).value =
-                    item.nama || "-";
-
-                worksheet.getCell(
-                    `B${rowNumber}`
-                ).value =
-                    item.jumlah || 0;
-
-                for (let col = 1; col <= 2; col++) {
-
-                    const cell =
-                        worksheet.getCell(
-                            rowNumber,
-                            col
-                        );
-
-                    cell.font = FONT_NORMAL;
-
-                    cell.border = BORDER;
-
-                    cell.alignment = {
-                        vertical: "middle",
-                        horizontal:
-                            col === 2
-                                ? "center"
-                                : "left"
-                    };
-
-                    if (index % 2 === 1) {
-
-                        cell.fill = {
-                            type: "pattern",
-                            pattern: "solid",
-                            fgColor: {
-                                argb: WARNA.abuMuda
-                            }
-                        };
-                    }
-                }
-            }
-        );
-
-
-        // =================================================
-        // REKAP SOW
-        // =================================================
-
-        const teknisiTitleRow =
-            19 + rekapCabang.length;
-
-        worksheet.mergeCells(
-            `A${teknisiTitleRow}:G${teknisiTitleRow}`
-        );
-
-        const teknisiTitle =
-            worksheet.getCell(
-                `A${teknisiTitleRow}`
-            );
-
-        teknisiTitle.value =
-            "REKAP BERDASARKAN SOW";
-
-        teknisiTitle.font = {
-            name: "Calibri",
-            size: 12,
-            bold: true,
-            color: {
-                argb: WARNA.putih
-            }
-        };
-
-        teknisiTitle.fill = {
-            type: "pattern",
-            pattern: "solid",
-            fgColor: {
-                argb: WARNA.header
-            }
-        };
-
-        teknisiTitle.alignment = {
-            horizontal: "center",
-            vertical: "middle"
-        };
-
-        teknisiTitle.border = BORDER;
-
-
-        const teknisiHeaderRow =
-            teknisiTitleRow + 1;
-
-        worksheet.getCell(
-            `A${teknisiHeaderRow}`
-        ).value =
-            "SOW";
-
-        worksheet.getCell(
-            `B${teknisiHeaderRow}`
-        ).value =
-            "Jumlah";
-
-
-        for (let col = 1; col <= 2; col++) {
-
-            const cell =
-                worksheet.getCell(
-                    teknisiHeaderRow,
-                    col
-                );
-
-            cell.font = {
-                name: "Calibri",
-                size: 11,
-                bold: true,
-                color: {
-                    argb: WARNA.putih
-                }
-            };
-
-            cell.fill = {
-                type: "pattern",
-                pattern: "solid",
-                fgColor: {
-                    argb: WARNA.headerTabel
-                }
-            };
-
-            cell.alignment = {
-                horizontal: "center",
-                vertical: "middle"
-            };
-
-            cell.border = BORDER;
-        }
-
-
-        rekapTeknisi.forEach(
-            (item, index) => {
-
-                const rowNumber =
-                    teknisiHeaderRow +
-                    1 +
-                    index;
-
-                worksheet.getCell(
-                    `A${rowNumber}`
-                ).value =
-                    item.nama || "-";
-
-                worksheet.getCell(
-                    `B${rowNumber}`
-                ).value =
-                    item.jumlah || 0;
-
-                for (let col = 1; col <= 2; col++) {
-
-                    const cell =
-                        worksheet.getCell(
-                            rowNumber,
-                            col
-                        );
-
-                    cell.font = FONT_NORMAL;
-
-                    cell.border = BORDER;
-
-                    cell.alignment = {
-                        vertical: "middle",
-                        horizontal:
-                            col === 2
-                                ? "center"
-                                : "left"
-                    };
-
-                    if (index % 2 === 1) {
-
-                        cell.fill = {
-                            type: "pattern",
-                            pattern: "solid",
-                            fgColor: {
-                                argb: WARNA.abuMuda
-                            }
-                        };
-                    }
-                }
-            }
-        );
-
-
-        // =================================================
-        // DETAIL ORDER
-        // =================================================
-
-        const detailTitleRow =
-            teknisiHeaderRow +
-            1 +
-            rekapTeknisi.length +
-            1;
-
-        worksheet.mergeCells(
-            `A${detailTitleRow}:G${detailTitleRow}`
-        );
-
-        const detailTitle =
-            worksheet.getCell(
-                `A${detailTitleRow}`
-            );
-
-        detailTitle.value =
-            "DETAIL ORDER";
-
-        detailTitle.font = {
-            name: "Calibri",
-            size: 12,
-            bold: true,
-            color: {
-                argb: WARNA.putih
-            }
-        };
-
-        detailTitle.fill = {
-            type: "pattern",
-            pattern: "solid",
-            fgColor: {
-                argb: WARNA.header
-            }
-        };
-
-        detailTitle.alignment = {
-            horizontal: "center",
-            vertical: "middle"
-        };
-
-        detailTitle.border = BORDER;
-
-
-        // =================================================
-        // HEADER DETAIL
-        // =================================================
-
-        const detailHeaderRow =
-            detailTitleRow + 1;
-
-        const headerDetail = [
-
-            "Kode Order",
-
-            "Nama",
-
-            "Kode Cabang",
-
-            "Jenis Kendala",
-
-            "Tanggal",
-
-            "Status",
-
-            "SOW"
-
-        ];
-
-
-        headerDetail.forEach(
-            (judul, index) => {
-
-                const cell =
-                    worksheet.getCell(
-                        detailHeaderRow,
-                        index + 1
-                    );
-
-                cell.value = judul;
-
-                cell.font = {
-                    name: "Calibri",
-                    size: 11,
-                    bold: true,
-                    color: {
-                        argb: WARNA.putih
-                    }
-                };
-
-                cell.fill = {
-                    type: "pattern",
-                    pattern: "solid",
-                    fgColor: {
-                        argb: WARNA.headerTabel
-                    }
-                };
-
-                cell.alignment = {
-                    horizontal: "center",
-                    vertical: "middle",
-                    wrapText: true
-                };
-
-                cell.border = BORDER;
-            }
-        );
-
-
-        // =================================================
-        // DETAIL DATA
-        // =================================================
-
-        orders.forEach(
-            (order, index) => {
-
-                const rowNumber =
-                    detailHeaderRow +
-                    1 +
-                    index;
-
-                const dataDetail = [
-
-                    order.kode || "",
-
-                    order.nama || "",
-
-                    order.kode_cabang || "",
-
-                    order.jenis_kendala || "",
-
-                    formatTanggalIndonesia(
-                        order.tanggal
-                    ),
-
-                    order.status || "OPEN",
-
-                    order.teknisi || "Belum Ditentukan"
-
-                ];
-
-
-                dataDetail.forEach(
-                    (value, colIndex) => {
-
-                        const cell =
-                            worksheet.getCell(
-                                rowNumber,
-                                colIndex + 1
-                            );
-
-                        cell.value = value;
-
-                        cell.font = FONT_NORMAL;
-
-                        cell.border = BORDER;
-
-                        cell.alignment = {
-                            vertical: "middle",
-                            horizontal:
-                                colIndex === 4 ||
-                                    colIndex === 5
-                                    ? "center"
-                                    : "left",
-                            wrapText: true
-                        };
-
-
-                        // -----------------------------------------
-                        // WARNA SELANG-SELING
-                        // -----------------------------------------
-
-                        if (index % 2 === 1) {
-
-                            cell.fill = {
-                                type: "pattern",
-                                pattern: "solid",
-                                fgColor: {
-                                    argb: WARNA.abuMuda
-                                }
-                            };
-                        }
-
-                    }
-                );
-
-
-                // ---------------------------------------------
-                // WARNA STATUS
-                // ---------------------------------------------
-
-                const status =
-                    String(
-                        order.status || "OPEN"
-                    ).toUpperCase();
-
-                let statusColor =
-                    WARNA.open;
-
-                if (status === "PROSES") {
-                    statusColor =
-                        WARNA.proses;
-                }
-
-                if (status === "SELESAI") {
-                    statusColor =
-                        WARNA.selesai;
-                }
-
-                if (status === "DITOLAK") {
-                    statusColor =
-                        WARNA.ditolak;
-                }
-
-                const statusCell =
-                    worksheet.getCell(
-                        rowNumber,
-                        6
-                    );
-
-                statusCell.fill = {
-                    type: "pattern",
-                    pattern: "solid",
-                    fgColor: {
-                        argb: statusColor
-                    }
-                };
-
-                statusCell.font = {
-                    name: "Calibri",
-                    size: 11,
-                    bold: true,
-                    color: {
-                        argb: WARNA.hitam
-                    }
-                };
-
-                statusCell.alignment = {
-                    horizontal: "center",
-                    vertical: "middle"
-                };
-
-            }
-        );
-
-
-        // =================================================
-        // AUTO FILTER DETAIL
-        // =================================================
-
-        const detailLastRow =
-            detailHeaderRow +
-            Math.max(orders.length, 1);
-
-        worksheet.autoFilter = {
-            from: `A${detailHeaderRow}`,
-            to: `G${detailLastRow}`
-        };
-
-
-        // =================================================
-        // TINGGI BARIS
-        // =================================================
-
-        worksheet.getRow(3).height = 8;
-
-        worksheet.getRow(7).height = 8;
-
-        worksheet.getRow(15).height = 8;
-
-        for (
-            let row = detailHeaderRow;
-            row <= detailLastRow;
-            row++
-        ) {
-
-            worksheet.getRow(row).height = 22;
-        }
-
-
-        // =================================================
-        // PAGE SETUP
-        // =================================================
-
-        worksheet.pageSetup = {
-
-            orientation: "landscape",
-
-            paperSize:
-                worksheet.PAPERSIZE_A4,
-
-            fitToPage: true,
-
-            fitToWidth: 1,
-
-            fitToHeight: 0,
-
-            horizontalDpi: 300,
-
-            verticalDpi: 300,
-
-            margins: {
-                left: 0.3,
-                right: 0.3,
-                top: 0.5,
-                bottom: 0.5,
-                header: 0.2,
-                footer: 0.2
-            }
-
-        };
-
-
-        // =================================================
-        // PRINT AREA
-        // =================================================
-
-        worksheet.printArea =
-            `A1:G${detailLastRow}`;
-
-
-        // =================================================
-        // ALIGNMENT UMUM
-        // =================================================
-
-        worksheet.eachRow(
-            (row) => {
-
-                row.eachCell(
-                    (cell) => {
-
-                        if (!cell.alignment) {
-
-                            cell.alignment = {
-                                vertical: "middle"
-                            };
-
-                        }
-
-                    }
-                );
-
-            }
-        );
-
-
-        // =================================================
-        // GENERATE FILE
-        // =================================================
-
-        const buffer =
-            await workbook.xlsx.writeBuffer();
-
-
-        const blob =
-            new Blob(
-                [buffer],
-                {
-                    type:
-                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                }
-            );
-
-
-        const url =
-            URL.createObjectURL(blob);
-
-
-        const link =
-            document.createElement("a");
-
-        link.href = url;
-
-        link.download =
-            namaFile;
-
-        document.body.appendChild(link);
-
-        link.click();
-
-        document.body.removeChild(link);
-
-
-        setTimeout(
-            () => {
-                URL.revokeObjectURL(url);
-            },
-            1000
-        );
+        await loadOrders();
 
 
     } catch (error) {
 
         console.error(
-            "DOWNLOAD EXCEL ERROR:",
+            "UPDATE ORDER:",
             error
         );
 
+
         alert(
-            "Gagal membuat file Excel.\n\n" +
+            "Gagal memperbarui order.\n\n" +
             error.message
         );
 
+
+    } finally {
+
+        saveUpdateButton.disabled =
+            false;
+    }
+}
+
+
+/* ============================================================
+   17. FILTER
+   ============================================================ */
+
+function resetSemuaFilter() {
+
+    if (searchOrder) {
+        searchOrder.value = "";
     }
 
+
+    if (filterCabang) {
+        filterCabang.value = "";
+    }
+
+
+    if (filterTanggalMulai) {
+        filterTanggalMulai.value = "";
+    }
+
+
+    if (filterTanggalSampai) {
+        filterTanggalSampai.value = "";
+    }
+
+
+    loadOrders();
 }
-// =====================================================
-// FUNGSI TAMPILKAN HASIL REKAP
-// =====================================================
 
-function tampilkanHasilRekap(
-    result,
-    periode
-) {
 
-    console.log(
-        "Data hasil rekap:",
-        result
+/* ============================================================
+   18. SIDEBAR
+   ============================================================ */
+
+function bukaSidebar() {
+
+    if (adminSidebar) {
+
+        adminSidebar.classList.add(
+            "open"
+        );
+    }
+
+
+    if (sidebarOverlay) {
+
+        sidebarOverlay.classList.add(
+            "show"
+        );
+    }
+}
+
+
+function tutupSidebar() {
+
+    if (adminSidebar) {
+
+        adminSidebar.classList.remove(
+            "open"
+        );
+    }
+
+
+    if (sidebarOverlay) {
+
+        sidebarOverlay.classList.remove(
+            "show"
+        );
+    }
+}
+
+
+function setModeHalaman(mode) {
+
+    document.body.classList.remove(
+        "mode-dashboard",
+        "mode-rekap",
+        "mode-teknisi"
     );
 
 
-    // =====================================================
-    // DATA STATISTIK
-    // =====================================================
-
-    const statistik =
-        result.statistik || {};
-
-
-    const total =
-        Number(
-            statistik.total || 0
-        );
-
-
-    const open =
-        Number(
-            statistik.open || 0
-        );
-
-
-    const proses =
-        Number(
-            statistik.proses || 0
-        );
-
-
-    const selesai =
-        Number(
-            statistik.selesai || 0
-        );
-
-
-    const ditolak =
-        Number(
-            statistik.ditolak || 0
-        );
-
-
-    // =====================================================
-    // DATA REKAP
-    // =====================================================
-
-    const rekapCabang =
-        result.rekapCabang || [];
-
-
-    const rekapTeknisi =
-        result.rekapTeknisi || [];
-
-
-    const rekapBulanan =
-        result.rekapBulanan || [];
-
-
-    const orders =
-        result.orders || [];
-
-
-    // =====================================================
-    // FORMAT TANGGAL
-    // =====================================================
-
-    function formatTanggalTampilan(
-        tanggal
-    ) {
-
-        if (!tanggal) {
-            return "-";
-        }
-
-
-        const text =
-            String(
-                tanggal
-            ).trim();
-
-
-        const match =
-            text.match(
-                /^(\d{4})-(\d{2})-(\d{2})$/
-            );
-
-
-        if (!match) {
-            return text;
-        }
-
-
-        return (
-            match[3] +
-            "/" +
-            match[2] +
-            "/" +
-            match[1]
-        );
-
-    }
-
-
-    // =====================================================
-    // NAMA PERIODE
-    // =====================================================
-
-    const namaPeriode =
-        String(
-            periode || ""
-        ).toUpperCase();
-
-
-
-
-    const tanggalSampai =
-        result.periode?.sampai || "-";
-
-
-    // =====================================================
-    // HTML REKAP
-    // =====================================================
-
-    let html = `
-
-        <!-- ========================================= -->
-        <!-- STATISTIK -->
-        <!-- ========================================= -->
-
-        <div class="rekap-stat-container">
-
-            <div class="rekap-stat-card">
-
-                <span>Total Order</span>
-
-                <strong>
-                    ${total}
-                </strong>
-
-            </div>
-
-
-            <div class="rekap-stat-card">
-
-                <span>OPEN</span>
-
-                <strong>
-                    ${open}
-                </strong>
-
-            </div>
-
-
-            <div class="rekap-stat-card">
-
-                <span>PROSES</span>
-
-                <strong>
-                    ${proses}
-                </strong>
-
-            </div>
-
-
-            <div class="rekap-stat-card">
-
-                <span>SELESAI</span>
-
-                <strong>
-                    ${selesai}
-                </strong>
-
-            </div>
-
-
-            <div class="rekap-stat-card">
-
-                <span>DITOLAK</span>
-
-                <strong>
-                    ${ditolak}
-                </strong>
-
-            </div>
-
-        </div>
-
-
-        <!-- ========================================= -->
-        <!-- PERIODE -->
-        <!-- ========================================= -->
-
-        <div class="rekap-table-container">
-
-            <div class="rekap-table-title">
-
-                REKAP ${namaPeriode}
-
-            </div>
-
-
-            <table class="rekap-table">
-
-                <thead>
-
-                    <tr>
-
-                        <th>Keterangan</th>
-
-                        <th>Jumlah</th>
-
-                    </tr>
-
-                </thead>
-
-
-                <tbody>
-
-                    <tr>
-
-                        <td>
-                            Total Order
-                        </td>
-
-                        <td>
-                            ${total}
-                        </td>
-
-                    </tr>
-
-
-                    <tr>
-
-                        <td>
-                            OPEN
-                        </td>
-
-                        <td>
-                            ${open}
-                        </td>
-
-                    </tr>
-
-
-                    <tr>
-
-                        <td>
-                            PROSES
-                        </td>
-
-                        <td>
-                            ${proses}
-                        </td>
-
-                    </tr>
-
-
-                    <tr>
-
-                        <td>
-                            SELESAI
-                        </td>
-
-                        <td>
-                            ${selesai}
-                        </td>
-
-                    </tr>
-
-
-                    <tr>
-
-                        <td>
-                            DITOLAK
-                        </td>
-
-                        <td>
-                            ${ditolak}
-                        </td>
-
-                    </tr>
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-
-        <!-- ========================================= -->
-        <!-- REKAP CABANG -->
-        <!-- ========================================= -->
-
-        <div class="rekap-table-container">
-
-            <div class="rekap-table-title">
-
-                🏢 REKAP BERDASARKAN CABANG
-
-            </div>
-
-
-            <table class="rekap-table">
-
-                <thead>
-
-                    <tr>
-
-                        <th>Cabang</th>
-
-                        <th>Jumlah</th>
-
-                    </tr>
-
-                </thead>
-
-
-                <tbody>
-    `;
-
-
     if (
-        rekapCabang.length === 0
+        mode === "rekap"
     ) {
 
-        html += `
-
-            <tr>
-
-                <td colspan="2">
-                    Tidak ada data cabang.
-                </td>
-
-            </tr>
-
-        `;
-
-    }
-
-    else {
-
-        rekapCabang.forEach(
-            function (item) {
-
-                html += `
-
-                    <tr>
-
-                        <td>
-                            ${item.nama || "-"}
-                        </td>
-
-                        <td>
-                            ${item.jumlah || 0}
-                        </td>
-
-                    </tr>
-
-                `;
-
-            }
+        document.body.classList.add(
+            "mode-rekap"
         );
 
-    }
-
-
-    html += `
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-
-        <!-- ========================================= -->
-        <!-- REKAP SOW -->
-        <!-- ========================================= -->
-
-        <div class="rekap-table-container">
-
-            <div class="rekap-table-title">
-
-                👩‍💻 REKAP BERDASARKAN SOW
-
-            </div>
-
-
-            <table class="rekap-table">
-
-                <thead>
-
-                    <tr>
-
-                        <th>SOW</th>
-
-                        <th>Jumlah</th>
-
-                    </tr>
-
-                </thead>
-
-
-                <tbody>
-    `;
-
-
-    if (
-        rekapTeknisi.length === 0
+    } else if (
+        mode === "teknisi"
     ) {
 
-        html += `
-
-            <tr>
-
-                <td colspan="2">
-                    Tidak ada data SOW.
-                </td>
-
-            </tr>
-
-        `;
-
-    }
-
-    else {
-
-        rekapTeknisi.forEach(
-            function (item) {
-
-                html += `
-
-                    <tr>
-
-                        <td>
-                            ${item.nama || "-"}
-                        </td>
-
-                        <td>
-                            ${item.jumlah || 0}
-                        </td>
-
-                    </tr>
-
-                `;
-
-            }
+        document.body.classList.add(
+            "mode-teknisi"
         );
 
-    }
+    } else {
 
-
-    html += `
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-
-        <!-- ========================================= -->
-        <!-- REKAP BULANAN -->
-        <!-- KHUSUS TAHUNAN -->
-        <!-- ========================================= -->
-    `;
-
-
-    if (
-        periode === "tahunan" &&
-        rekapBulanan.length > 0
-    ) {
-
-        html += `
-
-            <div class="rekap-table-container">
-
-                <div class="rekap-table-title">
-
-                    📅 REKAP PER BULAN
-
-                </div>
-
-
-                <table class="rekap-table">
-
-                    <thead>
-
-                        <tr>
-
-                            <th>Bulan</th>
-
-                            <th>Total</th>
-
-                            <th>OPEN</th>
-
-                            <th>PROSES</th>
-
-                            <th>SELESAI</th>
-
-                            <th>DITOLAK</th>
-
-                        </tr>
-
-                    </thead>
-
-
-                    <tbody>
-
-        `;
-
-
-        rekapBulanan.forEach(
-            function (item) {
-
-                html += `
-
-                    <tr>
-
-                        <td>
-                            ${item.bulan || "-"}
-                        </td>
-
-                        <td>
-                            ${item.total || 0}
-                        </td>
-
-                        <td>
-                            ${item.open || 0}
-                        </td>
-
-                        <td>
-                            ${item.proses || 0}
-                        </td>
-
-                        <td>
-                            ${item.selesai || 0}
-                        </td>
-
-                        <td>
-                            ${item.ditolak || 0}
-                        </td>
-
-                    </tr>
-
-                `;
-
-            }
+        document.body.classList.add(
+            "mode-dashboard"
         );
-
-
-        html += `
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-        `;
-
     }
-
-
-    // =====================================================
-    // DETAIL ORDER
-    // =====================================================
-
-    html += `
-
-        <div class="rekap-table-container">
-
-            <div class="rekap-table-title">
-
-                DETAIL ORDER
-
-            </div>
-
-
-            <div class="rekap-detail-wrapper">
-
-                <table class="rekap-table">
-
-                    <thead>
-
-                        <tr>
-
-                            <th>No</th>
-
-                            <th>Kode Order</th>
-
-                            <th>Nama</th>
-
-                            <th>UNIT KERJA</th>
-
-                            <th>Kode Cabang</th>
-
-                            <th>Jenis Kendala</th>
-
-                            <th>Deskripsi</th>
-
-                            <th>WhatsApp</th>
-
-                            <th>Tanggal</th>
-
-                            <th>Jam</th>
-
-                            <th>Status</th>
-
-                            <th>SOW</th>
-
-                            <th>Catatan Progres</th>
-
-                        </tr>
-
-                    </thead>
-
-
-                    <tbody>
-    `;
-
-
-    if (
-        orders.length === 0
-    ) {
-
-        html += `
-
-            <tr>
-
-                <td colspan="13">
-
-                    Tidak ada order pada periode
-                    yang dipilih.
-
-                </td>
-
-            </tr>
-
-        `;
-
-    }
-
-    else {
-
-        orders.forEach(
-            function (
-                order,
-                index
-            ) {
-
-                html += `
-
-                    <tr>
-
-                        <td>
-                            ${index + 1}
-                        </td>
-
-                        <td>
-                            ${order.kode || "-"}
-                        </td>
-
-                        <td>
-                            ${order.nama || "-"}
-                        </td>
-
-                        <td>
-                            ${order.unit_kerja || "-"}
-                        </td>
-
-                        <td>
-                            ${order.kode_cabang || "-"}
-                        </td>
-
-                        <td>
-                            ${order.jenis_kendala || "-"}
-                        </td>
-
-                        <td>
-                            ${order.deskripsi || "-"}
-                        </td>
-
-                        <td>
-                            ${order.whatsapp || "-"}
-                        </td>
-
-                        <td>
-                            ${formatTanggalTampilan(
-                    order.tanggal
-                )}
-                        </td>
-
-                        <td>
-                            ${order.jam || "-"}
-                        </td>
-
-                        <td>
-                            ${order.status || "-"}
-                        </td>
-
-                        <td>
-                            ${order.teknisi || "-"}
-                        </td>
-
-                        <td>
-                            ${order.catatan_progres || "-"}
-                        </td>
-
-                    </tr>
-
-                `;
-
-            }
-        );
-
-    }
-
-
-    html += `
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-        </div>
-
-    `;
-
-
-    // =====================================================
-    // MASUKKAN KE HALAMAN
-    // =====================================================
-
-    rekapResult.innerHTML =
-        html;
-
-
-    console.log(
-        "Rekap berhasil ditampilkan."
-    );
-
 }
 
-// =====================================================
-// TAHAP 13
-// MANAJEMEN SOW
-// =====================================================
 
-let daftarTeknisiAdmin = [];
+function setMenuAktif(target) {
 
+    document
+        .querySelectorAll(
+            "[data-menu-target]"
+        )
+        .forEach(
+            function (menu) {
 
-// =====================================================
-// LOAD SOW
-// =====================================================
-
-async function loadTeknisiAdmin() {
-
-    const tbody =
-        document.getElementById(
-            "teknisiTableBody"
+                menu.classList.toggle(
+                    "active",
+                    menu.dataset.menuTarget ===
+                    target
+                );
+            }
         );
+}
 
-    if (!tbody) {
+
+function bukaMenu(target) {
+
+    setMenuAktif(target);
+
+    setModeHalaman(target);
+
+    tutupSidebar();
+
+
+    if (
+        target === "dashboard"
+    ) {
+
+        loadOrders();
+
         return;
     }
 
+
+    if (
+        target === "rekap"
+    ) {
+
+        tampilkanFormPeriode(
+            periodeRekapAktif
+        );
+
+        return;
+    }
+
+
+    if (
+        target === "teknisi"
+    ) {
+
+        loadTeknisiAdmin();
+    }
+}
+
+
+/* ============================================================
+   19. SOW
+   ============================================================ */
+
+async function loadTeknisiAdmin() {
+
+    if (!teknisiTableBody) {
+        return;
+    }
+
+
+    teknisiTableBody.innerHTML = `
+        <tr>
+            <td colspan="5">
+                Memuat daftar SOW...
+            </td>
+        </tr>
+    `;
+
+
     try {
 
-        const params =
-            new URLSearchParams();
-
-        params.append(
-            "token",
-            ADMIN_TOKEN
-        );
-
-        params.append(
-            "teknisi",
-            "true"
-        );
-
-
-        const response =
-            await fetch(
-                API_URL +
-                "?" +
-                params.toString()
-            );
-
-
         const result =
-            await response.json();
+            await apiGet({
+
+                token:
+                    ADMIN_TOKEN,
+
+                teknisi:
+                    "true"
+
+            });
 
 
         if (
-            result.unauthorized
-        ) {
-
-            localStorage.removeItem(
-                "adminToken"
-            );
-
-            window.location.href =
-                "login.html";
-
-            return;
-
-        }
-
-
-        if (
-            !result.success
+            !result ||
+            result.success !== true
         ) {
 
             throw new Error(
-                result.message ||
-                "Gagal mengambil Teknisi."
+                result?.message ||
+                "Data SOW gagal dimuat."
             );
-
         }
 
 
-        daftarTeknisiAdmin =
+        daftarSow =
             Array.isArray(
                 result.teknisi
             )
@@ -5464,270 +1681,243 @@ async function loadTeknisiAdmin() {
         updateSelectTeknisi();
 
 
-    }
-    catch (error) {
+    } catch (error) {
 
         console.error(
-            "LOAD SOW ERROR:",
+            "LOAD SOW:",
             error
         );
 
-        tbody.innerHTML = `
+
+        daftarSow =
+            [];
+
+
+        updateSelectTeknisi();
+
+
+        teknisiTableBody.innerHTML = `
             <tr>
-                <td colspan="5"
-                    class="teknisi-loading">
-
-                    Gagal memuat daftar Teknisi.
-
+                <td colspan="5">
+                    Gagal memuat SOW.<br>
+                    ${escapeHtml(
+            error.message
+        )}
                 </td>
             </tr>
         `;
-
     }
-
 }
 
-
-// =====================================================
-// TAMPILKAN TABEL SOW
-// =====================================================
 
 function renderTeknisiAdmin() {
 
-    const tbody =
-        document.getElementById(
-            "teknisiTableBody"
-        );
-
-    if (!tbody) {
+    if (!teknisiTableBody) {
         return;
     }
 
 
-    if (
-        daftarTeknisiAdmin.length === 0
-    ) {
+    if (!daftarSow.length) {
 
-        tbody.innerHTML = `
+        teknisiTableBody.innerHTML = `
             <tr>
-                <td colspan="5"
-                    class="teknisi-loading">
-
-                    Belum ada SOW.
-
+                <td colspan="5">
+                    Belum ada data SOW.
                 </td>
             </tr>
         `;
 
         return;
-
     }
 
 
-    tbody.innerHTML =
-        daftarTeknisiAdmin
-            .map(
-                function (item, index) {
+    teknisiTableBody.innerHTML =
+        daftarSow.map(
+            function (item, index) {
 
-                    const aktif =
-                        item.status === "AKTIF";
+                const id =
+                    item?.id ||
+                    item?.kode ||
+                    "";
 
-                    return `
-                        <tr>
 
-                            <td>
-                                ${index + 1}
-                            </td>
+                const nama =
+                    item?.nama ||
+                    "";
 
-                            <td>
-                                <strong>
-                                    ${escapeHtmlTeknisi(item.nama)}
-                                </strong>
-                            </td>
 
-                            <td>
+                const status =
+                    String(
+                        item?.status ||
+                        "AKTIF"
+                    ).toUpperCase();
 
-                                <span
-                                    class="status-teknisi
-                                    ${aktif ? "aktif" : "nonaktif"}">
 
-                                    ${aktif ? "AKTIF" : "NONAKTIF"}
+                const tanggal =
+                    item?.tanggal_update ||
+                    "-";
 
-                                </span>
 
-                            </td>
+                const statusBaru =
+                    status === "AKTIF"
+                        ? "NONAKTIF"
+                        : "AKTIF";
 
-                            <td>
-                                ${item.tanggal_update || "-"}
-                            </td>
 
-                            <td>
+                return `
+                    <tr>
 
-                                <div
-                                    class="aksi-teknisi">
+                        <td>
+                            ${index + 1}
+                        </td>
 
-                                    <button
-                                        type="button"
-                                        class="btn-edit-teknisi"
-                                        onclick="editTeknisiAdmin(${item.id})">
+                        <td>
+                            ${escapeHtml(nama)}
+                        </td>
 
-                                        âœï¸ Edit
+                        <td>
+                            ${escapeHtml(status)}
+                        </td>
 
-                                    </button>
+                        <td>
+                            ${escapeHtml(tanggal)}
+                        </td>
 
-                                    <button
-                                        type="button"
-                                        class="btn-status-teknisi"
-                                        onclick="ubahStatusTeknisiAdmin(${item.id})">
+                        <td>
 
-                                        ${aktif
-                            ? "â›” Nonaktifkan"
-                            : "âœ… Aktifkan"}
+                            <button
+                                type="button"
+                                class="btn-detail"
+                                onclick="editTeknisiAdmin('${escapeAttribute(id)}')"
+                            >
+                                Edit
+                            </button>
 
-                                    </button>
+                            <button
+                                type="button"
+                                class="btn-detail"
+                                onclick="ubahStatusTeknisiAdmin('${escapeAttribute(id)}','${statusBaru}')"
+                            >
+                                ${status === "AKTIF"
+                        ? "Nonaktifkan"
+                        : "Aktifkan"
+                    }
+                            </button>
 
-                                </div>
+                        </td>
 
-                            </td>
-
-                        </tr>
-                    `;
-
-                }
-            )
-            .join("");
-
+                    </tr>
+                `;
+            }
+        ).join("");
 }
 
 
-// =====================================================
-// UPDATE SELECT SOW PADA UPDATE ORDER
-// =====================================================
-
 function updateSelectTeknisi() {
 
-    const select =
-        document.getElementById(
-            "updateTeknisi"
-        );
-
-    if (!select) {
+    if (!updateTeknisi) {
         return;
     }
 
 
     const nilaiLama =
-        select.value;
+        updateTeknisi.value;
 
 
-    select.innerHTML = `
+    updateTeknisi.innerHTML = `
         <option value="">
             -- Pilih SOW --
         </option>
     `;
 
 
-    daftarTeknisiAdmin
-        .filter(function (item) {
+    daftarSow.forEach(
+        function (item) {
 
-            return item.status === "AKTIF";
+            const status =
+                String(
+                    item?.status ||
+                    "AKTIF"
+                ).toUpperCase();
 
-        })
-        .forEach(function (item) {
+
+            const nama =
+                String(
+                    item?.nama ||
+                    ""
+                ).trim();
+
+
+            if (
+                status !== "AKTIF" ||
+                !nama
+            ) {
+                return;
+            }
+
 
             const option =
                 document.createElement(
                     "option"
                 );
 
+
             option.value =
-                item.nama;
+                nama;
+
 
             option.textContent =
-                item.nama;
+                nama;
 
-            select.appendChild(
+
+            updateTeknisi.appendChild(
                 option
             );
+        }
+    );
 
-        });
 
-
-    // Pertahankan pilihan lama
     if (nilaiLama) {
 
-        select.value =
+        updateTeknisi.value =
             nilaiLama;
-
     }
-
 }
 
-
-// =====================================================
-// MODAL TAMBAH
-// =====================================================
 
 function bukaTambahTeknisi() {
 
-    const modal =
-        document.getElementById(
-            "teknisiModal"
-        );
-
-    const title =
-        document.getElementById(
-            "teknisiModalTitle"
-        );
-
-    const nama =
-        document.getElementById(
-            "teknisiNamaInput"
-        );
-
-    const id =
-        document.getElementById(
-            "teknisiIdInput"
-        );
-
-
-    title.textContent =
+    teknisiModalTitle.textContent =
         "Tambah SOW";
 
-    nama.value = "";
 
-    id.value = "";
-
-
-    modal.classList.add(
-        "show"
-    );
+    teknisiIdInput.value =
+        "";
 
 
-    setTimeout(
-        function () {
-            nama.focus();
-        },
-        100
-    );
+    teknisiNamaInput.value =
+        "";
 
+
+    teknisiModal.style.display =
+        "flex";
 }
 
-
-// =====================================================
-// MODAL EDIT
-// =====================================================
 
 function editTeknisiAdmin(id) {
 
     const item =
-        daftarTeknisiAdmin.find(
-            function (teknisi) {
+        daftarSow.find(
+            function (row) {
 
-                return Number(
-                    teknisi.id
-                ) === Number(id);
-
+                return (
+                    String(
+                        row?.id ||
+                        row?.kode ||
+                        ""
+                    ) ===
+                    String(id)
+                );
             }
         );
 
@@ -5739,80 +1929,49 @@ function editTeknisiAdmin(id) {
         );
 
         return;
-
     }
 
 
-    document.getElementById(
-        "teknisiModalTitle"
-    ).textContent =
+    teknisiModalTitle.textContent =
         "Edit SOW";
 
 
-    document.getElementById(
-        "teknisiNamaInput"
-    ).value =
-        item.nama;
+    teknisiIdInput.value =
+        item.id ||
+        item.kode ||
+        "";
 
 
-    document.getElementById(
-        "teknisiIdInput"
-    ).value =
-        item.id;
+    teknisiNamaInput.value =
+        item.nama ||
+        "";
 
 
-    document.getElementById(
-        "teknisiModal"
-    ).classList.add(
-        "show"
-    );
-
-
-    document.getElementById(
-        "teknisiNamaInput"
-    ).focus();
-
+    teknisiModal.style.display =
+        "flex";
 }
 
-
-// =====================================================
-// TUTUP MODAL
-// =====================================================
 
 function tutupTeknisiModal() {
 
-    const modal =
-        document.getElementById(
-            "teknisiModal"
-        );
-
-    if (modal) {
-
-        modal.classList.remove(
-            "show"
-        );
-
+    if (!teknisiModal) {
+        return;
     }
 
+
+    teknisiModal.style.display =
+        "none";
 }
 
 
-// =====================================================
-// SIMPAN TAMBAH / EDIT
-// =====================================================
-
 async function simpanTeknisiAdmin() {
 
-    const nama =
-        document.getElementById(
-            "teknisiNamaInput"
-        ).value.trim();
-
-
     const id =
-        document.getElementById(
-            "teknisiIdInput"
-        ).value;
+        teknisiIdInput.value.trim();
+
+
+    const nama =
+        teknisiNamaInput.value.trim();
 
 
     if (!nama) {
@@ -5822,812 +1981,1453 @@ async function simpanTeknisiAdmin() {
         );
 
         return;
-
     }
 
 
-    const action =
-        id
-            ? "editTeknisi"
-            : "tambahTeknisi";
-
-
-    const button =
-        document.getElementById(
-            "simpanTeknisiButton"
-        );
-
-
-    button.disabled = true;
-
-    button.textContent =
-        "Menyimpan...";
+    simpanTeknisiButton.disabled =
+        true;
 
 
     try {
 
-        const response =
-            await fetch(
-                API_URL,
-                {
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type":
-                            "text/plain;charset=utf-8"
-                    },
-
-                    body:
-                        JSON.stringify({
-
-                            action:
-                                action,
-
-                            token:
-                                ADMIN_TOKEN,
-
-                            id:
-                                id
-                                    ? Number(id)
-                                    : undefined,
-
-                            nama:
-                                nama
-
-                        })
-                }
-            );
-
-
         const result =
-            await response.json();
+            await apiPost({
+
+                action:
+                    id
+                        ? "editTeknisi"
+                        : "tambahTeknisi",
+
+                token:
+                    ADMIN_TOKEN,
+
+                id:
+                    id,
+
+                nama:
+                    nama
+
+            });
 
 
         if (
-            result.unauthorized
-        ) {
-
-            localStorage.removeItem(
-                "adminToken"
-            );
-
-            window.location.href =
-                "login.html";
-
-            return;
-
-        }
-
-
-        if (
-            !result.success
+            !result ||
+            result.success !== true
         ) {
 
             throw new Error(
-                result.message ||
-                "Gagal menyimpan SOW."
+                result?.message ||
+                "SOW gagal disimpan."
             );
-
         }
 
 
         alert(
             result.message ||
-            "Berhasil."
+            "SOW berhasil disimpan."
         );
 
 
         tutupTeknisiModal();
 
+
         await loadTeknisiAdmin();
 
 
-    }
-    catch (error) {
-
-        console.error(
-            "SIMPAN SOW ERROR:",
-            error
-        );
+    } catch (error) {
 
         alert(
-            "âŒ " +
+            "Gagal menyimpan SOW.\n\n" +
             error.message
         );
 
+
+    } finally {
+
+        simpanTeknisiButton.disabled =
+            false;
     }
-    finally {
-
-        button.disabled = false;
-
-        button.textContent =
-            "ðŸ’¾ Simpan";
-
-    }
-
 }
 
 
-// =====================================================
-// AKTIF / NONAKTIF
-// =====================================================
+async function ubahStatusTeknisiAdmin(
+    id,
+    status
+) {
 
-async function ubahStatusTeknisiAdmin(id) {
-
-    const item =
-        daftarTeknisiAdmin.find(
-            function (teknisi) {
-
-                return Number(
-                    teknisi.id
-                ) === Number(id);
-
-            }
-        );
-
-
-    if (!item) {
-        return;
-    }
-
-
-    const statusBaru =
-        item.status === "AKTIF"
-            ? "NONAKTIF"
-            : "AKTIF";
-
-
-    const konfirmasi =
-        confirm(
-            "Ubah status \"" +
-            item.nama +
-            "\" menjadi " +
-            statusBaru +
+    if (
+        !confirm(
+            "Ubah status SOW menjadi " +
+            status +
             "?"
-        );
-
-
-    if (!konfirmasi) {
+        )
+    ) {
         return;
     }
 
 
     try {
 
-        const response =
-            await fetch(
-                API_URL,
-                {
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type":
-                            "text/plain;charset=utf-8"
-                    },
-
-                    body:
-                        JSON.stringify({
-
-                            action:
-                                "ubahStatusTeknisi",
-
-                            token:
-                                ADMIN_TOKEN,
-
-                            id:
-                                Number(id)
-
-                        })
-                }
-            );
-
-
         const result =
-            await response.json();
+            await apiPost({
+
+                action:
+                    "ubahStatusTeknisi",
+
+                token:
+                    ADMIN_TOKEN,
+
+                id:
+                    id,
+
+                status:
+                    status
+
+            });
 
 
         if (
-            result.unauthorized
-        ) {
-
-            localStorage.removeItem(
-                "adminToken"
-            );
-
-            window.location.href =
-                "login.html";
-
-            return;
-
-        }
-
-
-        if (
-            !result.success
+            !result ||
+            result.success !== true
         ) {
 
             throw new Error(
-                result.message ||
-                "Gagal mengubah status."
+                result?.message ||
+                "Status SOW gagal diubah."
             );
-
         }
-
-
-        alert(
-            result.message
-        );
 
 
         await loadTeknisiAdmin();
 
 
+    } catch (error) {
+
+        alert(
+            "Gagal mengubah status SOW.\n\n" +
+            error.message
+        );
     }
-    catch (error) {
+}
+
+
+/* ============================================================
+   20. REKAP
+   ============================================================ */
+
+function tampilkanFormPeriode(periode) {
+
+    periodeRekapAktif =
+        periode || "harian";
+
+
+    if (!rekapPeriodForm) {
+        return;
+    }
+
+
+    if (
+        periodeRekapAktif ===
+        "harian"
+    ) {
+
+        rekapPeriodForm.innerHTML = `
+            <div class="rekap-input-group">
+
+                <div class="rekap-input-item">
+
+                    <label>
+                        Tanggal
+                    </label>
+
+                    <input
+                        type="date"
+                        id="rekapTanggal"
+                    >
+
+                </div>
+
+            </div>
+        `;
+
+        return;
+    }
+
+
+    if (
+        periodeRekapAktif ===
+        "mingguan"
+    ) {
+
+        rekapPeriodForm.innerHTML = `
+            <div class="rekap-input-group">
+
+                <div class="rekap-input-item">
+
+                    <label>
+                        Tanggal Mulai
+                    </label>
+
+                    <input
+                        type="date"
+                        id="rekapTanggalMulai"
+                    >
+
+                </div>
+
+                <div class="rekap-input-item">
+
+                    <label>
+                        Tanggal Sampai
+                    </label>
+
+                    <input
+                        type="date"
+                        id="rekapTanggalSampai"
+                    >
+
+                </div>
+
+            </div>
+        `;
+
+        return;
+    }
+
+
+    if (
+        periodeRekapAktif ===
+        "bulanan"
+    ) {
+
+        rekapPeriodForm.innerHTML = `
+            <div class="rekap-input-group">
+
+                <div class="rekap-input-item">
+
+                    <label>
+                        Bulan
+                    </label>
+
+                    <select id="rekapBulan">
+
+                        <option value="">
+                            -- Pilih Bulan --
+                        </option>
+
+                        <option value="1">Januari</option>
+                        <option value="2">Februari</option>
+                        <option value="3">Maret</option>
+                        <option value="4">April</option>
+                        <option value="5">Mei</option>
+                        <option value="6">Juni</option>
+                        <option value="7">Juli</option>
+                        <option value="8">Agustus</option>
+                        <option value="9">September</option>
+                        <option value="10">Oktober</option>
+                        <option value="11">November</option>
+                        <option value="12">Desember</option>
+
+                    </select>
+
+                </div>
+
+                <div class="rekap-input-item">
+
+                    <label>
+                        Tahun
+                    </label>
+
+                    <input
+                        type="number"
+                        id="rekapTahun"
+                        placeholder="2026"
+                    >
+
+                </div>
+
+            </div>
+        `;
+
+        return;
+    }
+
+
+    if (
+        periodeRekapAktif ===
+        "tahunan"
+    ) {
+
+        rekapPeriodForm.innerHTML = `
+            <div class="rekap-input-group">
+
+                <div class="rekap-input-item">
+
+                    <label>
+                        Tahun
+                    </label>
+
+                    <input
+                        type="number"
+                        id="rekapTahun"
+                        placeholder="2026"
+                    >
+
+                </div>
+
+            </div>
+        `;
+    }
+}
+
+
+function ambilParameterRekap() {
+
+    if (
+        periodeRekapAktif ===
+        "harian"
+    ) {
+
+        const tanggal =
+            document.getElementById(
+                "rekapTanggal"
+            )?.value || "";
+
+
+        if (!tanggal) {
+
+            alert(
+                "Silakan pilih tanggal."
+            );
+
+            return null;
+        }
+
+
+        return {
+            tipe: "harian",
+            tanggal: tanggal
+        };
+    }
+
+
+    if (
+        periodeRekapAktif ===
+        "mingguan"
+    ) {
+
+        const tanggalMulai =
+            document.getElementById(
+                "rekapTanggalMulai"
+            )?.value || "";
+
+
+        const tanggalSampai =
+            document.getElementById(
+                "rekapTanggalSampai"
+            )?.value || "";
+
+
+        if (
+            !tanggalMulai ||
+            !tanggalSampai
+        ) {
+
+            alert(
+                "Silakan pilih tanggal mulai dan tanggal sampai."
+            );
+
+            return null;
+        }
+
+
+        return {
+
+            tipe:
+                "mingguan",
+
+            tanggalMulai:
+                tanggalMulai,
+
+            tanggalSampai:
+                tanggalSampai
+        };
+    }
+
+
+    if (
+        periodeRekapAktif ===
+        "bulanan"
+    ) {
+
+        const bulan =
+            document.getElementById(
+                "rekapBulan"
+            )?.value || "";
+
+
+        const tahun =
+            document.getElementById(
+                "rekapTahun"
+            )?.value || "";
+
+
+        if (
+            !bulan ||
+            !tahun
+        ) {
+
+            alert(
+                "Silakan pilih bulan dan tahun."
+            );
+
+            return null;
+        }
+
+
+        return {
+
+            tipe:
+                "bulanan",
+
+            bulan:
+                bulan,
+
+            tahun:
+                tahun
+        };
+    }
+
+
+    if (
+        periodeRekapAktif ===
+        "tahunan"
+    ) {
+
+        const tahun =
+            document.getElementById(
+                "rekapTahun"
+            )?.value || "";
+
+
+        if (!tahun) {
+
+            alert(
+                "Silakan pilih tahun."
+            );
+
+            return null;
+        }
+
+
+        return {
+
+            tipe:
+                "tahunan",
+
+            tahun:
+                tahun
+        };
+    }
+
+
+    return null;
+}
+
+
+async function tampilkanRekap() {
+
+    const parameter =
+        ambilParameterRekap();
+
+
+    if (!parameter) {
+        return;
+    }
+
+
+    if (rekapResult) {
+
+        rekapResult.innerHTML =
+            "Memuat rekap...";
+    }
+
+
+    try {
+
+        const params = {
+
+            token:
+                ADMIN_TOKEN,
+
+            rekap:
+                "true",
+
+            tipe:
+                parameter.tipe
+        };
+
+
+        if (parameter.tanggal) {
+            params.tanggal =
+                parameter.tanggal;
+        }
+
+
+        if (parameter.tanggalMulai) {
+            params.tanggalMulai =
+                parameter.tanggalMulai;
+        }
+
+
+        if (parameter.tanggalSampai) {
+            params.tanggalSampai =
+                parameter.tanggalSampai;
+        }
+
+
+        if (parameter.bulan) {
+            params.bulan =
+                parameter.bulan;
+        }
+
+
+        if (parameter.tahun) {
+            params.tahun =
+                parameter.tahun;
+        }
+
+
+        const result =
+            await apiGet(params);
+
+
+        if (
+            !result ||
+            result.success !== true
+        ) {
+
+            throw new Error(
+                result?.message ||
+                "Gagal mengambil rekap."
+            );
+        }
+
+
+        hasilRekapTerakhir =
+            result;
+
+
+        renderRekap(result);
+
+
+    } catch (error) {
 
         console.error(
-            "STATUS SOW ERROR:",
+            "REKAP:",
             error
         );
 
-        alert(
-            "âŒ " +
-            error.message
-        );
 
+        if (rekapResult) {
+
+            rekapResult.innerHTML = `
+                <div>
+                    Gagal memuat rekap.<br>
+                    ${escapeHtml(
+                error.message
+            )}
+                </div>
+            `;
+        }
     }
-
 }
 
 
-// =====================================================
-// ESCAPE HTML
-// =====================================================
+/* ============================================================
+   21. RENDER REKAP
+   ============================================================ */
 
-function escapeHtmlTeknisi(text) {
+function renderRekap(result) {
 
-    return String(
-        text || ""
-    )
-        .replace(
-            /&/g,
-            "&amp;"
-        )
-        .replace(
-            /</g,
-            "&lt;"
-        )
-        .replace(
-            />/g,
-            "&gt;"
-        )
-        .replace(
-            /"/g,
-            "&quot;"
-        )
-        .replace(
-            /'/g,
-            "&#039;"
-        );
-
-}
-
-
-// =====================================================
-// EVENT LISTENER
-// =====================================================
-
-document.addEventListener(
-    "DOMContentLoaded",
-    function () {
-
-        const tambah =
-            document.getElementById(
-                "tambahTeknisiButton"
-            );
-
-        const simpan =
-            document.getElementById(
-                "simpanTeknisiButton"
-            );
-
-        const batal =
-            document.getElementById(
-                "batalTeknisiButton"
-            );
-
-        const close =
-            document.getElementById(
-                "closeTeknisiModal"
-            );
-
-
-        if (tambah) {
-
-            tambah.addEventListener(
-                "click",
-                bukaTambahTeknisi
-            );
-
-        }
-
-
-        if (simpan) {
-
-            simpan.addEventListener(
-                "click",
-                simpanTeknisiAdmin
-            );
-
-        }
-
-
-        if (batal) {
-
-            batal.addEventListener(
-                "click",
-                tutupTeknisiModal
-            );
-
-        }
-
-
-        if (close) {
-
-            close.addEventListener(
-                "click",
-                tutupTeknisiModal
-            );
-
-        }
-
-
-        const modal =
-            document.getElementById(
-                "teknisiModal"
-            );
-
-
-        if (modal) {
-
-            modal.addEventListener(
-                "click",
-                function (event) {
-
-                    if (
-                        event.target === modal
-                    ) {
-
-                        tutupTeknisiModal();
-
-                    }
-
-                }
-            );
-
-        }
-
-
-        // ---------------------------------------------
-        // LOAD OTOMATIS
-        // ---------------------------------------------
-
-        loadTeknisiAdmin();
-
+    if (!rekapResult) {
+        return;
     }
-);
-// =====================================================
-// TAHAP 13
-// SIDEBAR MENU ADMIN
-// MODE HALAMAN
-// =====================================================
-
-document.addEventListener(
-    "DOMContentLoaded",
-    function () {
-
-        const sidebar =
-            document.getElementById(
-                "adminSidebar"
-            );
-
-        const menuButton =
-            document.getElementById(
-                "sidebarMenuButton"
-            );
-
-        const closeButton =
-            document.getElementById(
-                "sidebarCloseButton"
-            );
-
-        const overlay =
-            document.getElementById(
-                "sidebarOverlay"
-            );
-
-        const menuItems =
-            document.querySelectorAll(
-                ".sidebar-menu-item"
-            );
 
 
-        // =================================================
-        // DEFAULT = DASHBOARD
-        // =================================================
-
-        document.body.classList.add(
-            "mode-dashboard"
-        );
+    const statistik =
+        result?.statistik || {};
 
 
-        // =================================================
-        // BUKA SIDEBAR
-        // =================================================
-
-        function bukaSidebar() {
-
-            if (sidebar) {
-
-                sidebar.classList.add(
-                    "open"
-                );
-
-            }
-
-            if (overlay) {
-
-                overlay.classList.add(
-                    "show"
-                );
-
-            }
-
-        }
+    const rekapCabang =
+        Array.isArray(
+            result?.rekapCabang
+        )
+            ? result.rekapCabang
+            : [];
 
 
-        // =================================================
-        // TUTUP SIDEBAR
-        // =================================================
-
-        function tutupSidebar() {
-
-            if (sidebar) {
-
-                sidebar.classList.remove(
-                    "open"
-                );
-
-            }
-
-            if (overlay) {
-
-                overlay.classList.remove(
-                    "show"
-                );
-
-            }
-
-        }
+    const rekapTeknisi =
+        Array.isArray(
+            result?.rekapTeknisi
+        )
+            ? result.rekapTeknisi
+            : [];
 
 
-        // =================================================
-        // RESET MODE
-        // =================================================
+    let html = `
 
-        function resetMode() {
+        <div class="rekap-summary">
 
-            document.body.classList.remove(
-                "mode-dashboard",
-                "mode-rekap",
-                "mode-teknisi"
-            );
+            <div>
+                Total:
+                <strong>
+                    ${statistik.total ?? 0}
+                </strong>
+            </div>
+
+            <div>
+                OPEN:
+                <strong>
+                    ${statistik.open ?? 0}
+                </strong>
+            </div>
+
+            <div>
+                PROSES:
+                <strong>
+                    ${statistik.proses ?? 0}
+                </strong>
+            </div>
+
+            <div>
+                SELESAI:
+                <strong>
+                    ${statistik.selesai ?? 0}
+                </strong>
+            </div>
+
+        </div>
 
 
-            menuItems.forEach(
-                function (menu) {
+        <div class="rekap-table-container">
 
-                    menu.classList.remove(
-                        "active"
+            <h3>
+                Rekap Berdasarkan Cabang
+            </h3>
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>No</th>
+
+                            <th>
+                                Kode Cabang
+                            </th>
+
+                            <th>
+                                Nama Cabang
+                            </th>
+
+                            <th>
+                                Jumlah
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+    `;
+
+
+    if (!rekapCabang.length) {
+
+        html += `
+            <tr>
+                <td colspan="4">
+                    Tidak ada data cabang.
+                </td>
+            </tr>
+        `;
+
+    } else {
+
+        rekapCabang.forEach(
+            function (item, index) {
+
+                const kode =
+                    String(
+                        item?.kode ||
+                        item?.kode_cabang ||
+                        ""
+                    ).trim();
+
+
+                /*
+                 * Nama dari backend.
+                 *
+                 * Code.gs:
+                 * kode = kode cabang
+                 * nama = nama cabang
+                 */
+                const nama =
+                    String(
+                        item?.nama ||
+                        item?.nama_cabang ||
+                        ""
+                    ).trim();
+
+
+                const jumlah =
+                    Number(
+                        item?.jumlah ??
+                        item?.total ??
+                        item?.count ??
+                        0
                     );
 
-                }
-            );
 
-        }
+                html += `
 
+                    <tr>
 
-        // =================================================
-        // BUKA DASHBOARD
-        // =================================================
+                        <td>
+                            ${index + 1}
+                        </td>
 
-        function bukaDashboard() {
+                        <td>
+                            ${escapeHtml(
+                    kode || "-"
+                )}
+                        </td>
 
-            resetMode();
+                        <td>
+                            ${escapeHtml(
+                    nama || "-"
+                )}
+                        </td>
 
-            document.body.classList.add(
-                "mode-dashboard"
-            );
+                        <td>
+                            ${jumlah}
+                        </td>
 
-
-            const menuDashboard =
-                document.querySelector(
-                    '[data-menu-target="dashboard"]'
-                );
-
-
-            if (menuDashboard) {
-
-                menuDashboard.classList.add(
-                    "active"
-                );
-
+                    </tr>
+                `;
             }
+        );
+    }
 
 
-            window.scrollTo({
+    html += `
 
-                top: 0,
+                    </tbody>
 
-                behavior: "smooth"
+                </table>
 
-            });
+            </div>
 
-
-            tutupSidebar();
-
-        }
+        </div>
 
 
-        // =================================================
-        // BUKA REKAP
-        // =================================================
+        <div class="rekap-table-container">
 
-        function bukaRekap() {
+            <h3>
+                Rekap Berdasarkan SOW
+            </h3>
 
-            resetMode();
+            <div class="table-wrapper">
 
-            document.body.classList.add(
-                "mode-rekap"
-            );
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>No</th>
+
+                            <th>SOW</th>
+
+                            <th>Jumlah</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+    `;
 
 
-            const menuRekap =
-                document.querySelector(
-                    '[data-menu-target="rekap"]'
-                );
+    if (!rekapTeknisi.length) {
+
+        html += `
+            <tr>
+                <td colspan="3">
+                    Tidak ada data SOW.
+                </td>
+            </tr>
+        `;
+
+    } else {
+
+        rekapTeknisi.forEach(
+            function (item, index) {
+
+                const nama =
+                    item?.nama ||
+                    item?.teknisi ||
+                    item?.sow ||
+                    "-";
 
 
-            if (menuRekap) {
+                const jumlah =
+                    Number(
+                        item?.jumlah ??
+                        item?.total ??
+                        item?.count ??
+                        0
+                    );
 
-                menuRekap.classList.add(
-                    "active"
-                );
 
+                html += `
+
+                    <tr>
+
+                        <td>
+                            ${index + 1}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(nama)}
+                        </td>
+
+                        <td>
+                            ${jumlah}
+                        </td>
+
+                    </tr>
+                `;
             }
+        );
+    }
 
 
-            const rekap =
-                document.querySelector(
-                    ".rekap-container"
-                );
+    html += `
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+    `;
 
 
-            if (rekap) {
+    rekapResult.innerHTML =
+        html;
+}
 
-                setTimeout(
-                    function () {
 
-                        rekap.scrollIntoView({
+/* ============================================================
+   22. DOWNLOAD EXCEL
+   ============================================================ */
 
-                            behavior: "smooth",
+async function downloadRekapExcel() {
 
-                            block: "start"
+    if (!hasilRekapTerakhir) {
 
-                        });
+        alert(
+            "Tampilkan Rekap terlebih dahulu."
+        );
 
-                    },
-                    50
-                );
+        return;
+    }
 
+
+    if (
+        typeof XLSX ===
+        "undefined"
+    ) {
+
+        alert(
+            "Library Excel belum tersedia."
+        );
+
+        return;
+    }
+
+
+    const orders =
+        Array.isArray(
+            hasilRekapTerakhir.orders
+        )
+            ? hasilRekapTerakhir.orders
+            : [];
+
+
+    const data =
+        orders.map(
+            function (order, index) {
+
+                return {
+
+                    No:
+                        index + 1,
+
+                    "Kode Order":
+                        order.kode || "",
+
+                    Nama:
+                        order.nama || "",
+
+                    "Unit Kerja":
+                        order.unit_kerja || "",
+
+                    Cabang:
+                        formatCabang(order),
+
+                    "Jenis Kendala":
+                        order.jenis_kendala || "",
+
+                    Deskripsi:
+                        order.deskripsi || "",
+
+                    WhatsApp:
+                        order.whatsapp || "",
+
+                    Tanggal:
+                        order.tanggal || "",
+
+                    Jam:
+                        order.jam || "",
+
+                    Status:
+                        order.status || "",
+
+                    SOW:
+                        order.sow ||
+                        order.teknisi ||
+                        "",
+
+                    "Catatan Progres":
+                        order.catatan_progres ||
+                        ""
+                };
             }
+        );
 
 
-            tutupSidebar();
-
-        }
-
-
-        // =================================================
-        // BUKA SOW
-        // =================================================
-
-        function bukaTeknisi() {
-
-            resetMode();
-
-            document.body.classList.add(
-                "mode-teknisi"
-            );
+    const worksheet =
+        XLSX.utils.json_to_sheet(
+            data
+        );
 
 
-            const menuTeknisi =
-                document.querySelector(
-                    '[data-menu-target="teknisi"]'
-                );
+    const workbook =
+        XLSX.utils.book_new();
 
 
-            if (menuTeknisi) {
-
-                menuTeknisi.classList.add(
-                    "active"
-                );
-
-            }
+    XLSX.utils.book_append_sheet(
+        workbook,
+        worksheet,
+        "Rekap SOW"
+    );
 
 
-            const teknisi =
-                document.querySelector(
-                    ".teknisi-container"
-                );
+    XLSX.writeFile(
+        workbook,
+        "REKAP_SOW_" +
+        periodeRekapAktif +
+        ".xlsx"
+    );
+}
 
 
-            if (teknisi) {
+/* ============================================================
+   23. EVENT SIDEBAR
+   ============================================================ */
 
-                setTimeout(
-                    function () {
+function pasangEventSidebar() {
 
-                        teknisi.scrollIntoView({
+    document
+        .querySelectorAll(
+            "[data-menu-target]"
+        )
+        .forEach(
+            function (menu) {
 
-                            behavior: "smooth",
-
-                            block: "start"
-
-                        });
-
-                    },
-                    50
-                );
-
-            }
-
-
-            tutupSidebar();
-
-        }
-
-
-        // =================================================
-        // TOMBOL â˜°
-        // =================================================
-
-        if (menuButton) {
-
-            menuButton.addEventListener(
-                "click",
-                bukaSidebar
-            );
-
-        }
-
-
-        // =================================================
-        // TOMBOL âœ•
-        // =================================================
-
-        if (closeButton) {
-
-            closeButton.addEventListener(
-                "click",
-                tutupSidebar
-            );
-
-        }
-
-
-        // =================================================
-        // OVERLAY
-        // =================================================
-
-        if (overlay) {
-
-            overlay.addEventListener(
-                "click",
-                tutupSidebar
-            );
-
-        }
-
-
-        // =================================================
-        // MENU SIDEBAR
-        // =================================================
-
-        menuItems.forEach(
-            function (item) {
-
-                item.addEventListener(
+                menu.addEventListener(
                     "click",
                     function () {
 
-                        const target =
-                            item.dataset.menuTarget;
-
-
-                        if (
-                            target ===
-                            "dashboard"
-                        ) {
-
-                            bukaDashboard();
-
-                        }
-
-
-                        else if (
-                            target ===
-                            "rekap"
-                        ) {
-
-                            bukaRekap();
-
-                        }
-
-
-                        else if (
-                            target ===
-                            "teknisi"
-                        ) {
-
-                            bukaTeknisi();
-
-                        }
-
+                        bukaMenu(
+                            menu.dataset.menuTarget
+                        );
                     }
                 );
-
             }
         );
 
 
-        // =================================================
-        // ESCAPE
-        // =================================================
+    if (sidebarMenuButton) {
 
-        document.addEventListener(
+        sidebarMenuButton.addEventListener(
+            "click",
+            bukaSidebar
+        );
+    }
+
+
+    if (sidebarCloseButton) {
+
+        sidebarCloseButton.addEventListener(
+            "click",
+            tutupSidebar
+        );
+    }
+
+
+    if (sidebarOverlay) {
+
+        sidebarOverlay.addEventListener(
+            "click",
+            tutupSidebar
+        );
+    }
+}
+
+
+/* ============================================================
+   24. EVENT FILTER
+   ============================================================ */
+
+function pasangEventFilter() {
+
+    if (searchButton) {
+
+        searchButton.addEventListener(
+            "click",
+            loadOrders
+        );
+    }
+
+
+    if (resetFilter) {
+
+        resetFilter.addEventListener(
+            "click",
+            resetSemuaFilter
+        );
+    }
+
+
+    if (searchOrder) {
+
+        searchOrder.addEventListener(
             "keydown",
             function (event) {
 
                 if (
                     event.key ===
-                    "Escape"
+                    "Enter"
                 ) {
 
-                    tutupSidebar();
-
+                    loadOrders();
                 }
+            }
+        );
+    }
+}
 
+
+/* ============================================================
+   25. EVENT DETAIL
+   ============================================================ */
+
+function pasangEventDetail() {
+
+    const closeModal =
+        document.getElementById(
+            "closeModal"
+        );
+
+
+    const closeModalButton =
+        document.getElementById(
+            "closeModalButton"
+        );
+
+
+    if (closeModal) {
+
+        closeModal.addEventListener(
+            "click",
+            tutupDetailModal
+        );
+    }
+
+
+    if (closeModalButton) {
+
+        closeModalButton.addEventListener(
+            "click",
+            tutupDetailModal
+        );
+    }
+
+
+    if (saveUpdateButton) {
+
+        saveUpdateButton.addEventListener(
+            "click",
+            simpanUpdateOrder
+        );
+    }
+
+
+    if (detailModal) {
+
+        detailModal.addEventListener(
+            "click",
+            function (event) {
+
+                if (
+                    event.target ===
+                    detailModal
+                ) {
+
+                    tutupDetailModal();
+                }
+            }
+        );
+    }
+}
+
+
+/* ============================================================
+   26. EVENT REKAP
+   ============================================================ */
+
+function pasangEventRekap() {
+
+    document
+        .querySelectorAll(
+            ".rekap-period-button"
+        )
+        .forEach(
+            function (button) {
+
+                button.addEventListener(
+                    "click",
+                    function () {
+
+                        document
+                            .querySelectorAll(
+                                ".rekap-period-button"
+                            )
+                            .forEach(
+                                function (item) {
+
+                                    item.classList.remove(
+                                        "active"
+                                    );
+                                }
+                            );
+
+
+                        button.classList.add(
+                            "active"
+                        );
+
+
+                        tampilkanFormPeriode(
+                            button.dataset.period ||
+                            "harian"
+                        );
+                    }
+                );
             }
         );
 
 
-        // =================================================
-        // DASHBOARD AKTIF SAAT AWAL
-        // =================================================
+    if (
+        tampilkanRekapButton
+    ) {
 
-        const menuDashboard =
-            document.querySelector(
-                '[data-menu-target="dashboard"]'
-            );
+        tampilkanRekapButton.addEventListener(
+            "click",
+            tampilkanRekap
+        );
+    }
 
 
-        if (menuDashboard) {
+    if (
+        downloadRekapExcelButton
+    ) {
 
-            menuDashboard.classList.add(
-                "active"
-            );
+        downloadRekapExcelButton.addEventListener(
+            "click",
+            downloadRekapExcel
+        );
+    }
+}
 
+
+/* ============================================================
+   27. EVENT SOW
+   ============================================================ */
+
+function pasangEventSow() {
+
+    if (
+        tambahTeknisiButton
+    ) {
+
+        tambahTeknisiButton.addEventListener(
+            "click",
+            bukaTambahTeknisi
+        );
+    }
+
+
+    if (
+        closeTeknisiModal
+    ) {
+
+        closeTeknisiModal.addEventListener(
+            "click",
+            tutupTeknisiModal
+        );
+    }
+
+
+    if (
+        batalTeknisiButton
+    ) {
+
+        batalTeknisiButton.addEventListener(
+            "click",
+            tutupTeknisiModal
+        );
+    }
+
+
+    if (
+        simpanTeknisiButton
+    ) {
+
+        simpanTeknisiButton.addEventListener(
+            "click",
+            simpanTeknisiAdmin
+        );
+    }
+
+
+    if (teknisiModal) {
+
+        teknisiModal.addEventListener(
+            "click",
+            function (event) {
+
+                if (
+                    event.target ===
+                    teknisiModal
+                ) {
+
+                    tutupTeknisiModal();
+                }
+            }
+        );
+    }
+}
+
+
+/* ============================================================
+   28. EVENT LOGOUT
+   ============================================================ */
+
+function pasangEventLogout() {
+
+    if (!logoutButton) {
+        return;
+    }
+
+
+    logoutButton.addEventListener(
+        "click",
+        function () {
+
+            if (
+                confirm(
+                    "Logout dari Admin SOW?"
+                )
+            ) {
+
+                logoutAdmin();
+            }
         }
+    );
+}
 
+
+/* ============================================================
+   29. EVENT ESC
+   ============================================================ */
+
+function pasangEventEscape() {
+
+    document.addEventListener(
+        "keydown",
+        function (event) {
+
+            if (
+                event.key !==
+                "Escape"
+            ) {
+                return;
+            }
+
+
+            tutupSidebar();
+
+            tutupDetailModal();
+
+            tutupTeknisiModal();
+        }
+    );
+}
+
+
+/* ============================================================
+   30. INIT ADMIN
+   ============================================================ */
+
+async function initAdminDashboard() {
+
+    ambilElementDOM();
+
+
+    /*
+     * Dashboard adalah halaman pertama.
+     */
+    setModeHalaman(
+        "dashboard"
+    );
+
+
+    setMenuAktif(
+        "dashboard"
+    );
+
+
+    periodeRekapAktif =
+        "harian";
+
+
+    tampilkanFormPeriode(
+        "harian"
+    );
+
+
+    /*
+     * Pasang event.
+     */
+    pasangEventSidebar();
+
+    pasangEventFilter();
+
+    pasangEventDetail();
+
+    pasangEventRekap();
+
+    pasangEventSow();
+
+    pasangEventLogout();
+
+    pasangEventEscape();
+
+
+    /*
+     * Session.
+     */
+    setupAdminSession();
+
+
+    /*
+     * ========================================================
+     * URUTAN PENTING
+     * ========================================================
+     *
+     * 1. MASTER CABANG
+     * 2. SOW
+     * 3. ORDER
+     *
+     * Jangan load order sebelum master selesai.
+     */
+    await loadCabangMasterData();
+
+
+    await loadTeknisiAdmin();
+
+
+    await loadOrders();
+}
+
+
+/* ============================================================
+   31. DOM READY
+   ============================================================ */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        initAdminDashboard()
+            .catch(
+                function (error) {
+
+                    console.error(
+                        "INIT ADMIN ERROR:",
+                        error
+                    );
+                }
+            );
     }
 );
+
+
+/* ============================================================
+   32. GLOBAL FUNCTION
+   ============================================================ */
+
+window.lihatDetail =
+    lihatDetail;
+
+window.bukaTambahTeknisi =
+    bukaTambahTeknisi;
+
+window.editTeknisiAdmin =
+    editTeknisiAdmin;
+
+window.ubahStatusTeknisiAdmin =
+    ubahStatusTeknisiAdmin;
+
+window.tutupTeknisiModal =
+    tutupTeknisiModal;
+
+window.simpanTeknisiAdmin =
+    simpanTeknisiAdmin;
+
+window.tutupDetailModal =
+    tutupDetailModal;
+
+
+/* ============================================================
+   SELESAI
+   ============================================================ */
