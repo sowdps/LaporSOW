@@ -1,41 +1,16 @@
-/**
- * ============================================================
- * MY SOW BALI
- * ADMIN DASHBOARD
- * FILE : admin/admin.js
- * VERSION : FINAL FIX CABANG
- * ============================================================
- *
- * FUNGSI:
- * - Dashboard order
- * - Kode + nama cabang
- * - Filter order
- * - Detail order
- * - Update status
- * - Penugasan SOW
- * - Manajemen SOW
- * - Rekap
- * - Download Excel
- * - Sidebar
- * - Logout
- *
- * FORMAT CABANG:
- * 0040-KCU DENPASAR
- * 6113-NAMA CABANG
- * 7065-NAMA CABANG
- * ============================================================
- */
-
-
 /* ============================================================
-   01. API & SESSION
-   ============================================================ */
+ * MY SOW BALI - ADMIN DASHBOARD
+ * FINAL SYNC
+ * Dashboard + Detail + SOW + Rekap + Excel
+ * ============================================================ */
 
 const API_URL =
     "https://script.google.com/macros/s/AKfycbwMyIJyYAX2Ioik1Bv_TM5lx-XgLdmhay0vwbl3jNc_rQ7fN_ShL3rPbEAefk381_o/exec";
 
-const ADMIN_TOKEN =
-    localStorage.getItem("MY_SOW_ADMIN_TOKEN") || "";
+const TOKEN_KEY = "MY_SOW_ADMIN_TOKEN";
+const ADMIN_TOKEN = localStorage.getItem(TOKEN_KEY);
+
+const ADMIN_IDLE_MS = 10 * 60 * 1000;
 
 if (!ADMIN_TOKEN) {
     window.location.replace("login.html");
@@ -43,492 +18,354 @@ if (!ADMIN_TOKEN) {
 
 
 /* ============================================================
-   02. DATA GLOBAL
-   ============================================================ */
+ * VARIABEL GLOBAL
+ * ============================================================ */
 
 let semuaOrders = [];
+let daftarSOW = [];
 let orderAktif = null;
-let daftarSow = [];
-let hasilRekapTerakhir = null;
+
 let periodeRekapAktif = "harian";
+let hasilRekapTerakhir = null;
 
-let sessionCheckTimer = null;
-let sessionExpired = false;
-
-
-/*
- * MASTER CABANG
- *
- * Contoh:
- *
- * masterCabangMap["7065"] = "NAMA CABANG";
- * masterCabangMap["0040"] = "KCU DENPASAR";
- */
-let masterCabangMap = {};
+let lastActivity = Date.now();
+let idleTimer = null;
+let logoutInProgress = false;
 
 
 /* ============================================================
-   03. ELEMENT DOM
-   ============================================================ */
+ * HELPER DOM
+ * ============================================================ */
 
-let orderTableBody;
-let totalOrder;
-let totalOpen;
-let totalProses;
-let totalSelesai;
-
-let searchOrder;
-let filterCabang;
-let filterTanggalMulai;
-let filterTanggalSampai;
-let searchButton;
-let resetFilter;
-
-let detailModal;
-let detailKode;
-let detailNama;
-let detailUnitKerja;
-let detailCabang;
-let detailJenisKendala;
-let detailDeskripsi;
-let detailWhatsapp;
-let detailTanggal;
-let detailJam;
-let detailStatus;
-let detailTeknisi;
-let detailCatatan;
-let detailTanggalUpdate;
-let detailRiwayat;
-
-let updateStatus;
-let updateTeknisi;
-let updateCatatan;
-let saveUpdateButton;
-
-let rekapPeriodForm;
-let tampilkanRekapButton;
-let downloadRekapExcelButton;
-let rekapResult;
-
-let teknisiTableBody;
-let tambahTeknisiButton;
-let teknisiModal;
-let teknisiModalTitle;
-let closeTeknisiModal;
-let teknisiNamaInput;
-let teknisiIdInput;
-let batalTeknisiButton;
-let simpanTeknisiButton;
-
-let sidebarMenuButton;
-let sidebarOverlay;
-let adminSidebar;
-let sidebarCloseButton;
-let logoutButton;
+const $ = (id) =>
+    document.getElementById(id);
 
 
 /* ============================================================
-   04. AMBIL ELEMENT DOM
-   ============================================================ */
+ * HELPER ESCAPE HTML
+ * ============================================================ */
 
-function ambilElementDOM() {
-
-    orderTableBody =
-        document.getElementById("orderTableBody");
-
-    totalOrder =
-        document.getElementById("totalOrder");
-
-    totalOpen =
-        document.getElementById("totalOpen");
-
-    totalProses =
-        document.getElementById("totalProses");
-
-    totalSelesai =
-        document.getElementById("totalSelesai");
-
-    searchOrder =
-        document.getElementById("searchOrder");
-
-    filterCabang =
-        document.getElementById("filterCabang");
-
-    filterTanggalMulai =
-        document.getElementById("filterTanggalMulai");
-
-    filterTanggalSampai =
-        document.getElementById("filterTanggalSampai");
-
-    searchButton =
-        document.getElementById("searchButton");
-
-    resetFilter =
-        document.getElementById("resetFilter");
-
-
-    detailModal =
-        document.getElementById("detailModal");
-
-    detailKode =
-        document.getElementById("detailKode");
-
-    detailNama =
-        document.getElementById("detailNama");
-
-    detailUnitKerja =
-        document.getElementById("detailUnitKerja");
-
-    detailCabang =
-        document.getElementById("detailCabang");
-
-    detailJenisKendala =
-        document.getElementById("detailJenisKendala");
-
-    detailDeskripsi =
-        document.getElementById("detailDeskripsi");
-
-    detailWhatsapp =
-        document.getElementById("detailWhatsapp");
-
-    detailTanggal =
-        document.getElementById("detailTanggal");
-
-    detailJam =
-        document.getElementById("detailJam");
-
-    detailStatus =
-        document.getElementById("detailStatus");
-
-    detailTeknisi =
-        document.getElementById("detailTeknisi");
-
-    detailCatatan =
-        document.getElementById("detailCatatan");
-
-    detailTanggalUpdate =
-        document.getElementById("detailTanggalUpdate");
-
-    detailRiwayat =
-        document.getElementById("detailRiwayat");
-
-
-    updateStatus =
-        document.getElementById("updateStatus");
-
-    updateTeknisi =
-        document.getElementById("updateTeknisi");
-
-    updateCatatan =
-        document.getElementById("updateCatatan");
-
-    saveUpdateButton =
-        document.getElementById("saveUpdateButton");
-
-
-    rekapPeriodForm =
-        document.getElementById("rekapPeriodForm");
-
-    tampilkanRekapButton =
-        document.getElementById("tampilkanRekapButton");
-
-    downloadRekapExcelButton =
-        document.getElementById("downloadRekapExcelButton");
-
-    rekapResult =
-        document.getElementById("rekapResult");
-
-
-    teknisiTableBody =
-        document.getElementById("teknisiTableBody");
-
-    tambahTeknisiButton =
-        document.getElementById("tambahTeknisiButton");
-
-    teknisiModal =
-        document.getElementById("teknisiModal");
-
-    teknisiModalTitle =
-        document.getElementById("teknisiModalTitle");
-
-    closeTeknisiModal =
-        document.getElementById("closeTeknisiModal");
-
-    teknisiNamaInput =
-        document.getElementById("teknisiNamaInput");
-
-    teknisiIdInput =
-        document.getElementById("teknisiIdInput");
-
-    batalTeknisiButton =
-        document.getElementById("batalTeknisiButton");
-
-    simpanTeknisiButton =
-        document.getElementById("simpanTeknisiButton");
-
-
-    sidebarMenuButton =
-        document.getElementById("sidebarMenuButton");
-
-    sidebarOverlay =
-        document.getElementById("sidebarOverlay");
-
-    adminSidebar =
-        document.getElementById("adminSidebar");
-
-    sidebarCloseButton =
-        document.getElementById("sidebarCloseButton");
-
-    logoutButton =
-        document.getElementById("logoutButton");
-}
-
-
-/* ============================================================
-   05. UTILITAS
-   ============================================================ */
-
-function escapeHtml(value) {
-
-    return String(value ?? "")
+const esc = (value) =>
+    String(value ?? "")
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
-}
 
 
-function escapeAttribute(value) {
-    return escapeHtml(value);
-}
+/* ============================================================
+ * AMBIL VALUE INPUT
+ * ============================================================ */
+
+const val = (id) =>
+    $(id)?.value?.trim() || "";
 
 
-function formatTanggal(value) {
+/* ============================================================
+ * FORMAT TANGGAL
+ * ============================================================ */
+
+function formatTanggalTampilan(value) {
 
     if (!value) {
         return "-";
     }
 
-    const text = String(value).trim();
-
-    if (/^\d{4}-\d{2}-\d{2}$/.test(text)) {
-
-        const p = text.split("-");
-
-        return `${p[2]}/${p[1]}/${p[0]}`;
-    }
-
-    return text;
-}
-
-
-/* ============================================================
-   06. NORMALISASI KODE CABANG
-   ============================================================ */
-
-function normalisasiKodeCabang(value) {
-
-    if (
-        value === null ||
-        value === undefined
-    ) {
-        return "";
-    }
-
-    let kode =
+    const text =
         String(value).trim();
 
-    /*
-     * Kalau data berbentuk:
-     *
-     * 7065-NAMA CABANG
-     *
-     * ambil hanya 7065.
-     */
-    if (kode.includes("-")) {
+    if (
+        /^\d{4}-\d{2}-\d{2}$/.test(text)
+    ) {
 
-        kode =
-            kode
-                .split("-")[0]
-                .trim();
+        const [tahun, bulan, tanggal] =
+            text.split("-");
+
+        return (
+            tanggal +
+            "/" +
+            bulan +
+            "/" +
+            tahun
+        );
     }
 
-    return kode;
+    const date =
+        new Date(text);
+
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
+
+        return text;
+    }
+
+    return date.toLocaleDateString(
+        "id-ID",
+        {
+            timeZone: "Asia/Makassar",
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric"
+        }
+    );
 }
 
 
 /* ============================================================
-   07. FORMAT CABANG FINAL
-   ============================================================
- *
- * INI BAGIAN UTAMA PERBAIKAN.
- *
- * Contoh:
- *
- * order.kode_cabang = 7065
- *
- * MASTER_DATA:
- * 7065 = NAMA CABANG
- *
- * HASIL:
- * 7065-NAMA CABANG
- *
+ * FORMAT TANGGAL + JAM
  * ============================================================ */
 
-function formatCabang(order) {
+function formatTanggalWaktu(value) {
 
-    let kode =
-        normalisasiKodeCabang(
-            order?.kode_cabang ||
-            order?.kodeCabang ||
-            ""
+    if (!value) {
+        return "-";
+    }
+
+    const date =
+        new Date(value);
+
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
+
+        return String(value);
+    }
+
+    return date.toLocaleString(
+        "id-ID",
+        {
+            timeZone: "Asia/Makassar",
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit"
+        }
+    );
+}
+
+
+/* ============================================================
+ * FORMAT CLASS STATUS
+ * ============================================================ */
+
+function statusClass(status) {
+
+    return String(
+        status || "OPEN"
+    )
+        .toLowerCase()
+        .replace(
+            /\s+/g,
+            "-"
+        );
+}
+
+
+/* ============================================================
+ * LOGOUT ADMIN
+ * ============================================================ */
+
+function logoutAdmin(
+    reason = "Sesi admin berakhir"
+) {
+
+    if (logoutInProgress) {
+        return;
+    }
+
+    logoutInProgress = true;
+
+    localStorage.removeItem(
+        TOKEN_KEY
+    );
+
+    try {
+
+        fetch(
+            API_URL,
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type":
+                        "text/plain;charset=utf-8"
+                },
+
+                body:
+                    JSON.stringify({
+                        action:
+                            "logoutAdmin",
+
+                        token:
+                            ADMIN_TOKEN
+                    })
+            }
+        ).catch(
+            () => { }
         );
 
+    } finally {
 
-    /*
-     * Kalau kode kosong tetapi backend
-     * sudah mengirim cabang lengkap.
-     */
-    if (!kode) {
+        console.warn(
+            reason
+        );
 
-        const cabang =
-            String(
-                order?.cabang ||
-                ""
-            ).trim();
+        window.location.replace(
+            "login.html"
+        );
+    }
+}
 
-        if (cabang) {
 
-            return cabang.replace(
-                /\s*-\s*/,
-                "-"
+/* ============================================================
+ * RESET TIMER AUTO LOGOUT
+ * ============================================================ */
+
+function resetIdleTimer() {
+
+    lastActivity =
+        Date.now();
+
+    clearTimeout(
+        idleTimer
+    );
+
+    idleTimer =
+        setTimeout(
+            function () {
+
+                if (
+                    Date.now() -
+                    lastActivity >=
+                    ADMIN_IDLE_MS
+                ) {
+
+                    logoutAdmin(
+                        "Tidak ada aktivitas selama 10 menit."
+                    );
+                }
+
+            },
+            ADMIN_IDLE_MS + 500
+        );
+}
+
+
+/* ============================================================
+ * SENTUH SESSION ADMIN
+ * ============================================================ */
+
+async function touchSession() {
+
+    try {
+
+        const result =
+            await postJSON(
+                {
+                    action:
+                        "touchAdminSession",
+
+                    token:
+                        ADMIN_TOKEN
+                }
+            );
+
+        if (
+            result?.unauthorized
+        ) {
+
+            logoutAdmin(
+                "Sesi admin tidak valid."
             );
         }
 
-        const nama =
-            String(
-                order?.nama_cabang ||
-                order?.namaCabang ||
-                ""
-            ).trim();
+    } catch (error) {
 
-        return nama || "-";
-    }
-
-
-    /*
-     * ========================================================
-     * CARI NAMA CABANG DARI MASTER_DATA
-     * ========================================================
-     */
-
-    const namaMaster =
-        masterCabangMap[
-        kode.toUpperCase()
-        ] || "";
-
-
-    if (namaMaster) {
-
-        return (
-            kode +
-            "-" +
-            namaMaster
+        console.warn(
+            "Touch session:",
+            error
         );
     }
-
-
-    /*
-     * Fallback jika backend sudah
-     * mengirim nama cabang.
-     */
-
-    const namaBackend =
-        String(
-            order?.nama_cabang ||
-            order?.namaCabang ||
-            ""
-        ).trim();
-
-
-    if (namaBackend) {
-
-        return (
-            kode +
-            "-" +
-            namaBackend
-        );
-    }
-
-
-    /*
-     * Fallback terakhir.
-     */
-
-    if (order?.cabang) {
-
-        return String(
-            order.cabang
-        )
-            .trim()
-            .replace(
-                /\s*-\s*/,
-                "-"
-            );
-    }
-
-
-    return kode;
 }
 
 
 /* ============================================================
-   08. API GET
-   ============================================================ */
+ * GET API
+ * ============================================================ */
 
-async function apiGet(params = {}) {
+async function getJSON(
+    params = {}
+) {
 
     const query =
-        new URLSearchParams(params);
+        new URLSearchParams(
+            {
+                token:
+                    ADMIN_TOKEN,
+
+                ...params
+            }
+        );
 
     const response =
         await fetch(
             API_URL +
             "?" +
-            query.toString(),
-            {
-                method: "GET",
-                cache: "no-store"
-            }
+            query.toString()
         );
 
-    const text =
-        await response.text();
+    if (!response.ok) {
 
-    try {
+        throw new Error(
+            "HTTP " +
+            response.status
+        );
+    }
 
-        return JSON.parse(text);
+    const result =
+        await response.json();
 
-    } catch (error) {
+    if (
+        result.unauthorized
+    ) {
 
-        console.error(
-            "RESPON GET:",
-            text
+        logoutAdmin(
+            "Sesi admin tidak valid."
         );
 
         throw new Error(
-            "Respon server tidak valid."
+            "Sesi admin berakhir."
         );
     }
+
+    if (
+        result.success === false
+    ) {
+
+        throw new Error(
+            result.message ||
+            "Permintaan gagal."
+        );
+    }
+
+    return result;
 }
 
 
 /* ============================================================
-   09. API POST
-   ============================================================ */
+ * POST API
+ * ============================================================ */
 
-async function apiPost(data = {}) {
+async function postJSON(
+    body
+) {
 
     const response =
         await fetch(
@@ -542,296 +379,116 @@ async function apiPost(data = {}) {
                 },
 
                 body:
-                    JSON.stringify(data)
+                    JSON.stringify(body)
             }
         );
 
-    const text =
-        await response.text();
+    if (!response.ok) {
 
-    try {
+        throw new Error(
+            "HTTP " +
+            response.status
+        );
+    }
 
-        return JSON.parse(text);
+    const result =
+        await response.json();
 
-    } catch (error) {
+    if (
+        result.unauthorized
+    ) {
 
-        console.error(
-            "RESPON POST:",
-            text
+        logoutAdmin(
+            "Sesi admin tidak valid."
         );
 
         throw new Error(
-            "Respon server tidak valid."
+            "Sesi admin berakhir."
         );
     }
+
+    return result;
 }
 
 
 /* ============================================================
-   10. SESSION
-   ============================================================ */
-
-function logoutLocal(reason = "") {
-
-    if (sessionExpired) {
-        return;
-    }
-
-    sessionExpired = true;
-
-    if (sessionCheckTimer) {
-
-        clearInterval(
-            sessionCheckTimer
-        );
-
-        sessionCheckTimer = null;
-    }
-
-    if (reason) {
-
-        console.warn(reason);
-    }
-
-    localStorage.removeItem(
-        "MY_SOW_ADMIN_TOKEN"
-    );
-
-    window.location.replace(
-        "login.html"
-    );
-}
-
-
-async function logoutAdmin() {
-
-    try {
-
-        await apiPost({
-
-            action:
-                "logoutAdmin",
-
-            token:
-                ADMIN_TOKEN
-
-        });
-
-    } catch (error) {
-
-        console.warn(
-            "Logout server:",
-            error
-        );
-
-    } finally {
-
-        logoutLocal(
-            "Admin logout."
-        );
-    }
-}
-
-
-async function cekSessionAdmin() {
-
-    if (
-        !ADMIN_TOKEN ||
-        sessionExpired
-    ) {
-        return;
-    }
-
-    try {
-
-        const result =
-            await apiPost({
-
-                action:
-                    "touchAdminSession",
-
-                token:
-                    ADMIN_TOKEN
-
-            });
-
-        if (
-            result &&
-            result.success === false &&
-            result.unauthorized
-        ) {
-
-            logoutLocal(
-                "Session admin sudah berakhir."
-            );
-        }
-
-    } catch (error) {
-
-        console.warn(
-            "Pemeriksaan session gagal:",
-            error
-        );
-    }
-}
-
-
-function setupAdminSession() {
-
-    cekSessionAdmin();
-
-    sessionCheckTimer =
-        setInterval(
-            cekSessionAdmin,
-            5 * 60 * 1000
-        );
-}
-
-
-/* ============================================================
-   11. LOAD MASTER CABANG
-   ============================================================
- *
- * MASTER_DATA:
- *
- * KODE -> NAMA
- *
- * Kemudian disimpan ke:
- *
- * masterCabangMap
- *
+ * LOAD MASTER CABANG
  * ============================================================ */
 
 async function loadCabangMasterData() {
 
-    /*
-     * RESET MAPPING
-     */
-    masterCabangMap = {};
-
-
     try {
 
         const result =
-            await apiGet({
-                master: "true"
-            });
-
-
-        if (
-            !result ||
-            result.success !== true
-        ) {
-
-            throw new Error(
-                result?.message ||
-                "Master cabang gagal dimuat."
+            await getJSON(
+                {
+                    master:
+                        "true"
+                }
             );
+
+        const select =
+            $("filterCabang");
+
+        if (!select) {
+            return;
         }
 
+        const current =
+            select.value;
 
-        const cabang =
-            Array.isArray(
-                result.cabang
-            )
-                ? result.cabang
-                : [];
+        select.innerHTML =
+            `
+        <option value="">
+          Semua Cabang
+        </option>
+      `;
 
+        (
+            result.cabang ||
+            []
+        ).forEach(
+            function (cabang) {
 
-        /*
-         * SIMPAN KODE -> NAMA
-         */
-        cabang.forEach(
-            function (item) {
-
-                const kode =
-                    normalisasiKodeCabang(
-                        item?.kode
+                const option =
+                    document.createElement(
+                        "option"
                     );
 
-                const nama =
-                    String(
-                        item?.nama ||
-                        ""
-                    ).trim();
+                option.value =
+                    cabang.kode ||
+                    cabang.k ||
+                    cabang.kode_cabang ||
+                    "";
 
+                option.textContent =
+                    cabang.nama
+                        ? (
+                            option.value +
+                            " - " +
+                            cabang.nama
+                        )
+                        : (
+                            cabang.nama_cabang ||
+                            option.value
+                        );
 
-                if (!kode) {
-                    return;
-                }
-
-
-                masterCabangMap[
-                    kode.toUpperCase()
-                ] =
-                    nama;
+                select.appendChild(
+                    option
+                );
             }
         );
 
+        if (current) {
 
-        /*
-         * Isi dropdown filter.
-         */
-        if (filterCabang) {
-
-            filterCabang.innerHTML =
-                '<option value="">Semua Cabang</option>';
-
-
-            cabang.forEach(
-                function (item) {
-
-                    const kode =
-                        normalisasiKodeCabang(
-                            item?.kode
-                        );
-
-                    const nama =
-                        String(
-                            item?.nama ||
-                            ""
-                        ).trim();
-
-
-                    if (!kode) {
-                        return;
-                    }
-
-
-                    const option =
-                        document.createElement(
-                            "option"
-                        );
-
-
-                    option.value =
-                        kode;
-
-
-                    option.textContent =
-                        nama
-                            ? `${kode}-${nama}`
-                            : kode;
-
-
-                    filterCabang.appendChild(
-                        option
-                    );
-                }
-            );
+            select.value =
+                current;
         }
-
-
-        console.log(
-            "MASTER CABANG BERHASIL DIMUAT:",
-            masterCabangMap
-        );
-
 
     } catch (error) {
 
         console.error(
-            "MASTER CABANG:",
+            "Master cabang:",
             error
         );
     }
@@ -839,114 +496,48 @@ async function loadCabangMasterData() {
 
 
 /* ============================================================
-   12. LOAD ORDER
-   ============================================================ */
+ * LOAD ORDER
+ * ============================================================ */
 
 async function loadOrders() {
 
-    if (!orderTableBody) {
-        return;
-    }
+    const table =
+        $("orderTableBody");
 
+    if (table) {
 
-    orderTableBody.innerHTML = `
+        table.innerHTML =
+            `
         <tr>
-            <td colspan="9">
-                Memuat data order...
-            </td>
+          <td colspan="9">
+            Memuat data order...
+          </td>
         </tr>
-    `;
-
-
-    const params = {
-
-        token:
-            ADMIN_TOKEN
-
-    };
-
-
-    const kode =
-        searchOrder
-            ? searchOrder.value.trim()
-            : "";
-
-
-    const cabang =
-        filterCabang
-            ? filterCabang.value.trim()
-            : "";
-
-
-    const tanggalMulai =
-        filterTanggalMulai
-            ? filterTanggalMulai.value
-            : "";
-
-
-    const tanggalSampai =
-        filterTanggalSampai
-            ? filterTanggalSampai.value
-            : "";
-
-
-    if (kode) {
-
-        params.kode =
-            kode;
+      `;
     }
-
-
-    if (cabang) {
-
-        params.cabang =
-            cabang;
-    }
-
-
-    if (tanggalMulai) {
-
-        params.tanggalMulai =
-            tanggalMulai;
-    }
-
-
-    if (tanggalSampai) {
-
-        params.tanggalSampai =
-            tanggalSampai;
-    }
-
 
     try {
 
         const result =
-            await apiGet(params);
+            await getJSON(
+                {
+                    kode:
+                        val("searchOrder"),
 
+                    cabang:
+                        val("filterCabang"),
 
-        if (
-            !result ||
-            result.success !== true
-        ) {
+                    tanggalMulai:
+                        val(
+                            "filterTanggalMulai"
+                        ),
 
-            if (
-                result?.unauthorized
-            ) {
-
-                logoutLocal(
-                    "Session admin tidak valid."
-                );
-
-                return;
-            }
-
-
-            throw new Error(
-                result?.message ||
-                "Gagal mengambil data order."
+                    tanggalSampai:
+                        val(
+                            "filterTanggalSampai"
+                        )
+                }
             );
-        }
-
 
         semuaOrders =
             Array.isArray(
@@ -955,14 +546,14 @@ async function loadOrders() {
                 ? result.orders
                 : [];
 
-
         updateStatistics(
-            result.statistik || {}
+            result.statistik ||
+            {}
         );
 
-
-        renderOrders();
-
+        renderOrders(
+            semuaOrders
+        );
 
     } catch (error) {
 
@@ -971,215 +562,206 @@ async function loadOrders() {
             error
         );
 
+        if (table) {
 
-        orderTableBody.innerHTML = `
-            <tr>
-                <td colspan="9">
-                    Gagal memuat data order.<br>
-                    ${escapeHtml(
-            error.message
-        )}
-                </td>
-            </tr>
+            table.innerHTML =
+                `
+          <tr>
+            <td colspan="9">
+              ❌ Gagal memuat data:
+              ${esc(error.message)}
+            </td>
+          </tr>
         `;
+        }
+
+        updateStatistics(
+            {}
+        );
     }
 }
 
 
 /* ============================================================
-   13. RENDER DASHBOARD
-   ============================================================ */
+ * UPDATE STATISTIK DASHBOARD
+ * ============================================================ */
 
-function renderOrders() {
+function updateStatistics(
+    statistik
+) {
 
-    if (!orderTableBody) {
+    $("totalOrder").textContent =
+        Number(
+            statistik.total || 0
+        );
+
+    $("totalOpen").textContent =
+        Number(
+            statistik.open || 0
+        );
+
+    $("totalProses").textContent =
+        Number(
+            statistik.proses || 0
+        );
+
+    $("totalSelesai").textContent =
+        Number(
+            statistik.selesai || 0
+        );
+}
+
+
+/* ============================================================
+ * RENDER ORDER
+ * ============================================================ */
+
+function renderOrders(
+    orders
+) {
+
+    const table =
+        $("orderTableBody");
+
+    if (!table) {
         return;
     }
 
+    if (
+        !orders ||
+        orders.length === 0
+    ) {
 
-    if (!semuaOrders.length) {
+        table.innerHTML =
+            `
+        <tr>
+          <td colspan="9">
+            Belum ada data order.
+          </td>
+        </tr>
+      `;
 
-        orderTableBody.innerHTML = `
+        return;
+    }
+
+    table.innerHTML =
+        orders
+            .map(
+                function (
+                    order,
+                    index
+                ) {
+
+                    return `
             <tr>
-                <td colspan="9">
-                    Belum ada data order.
-                </td>
-            </tr>
-        `;
 
-        return;
-    }
+              <td>
+                ${index + 1}
+              </td>
 
+              <td>
+                ${esc(order.kode)}
+              </td>
 
-    orderTableBody.innerHTML =
-        semuaOrders.map(
-            function (order, index) {
+              <td>
+                ${esc(order.nama)}
+              </td>
 
-                const status =
-                    String(
-                        order?.status ||
+              <td>
+                ${esc(
+                        order.kode_cabang ||
+                        order.cabang
+                    )}
+              </td>
+
+              <td>
+                ${esc(
+                        order.jenis_kendala
+                    )}
+              </td>
+
+              <td>
+                ${esc(
+                        formatTanggalTampilan(
+                            order.tanggal
+                        )
+                    )}
+              </td>
+
+              <td>
+                <span
+                  class="status-${statusClass(
+                        order.status
+                    )}"
+                >
+                  ${esc(
+                        order.status ||
                         "OPEN"
-                    ).toUpperCase();
+                    )}
+                </span>
+              </td>
 
+              <td>
+                ${esc(
+                        order.sow ||
+                        order.teknisi
+                    )}
+              </td>
 
-                const sow =
-                    order?.sow ||
-                    order?.teknisi ||
-                    "-";
+              <td>
+                <button
+                  type="button"
+                  onclick="lihatDetail('${esc(
+                        String(
+                            order.kode ||
+                            ""
+                        )
+                    )}')"
+                >
+                  👁️ Detail
+                </button>
+              </td>
 
-
-                /*
-                 * HASIL FINAL CABANG:
-                 *
-                 * 7065-NAMA CABANG
-                 */
-                const cabang =
-                    formatCabang(
-                        order
-                    );
-
-
-                return `
-                    <tr>
-
-                        <td>
-                            ${index + 1}
-                        </td>
-
-                        <td>
-                            ${escapeHtml(
-                    order?.kode ||
-                    "-"
-                )}
-                        </td>
-
-                        <td>
-                            ${escapeHtml(
-                    order?.nama ||
-                    "-"
-                )}
-                        </td>
-
-                        <td>
-                            ${escapeHtml(
-                    cabang
-                )}
-                        </td>
-
-                        <td>
-                            ${escapeHtml(
-                    order?.jenis_kendala ||
-                    "-"
-                )}
-                        </td>
-
-                        <td>
-                            ${escapeHtml(
-                    formatTanggal(
-                        order?.tanggal
-                    )
-                )}
-                        </td>
-
-                        <td>
-                            ${escapeHtml(
-                    status
-                )}
-                        </td>
-
-                        <td>
-                            ${escapeHtml(
-                    sow
-                )}
-                        </td>
-
-                        <td>
-
-                            <button
-                                type="button"
-                                class="btn-detail"
-                                onclick="lihatDetail('${escapeAttribute(
-                    order?.kode || ""
-                )}')"
-                            >
-                                Detail
-                            </button>
-
-                        </td>
-
-                    </tr>
-                `;
-            }
-        ).join("");
+            </tr>
+          `;
+                }
+            )
+            .join("");
 }
 
 
 /* ============================================================
-   14. STATISTIK
-   ============================================================ */
+ * CARI ORDER AKTIF
+ * ============================================================ */
 
-function updateStatistics(statistik) {
+function findOrder(
+    kode
+) {
 
-    if (totalOrder) {
+    return semuaOrders.find(
+        function (order) {
 
-        totalOrder.textContent =
-            statistik.total ?? 0;
-    }
-
-
-    if (totalOpen) {
-
-        totalOpen.textContent =
-            statistik.open ?? 0;
-    }
-
-
-    if (totalProses) {
-
-        totalProses.textContent =
-            statistik.proses ?? 0;
-    }
-
-
-    if (totalSelesai) {
-
-        totalSelesai.textContent =
-            statistik.selesai ?? 0;
-    }
-}
-
-
-/* ============================================================
-   15. DETAIL ORDER
-   ============================================================ */
-
-function cariOrderLokal(kode) {
-
-    return (
-        semuaOrders.find(
-            function (order) {
-
-                return (
-                    String(
-                        order?.kode ||
-                        ""
-                    ) ===
-                    String(
-                        kode ||
-                        ""
-                    )
-                );
-            }
-        ) || null
+            return (
+                String(
+                    order.kode
+                ) ===
+                String(kode)
+            );
+        }
     );
 }
 
 
-function lihatDetail(kode) {
+/* ============================================================
+ * TAMPILKAN DETAIL ORDER
+ * ============================================================ */
+
+function lihatDetail(
+    kode
+) {
 
     const order =
-        cariOrderLokal(kode);
-
+        findOrder(kode);
 
     if (!order) {
 
@@ -1190,130 +772,146 @@ function lihatDetail(kode) {
         return;
     }
 
-
     orderAktif =
         order;
 
+    $("detailKode").textContent =
+        order.kode || "-";
 
-    detailKode.textContent =
-        order.kode ||
+    $("detailNama").textContent =
+        order.nama || "-";
+
+    $("detailUnitKerja").textContent =
+        order.unit_kerja || "-";
+
+    $("detailCabang").textContent =
+        order.cabang ||
+        order.kode_cabang ||
         "-";
 
-
-    detailNama.textContent =
-        order.nama ||
-        "-";
-
-
-    detailUnitKerja.textContent =
-        order.unit_kerja ||
-        order.unitKerja ||
-        "-";
-
-
-    detailCabang.textContent =
-        formatCabang(
-            order
-        );
-
-
-    detailJenisKendala.textContent =
+    $("detailJenisKendala").textContent =
         order.jenis_kendala ||
         "-";
 
-
-    detailDeskripsi.textContent =
+    $("detailDeskripsi").textContent =
         order.deskripsi ||
         "-";
 
-
-    detailWhatsapp.textContent =
+    $("detailWhatsapp").textContent =
         order.whatsapp ||
         "-";
 
-
-    detailTanggal.textContent =
-        formatTanggal(
+    $("detailTanggal").textContent =
+        formatTanggalTampilan(
             order.tanggal
         );
 
-
-    detailJam.textContent =
+    $("detailJam").textContent =
         order.jam ||
         "-";
 
-
-    detailStatus.textContent =
+    $("detailStatus").textContent =
         order.status ||
         "OPEN";
 
-
-    detailTeknisi.textContent =
+    $("detailTeknisi").textContent =
         order.sow ||
         order.teknisi ||
         "-";
 
-
-    detailCatatan.textContent =
+    $("detailCatatan").textContent =
         order.catatan_progres ||
-        order.catatan ||
         "-";
 
+    $("detailTanggalUpdate").textContent =
+        formatTanggalWaktu(
+            order.tanggal_update
+        );
 
-    detailTanggalUpdate.textContent =
-        order.tanggal_update ||
-        "-";
+    renderRiwayatTimeline(
+        order.riwayat_status
+    );
 
-
-    detailRiwayat.textContent =
-        order.riwayat_status ||
-        "Belum ada riwayat.";
-
-
-    updateStatus.value =
+    $("updateStatus").value =
         order.status ||
         "OPEN";
 
-
-    updateSelectTeknisi();
-
-
-    updateTeknisi.value =
+    $("updateTeknisi").value =
         order.sow ||
         order.teknisi ||
         "";
 
-
-    updateCatatan.value =
+    $("updateCatatan").value =
         order.catatan_progres ||
-        order.catatan ||
         "";
 
-
-    detailModal.style.display =
-        "flex";
-
-
-    detailModal.setAttribute(
-        "aria-hidden",
-        "false"
+    $("detailModal")?.classList.add(
+        "show"
     );
 }
 
 
-function tutupDetailModal() {
+/* ============================================================
+ * RENDER RIWAYAT STATUS
+ * ============================================================ */
 
-    if (detailModal) {
+function renderRiwayatTimeline(
+    riwayat
+) {
 
-        detailModal.style.display =
-            "none";
+    const element =
+        $("detailRiwayat");
 
-        detailModal.setAttribute(
-            "aria-hidden",
-            "true"
-        );
+    if (!element) {
+        return;
     }
 
+    if (!riwayat) {
+
+        element.innerHTML =
+            "<div>-</div>";
+
+        return;
+    }
+
+    const lines =
+        Array.isArray(
+            riwayat
+        )
+            ? riwayat
+            : String(
+                riwayat
+            )
+                .split(/\r?\n/)
+                .filter(
+                    Boolean
+                );
+
+    element.innerHTML =
+        lines
+            .map(
+                function (line) {
+
+                    return `
+            <div class="riwayat-item">
+              ${esc(line)}
+            </div>
+          `;
+                }
+            )
+            .join("");
+}
+
+
+/* ============================================================
+ * TUTUP MODAL DETAIL
+ * ============================================================ */
+
+function tutupModal() {
+
+    $("detailModal")?.classList.remove(
+        "show"
+    );
 
     orderAktif =
         null;
@@ -1321,119 +919,81 @@ function tutupDetailModal() {
 
 
 /* ============================================================
-   16. UPDATE ORDER
-   ============================================================ */
+ * SIMPAN UPDATE ORDER
+ * ============================================================ */
 
 async function simpanUpdateOrder() {
 
     if (!orderAktif) {
 
         alert(
-            "Order belum dipilih."
+            "Silakan buka Detail Order terlebih dahulu."
         );
 
         return;
     }
 
+    const button =
+        $("saveUpdateButton");
 
-    const statusBaru =
-        updateStatus.value.trim();
+    const payload =
+    {
+        action:
+            "updateOrder",
 
+        token:
+            ADMIN_TOKEN,
 
-    const sowBaru =
-        updateTeknisi.value.trim();
+        kode_order:
+            orderAktif.kode,
 
+        kode:
+            orderAktif.kode,
 
-    const catatanBaru =
-        updateCatatan.value.trim();
+        status:
+            val("updateStatus"),
 
+        sow:
+            val("updateTeknisi"),
 
-    if (!statusBaru) {
+        teknisi:
+            val("updateTeknisi"),
 
-        alert(
-            "Status wajib dipilih."
-        );
+        catatan_progres:
+            val("updateCatatan"),
 
-        return;
-    }
+        catatan:
+            val("updateCatatan")
+    };
 
-
-    if (
-        !confirm(
-            "Simpan perubahan order " +
-            orderAktif.kode +
-            "?"
-        )
-    ) {
-        return;
-    }
-
-
-    saveUpdateButton.disabled =
+    button.disabled =
         true;
-
 
     try {
 
         const result =
-            await apiPost({
-
-                action:
-                    "updateOrder",
-
-                token:
-                    ADMIN_TOKEN,
-
-                kode:
-                    orderAktif.kode,
-
-                status:
-                    statusBaru,
-
-                teknisi:
-                    sowBaru,
-
-                catatan_progres:
-                    catatanBaru
-
-            });
-
+            await postJSON(
+                payload
+            );
 
         if (
-            !result ||
-            result.success !== true
+            !result.success
         ) {
 
-            if (
-                result?.unauthorized
-            ) {
-
-                logoutLocal(
-                    "Session admin berakhir."
-                );
-
-                return;
-            }
-
-
             throw new Error(
-                result?.message ||
-                "Update order gagal."
+                result.message ||
+                "Gagal memperbarui order."
             );
         }
-
 
         alert(
             result.message ||
             "Order berhasil diperbarui."
         );
 
-
-        tutupDetailModal();
-
+        tutupModal();
 
         await loadOrders();
-
 
     } catch (error) {
 
@@ -1442,244 +1002,1518 @@ async function simpanUpdateOrder() {
             error
         );
 
-
         alert(
-            "Gagal memperbarui order.\n\n" +
+            "❌ " +
             error.message
         );
 
-
     } finally {
 
-        saveUpdateButton.disabled =
+        button.disabled =
             false;
     }
 }
 
 
 /* ============================================================
-   17. FILTER
-   ============================================================ */
+ * FORM PERIODE REKAP
+ * ============================================================ */
 
-function resetSemuaFilter() {
+function tampilkanFormPeriode(
+    periode
+) {
 
-    if (searchOrder) {
-        searchOrder.value = "";
+    periodeRekapAktif =
+        periode;
+
+    const form =
+        $("rekapPeriodForm");
+
+    if (!form) {
+        return;
     }
 
+    const sekarang =
+        new Date();
 
-    if (filterCabang) {
-        filterCabang.value = "";
-    }
+    const isoDate =
+        function (date) {
 
-
-    if (filterTanggalMulai) {
-        filterTanggalMulai.value = "";
-    }
-
-
-    if (filterTanggalSampai) {
-        filterTanggalSampai.value = "";
-    }
-
-
-    loadOrders();
-}
-
-
-/* ============================================================
-   18. SIDEBAR
-   ============================================================ */
-
-function bukaSidebar() {
-
-    if (adminSidebar) {
-
-        adminSidebar.classList.add(
-            "open"
-        );
-    }
-
-
-    if (sidebarOverlay) {
-
-        sidebarOverlay.classList.add(
-            "show"
-        );
-    }
-}
-
-
-function tutupSidebar() {
-
-    if (adminSidebar) {
-
-        adminSidebar.classList.remove(
-            "open"
-        );
-    }
-
-
-    if (sidebarOverlay) {
-
-        sidebarOverlay.classList.remove(
-            "show"
-        );
-    }
-}
-
-
-function setModeHalaman(mode) {
-
-    document.body.classList.remove(
-        "mode-dashboard",
-        "mode-rekap",
-        "mode-teknisi"
-    );
-
-
-    if (
-        mode === "rekap"
-    ) {
-
-        document.body.classList.add(
-            "mode-rekap"
-        );
-
-    } else if (
-        mode === "teknisi"
-    ) {
-
-        document.body.classList.add(
-            "mode-teknisi"
-        );
-
-    } else {
-
-        document.body.classList.add(
-            "mode-dashboard"
-        );
-    }
-}
-
-
-function setMenuAktif(target) {
-
-    document
-        .querySelectorAll(
-            "[data-menu-target]"
-        )
-        .forEach(
-            function (menu) {
-
-                menu.classList.toggle(
-                    "active",
-                    menu.dataset.menuTarget ===
-                    target
+            const local =
+                new Date(
+                    date.getTime() -
+                    date.getTimezoneOffset() *
+                    60000
                 );
-            }
+
+            return local
+                .toISOString()
+                .slice(
+                    0,
+                    10
+                );
+        };
+
+    const tahun =
+        sekarang.getFullYear();
+
+    const bulan =
+        String(
+            sekarang.getMonth() + 1
+        ).padStart(
+            2,
+            "0"
         );
-}
 
 
-function bukaMenu(target) {
-
-    setMenuAktif(target);
-
-    setModeHalaman(target);
-
-    tutupSidebar();
-
+    /* ============================
+     * HARIAN
+     * ============================ */
 
     if (
-        target === "dashboard"
+        periode ===
+        "harian"
     ) {
 
-        loadOrders();
+        form.innerHTML =
+            `
+        <div class="rekap-info">
+
+          <strong>
+            Periode Rekap
+          </strong>
+
+          <span>
+            Harian
+          </span>
+
+        </div>
+
+        <label>
+          Tanggal
+
+          <input
+            id="rekapTanggal"
+            type="date"
+            value="${isoDate(
+                sekarang
+            )}"
+          >
+        </label>
+      `;
 
         return;
     }
 
 
+    /* ============================
+     * MINGGUAN
+     * ============================ */
+
     if (
-        target === "rekap"
+        periode ===
+        "mingguan"
     ) {
 
-        tampilkanFormPeriode(
-            periodeRekapAktif
+        const mulai =
+            new Date(
+                sekarang
+            );
+
+        mulai.setDate(
+            sekarang.getDate() -
+            6
         );
+
+        form.innerHTML =
+            `
+        <div class="rekap-info">
+
+          <strong>
+            Periode Rekap
+          </strong>
+
+          <span>
+            Mingguan
+          </span>
+
+        </div>
+
+        <label>
+          Tanggal Mulai
+
+          <input
+            id="rekapTanggalMulai"
+            type="date"
+            value="${isoDate(
+                mulai
+            )}"
+          >
+        </label>
+
+        <label>
+          Tanggal Sampai
+
+          <input
+            id="rekapTanggalSampai"
+            type="date"
+            value="${isoDate(
+                sekarang
+            )}"
+          >
+        </label>
+      `;
 
         return;
     }
 
 
+    /* ============================
+     * BULANAN
+     * ============================ */
+
     if (
-        target === "teknisi"
+        periode ===
+        "bulanan"
     ) {
 
-        loadTeknisiAdmin();
+        form.innerHTML =
+            `
+        <div class="rekap-info">
+
+          <strong>
+            Periode Rekap
+          </strong>
+
+          <span>
+            Bulanan
+          </span>
+
+        </div>
+
+        <label>
+          Bulan
+
+          <input
+            id="rekapBulan"
+            type="month"
+            value="${tahun}-${bulan}"
+          >
+        </label>
+      `;
+
+        return;
+    }
+
+
+    /* ============================
+     * TAHUNAN
+     * ============================ */
+
+    if (
+        periode ===
+        "tahunan"
+    ) {
+
+        form.innerHTML =
+            `
+        <div class="rekap-info">
+
+          <strong>
+            Periode Rekap
+          </strong>
+
+          <span>
+            Tahunan
+          </span>
+
+        </div>
+
+        <label>
+          Tahun
+
+          <input
+            id="rekapTahun"
+            type="number"
+            min="2020"
+            max="2100"
+            value="${tahun}"
+          >
+        </label>
+      `;
     }
 }
 
 
 /* ============================================================
-   19. SOW
-   ============================================================ */
+ * AMBIL REKAP DARI BACKEND
+ * ============================================================ */
 
-async function loadTeknisiAdmin() {
+async function ambilRekap() {
 
-    if (!teknisiTableBody) {
-        return;
+    const params =
+    {
+        rekap:
+            "true",
+
+        tipe:
+            periodeRekapAktif
+    };
+
+
+    if (
+        periodeRekapAktif ===
+        "harian"
+    ) {
+
+        params.tanggal =
+            val(
+                "rekapTanggal"
+            );
     }
 
 
-    teknisiTableBody.innerHTML = `
-        <tr>
-            <td colspan="5">
-                Memuat daftar SOW...
-            </td>
-        </tr>
-    `;
+    if (
+        periodeRekapAktif ===
+        "mingguan"
+    ) {
+
+        params.tanggalMulai =
+            val(
+                "rekapTanggalMulai"
+            );
+
+        params.tanggalSampai =
+            val(
+                "rekapTanggalSampai"
+            );
+
+        if (
+            !params.tanggalMulai ||
+            !params.tanggalSampai
+        ) {
+
+            alert(
+                "Lengkapi tanggal periode."
+            );
+
+            return;
+        }
+    }
+
+
+    if (
+        periodeRekapAktif ===
+        "bulanan"
+    ) {
+
+        const bulan =
+            val(
+                "rekapBulan"
+            );
+
+        if (!bulan) {
+
+            alert(
+                "Pilih bulan terlebih dahulu."
+            );
+
+            return;
+        }
+
+        const bagian =
+            bulan.split("-");
+
+        params.tahun =
+            bagian[0];
+
+        params.bulan =
+            bagian[1];
+    }
+
+
+    if (
+        periodeRekapAktif ===
+        "tahunan"
+    ) {
+
+        params.tahun =
+            val(
+                "rekapTahun"
+            );
+
+        if (!params.tahun) {
+
+            alert(
+                "Masukkan tahun."
+            );
+
+            return;
+        }
+    }
+
+
+    const resultBox =
+        $("rekapResult");
+
+    if (resultBox) {
+
+        resultBox.innerHTML =
+            `
+        <div class="rekap-empty">
+
+          <h3>
+            Memuat rekap...
+          </h3>
+
+        </div>
+      `;
+    }
 
 
     try {
 
-        const result =
-            await apiGet({
-
-                token:
-                    ADMIN_TOKEN,
-
-                teknisi:
-                    "true"
-
-            });
-
-
-        if (
-            !result ||
-            result.success !== true
-        ) {
-
-            throw new Error(
-                result?.message ||
-                "Data SOW gagal dimuat."
+        hasilRekapTerakhir =
+            await getJSON(
+                params
             );
+
+        tampilkanHasilRekap(
+            hasilRekapTerakhir,
+            periodeRekapAktif
+        );
+
+    } catch (error) {
+
+        console.error(
+            "REKAP:",
+            error
+        );
+
+        if (resultBox) {
+
+            resultBox.innerHTML =
+                `
+          <div class="rekap-empty">
+
+            <h3>
+              Gagal memuat rekap
+            </h3>
+
+            <p>
+              ${esc(
+                    error.message
+                )}
+            </p>
+
+          </div>
+        `;
+        }
+    }
+}
+
+
+/* ============================================================
+ * TAMPILKAN HASIL REKAP PROFESIONAL
+ * ============================================================ */
+
+function tampilkanHasilRekap(
+    result,
+    periode
+) {
+
+    const box =
+        $("rekapResult");
+
+    if (!box) {
+        return;
+    }
+
+    const statistik =
+        result.statistik ||
+        {};
+
+    const rekapCabang =
+        result.rekapCabang ||
+        [];
+
+    const rekapSOW =
+        result.rekapTeknisi ||
+        [];
+
+    const orders =
+        result.orders ||
+        [];
+
+    const periodeText =
+        result.periode ||
+        result.labelPeriode ||
+        periode;
+
+
+    box.innerHTML =
+        `
+      <div class="rekap-report">
+
+        <!-- =========================================
+             JUDUL LAPORAN
+        ========================================== -->
+
+        <div class="rekap-title">
+
+          <h2>
+            LAPORAN DETAIL SOW IV DENPASAR
+          </h2>
+
+          <h3>
+            REKAP LAPORAN SOW
+          </h3>
+
+          <p>
+            Periode:
+            ${esc(
+            periodeText
+        )}
+          </p>
+
+        </div>
+
+
+        <!-- =========================================
+             STATISTIK
+        ========================================== -->
+
+        <div class="rekap-statistik">
+
+          <h3>
+            STATISTIK LAPORAN
+          </h3>
+
+          <div
+            class="rekap-stat-grid"
+          >
+
+            <div>
+              Total Order
+
+              <strong>
+                ${Number(
+            statistik.total ||
+            0
+        )}
+              </strong>
+            </div>
+
+            <div>
+              OPEN
+
+              <strong>
+                ${Number(
+            statistik.open ||
+            0
+        )}
+              </strong>
+            </div>
+
+            <div>
+              PROSES
+
+              <strong>
+                ${Number(
+            statistik.proses ||
+            0
+        )}
+              </strong>
+            </div>
+
+            <div>
+              SELESAI
+
+              <strong>
+                ${Number(
+            statistik.selesai ||
+            0
+        )}
+              </strong>
+            </div>
+
+            <div>
+              DITOLAK
+
+              <strong>
+                ${Number(
+            statistik.ditolak ||
+            0
+        )}
+              </strong>
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- =========================================
+             REKAP CABANG
+        ========================================== -->
+
+        <div class="rekap-section">
+
+          <h3>
+            REKAP BERDASARKAN CABANG
+          </h3>
+
+          <div
+            class="table-wrapper"
+          >
+
+            <table>
+
+              <thead>
+
+                <tr>
+
+                  <th>No</th>
+
+                  <th>
+                    Kode Cabang
+                  </th>
+
+                  <th>
+                    Nama Cabang
+                  </th>
+
+                  <th>
+                    Total
+                  </th>
+
+                  <th>
+                    Open
+                  </th>
+
+                  <th>
+                    Proses
+                  </th>
+
+                  <th>
+                    Selesai
+                  </th>
+
+                  <th>
+                    Ditolak
+                  </th>
+
+                </tr>
+
+              </thead>
+
+              <tbody>
+
+                ${rekapCabang.length
+            ? rekapCabang
+                .map(
+                    function (
+                        item,
+                        index
+                    ) {
+
+                        return `
+                              <tr>
+
+                                <td>
+                                  ${index +
+                            1
+                            }
+                                </td>
+
+                                <td>
+                                  ${esc(
+                                item.kode_cabang ||
+                                item.kode ||
+                                item.cabang
+                            )}
+                                </td>
+
+                                <td>
+                                  ${esc(
+                                item.nama_cabang ||
+                                item.nama ||
+                                item.cabang
+                            )}
+                                </td>
+
+                                <td>
+                                  ${Number(
+                                item.total ||
+                                0
+                            )}
+                                </td>
+
+                                <td>
+                                  ${Number(
+                                item.open ||
+                                0
+                            )}
+                                </td>
+
+                                <td>
+                                  ${Number(
+                                item.proses ||
+                                0
+                            )}
+                                </td>
+
+                                <td>
+                                  ${Number(
+                                item.selesai ||
+                                0
+                            )}
+                                </td>
+
+                                <td>
+                                  ${Number(
+                                item.ditolak ||
+                                0
+                            )}
+                                </td>
+
+                              </tr>
+                            `;
+                    }
+                )
+                .join("")
+            :
+            `
+                        <tr>
+                          <td colspan="8">
+                            Tidak ada data.
+                          </td>
+                        </tr>
+                      `
         }
 
+              </tbody>
 
-        daftarSow =
+            </table>
+
+          </div>
+
+        </div>
+
+
+        <!-- =========================================
+             REKAP SOW
+        ========================================== -->
+
+        <div class="rekap-section">
+
+          <h3>
+            REKAP BERDASARKAN SOW
+          </h3>
+
+          <div
+            class="table-wrapper"
+          >
+
+            <table>
+
+              <thead>
+
+                <tr>
+
+                  <th>No</th>
+
+                  <th>
+                    SOW
+                  </th>
+
+                  <th>
+                    Total
+                  </th>
+
+                  <th>
+                    Open
+                  </th>
+
+                  <th>
+                    Proses
+                  </th>
+
+                  <th>
+                    Selesai
+                  </th>
+
+                  <th>
+                    Ditolak
+                  </th>
+
+                </tr>
+
+              </thead>
+
+              <tbody>
+
+                ${rekapSOW.length
+            ? rekapSOW
+                .map(
+                    function (
+                        item,
+                        index
+                    ) {
+
+                        return `
+                              <tr>
+
+                                <td>
+                                  ${index +
+                            1
+                            }
+                                </td>
+
+                                <td>
+                                  ${esc(
+                                item.sow ||
+                                item.teknisi ||
+                                item.nama ||
+                                "Belum Ditugaskan"
+                            )}
+                                </td>
+
+                                <td>
+                                  ${Number(
+                                item.total ||
+                                0
+                            )}
+                                </td>
+
+                                <td>
+                                  ${Number(
+                                item.open ||
+                                0
+                            )}
+                                </td>
+
+                                <td>
+                                  ${Number(
+                                item.proses ||
+                                0
+                            )}
+                                </td>
+
+                                <td>
+                                  ${Number(
+                                item.selesai ||
+                                0
+                            )}
+                                </td>
+
+                                <td>
+                                  ${Number(
+                                item.ditolak ||
+                                0
+                            )}
+                                </td>
+
+                              </tr>
+                            `;
+                    }
+                )
+                .join("")
+            :
+            `
+                        <tr>
+                          <td colspan="7">
+                            Tidak ada data.
+                          </td>
+                        </tr>
+                      `
+        }
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+
+
+        <!-- =========================================
+             DETAIL ORDER
+        ========================================== -->
+
+        <div class="rekap-section">
+
+          <h3>
+            DETAIL ORDER
+          </h3>
+
+          <div
+            class="table-wrapper"
+          >
+
+            <table>
+
+              <thead>
+
+                <tr>
+
+                  <th>No</th>
+
+                  <th>
+                    Kode Order
+                  </th>
+
+                  <th>
+                    Nama
+                  </th>
+
+                  <th>
+                    Unit Kerja
+                  </th>
+
+                  <th>
+                    Kode Cabang
+                  </th>
+
+                  <th>
+                    Jenis Kendala
+                  </th>
+
+                  <th>
+                    Tanggal
+                  </th>
+
+                  <th>
+                    Status
+                  </th>
+
+                  <th>
+                    SOW
+                  </th>
+
+                </tr>
+
+              </thead>
+
+              <tbody>
+
+                ${orders.length
+            ? orders
+                .map(
+                    function (
+                        order,
+                        index
+                    ) {
+
+                        return `
+                              <tr>
+
+                                <td>
+                                  ${index +
+                            1
+                            }
+                                </td>
+
+                                <td>
+                                  ${esc(
+                                order.kode
+                            )}
+                                </td>
+
+                                <td>
+                                  ${esc(
+                                order.nama
+                            )}
+                                </td>
+
+                                <td>
+                                  ${esc(
+                                order.unit_kerja
+                            )}
+                                </td>
+
+                                <td>
+                                  ${esc(
+                                order.kode_cabang
+                            )}
+                                </td>
+
+                                <td>
+                                  ${esc(
+                                order.jenis_kendala
+                            )}
+                                </td>
+
+                                <td>
+                                  ${esc(
+                                formatTanggalTampilan(
+                                    order.tanggal
+                                )
+                            )}
+                                </td>
+
+                                <td>
+                                  ${esc(
+                                order.status
+                            )}
+                                </td>
+
+                                <td>
+                                  ${esc(
+                                order.sow ||
+                                order.teknisi ||
+                                "-"
+                            )}
+                                </td>
+
+                              </tr>
+                            `;
+                    }
+                )
+                .join("")
+            :
+            `
+                        <tr>
+                          <td colspan="9">
+                            Tidak ada order pada periode ini.
+                          </td>
+                        </tr>
+                      `
+        }
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+
+      </div>
+    `;
+}
+
+
+/* ============================================================
+ * EXPORT REKAP KE EXCEL
+ * ============================================================ */
+
+async function downloadRekapExcel() {
+
+    if (
+        !hasilRekapTerakhir
+    ) {
+
+        alert(
+            "Tampilkan rekap terlebih dahulu."
+        );
+
+        return;
+    }
+
+    if (
+        typeof ExcelJS ===
+        "undefined"
+    ) {
+
+        alert(
+            "Library ExcelJS belum tersedia."
+        );
+
+        return;
+    }
+
+    try {
+
+        const result =
+            hasilRekapTerakhir;
+
+        const statistik =
+            result.statistik ||
+            {};
+
+        const workbook =
+            new ExcelJS.Workbook();
+
+        const sheet =
+            workbook.addWorksheet(
+                "Rekap SOW"
+            );
+
+
+        /* =============================================
+           JUDUL
+        ============================================= */
+
+        sheet.addRow(
+            [
+                "LAPORAN DETAIL SOW IV DENPASAR"
+            ]
+        );
+
+        sheet.addRow(
+            [
+                "REKAP LAPORAN SOW"
+            ]
+        );
+
+        sheet.addRow(
+            [
+                "Periode: " +
+                (
+                    result.periode ||
+                    result.labelPeriode ||
+                    periodeRekapAktif
+                )
+            ]
+        );
+
+        sheet.addRow([]);
+
+
+        /* =============================================
+           STATISTIK
+        ============================================= */
+
+        sheet.addRow(
+            [
+                "STATISTIK LAPORAN"
+            ]
+        );
+
+        sheet.addRow(
+            [
+                "Total Order",
+                "OPEN",
+                "PROSES",
+                "SELESAI",
+                "DITOLAK"
+            ]
+        );
+
+        sheet.addRow(
+            [
+                statistik.total ||
+                0,
+
+                statistik.open ||
+                0,
+
+                statistik.proses ||
+                0,
+
+                statistik.selesai ||
+                0,
+
+                statistik.ditolak ||
+                0
+            ]
+        );
+
+        sheet.addRow([]);
+
+
+        /* =============================================
+           REKAP CABANG
+        ============================================= */
+
+        sheet.addRow(
+            [
+                "REKAP BERDASARKAN CABANG"
+            ]
+        );
+
+        sheet.addRow(
+            [
+                "No",
+                "Kode Cabang",
+                "Nama Cabang",
+                "Total",
+                "Open",
+                "Proses",
+                "Selesai",
+                "Ditolak"
+            ]
+        );
+
+        (
+            result.rekapCabang ||
+            []
+        ).forEach(
+            function (
+                item,
+                index
+            ) {
+
+                sheet.addRow(
+                    [
+                        index + 1,
+
+                        item.kode_cabang ||
+                        item.kode ||
+                        item.cabang ||
+                        "",
+
+                        item.nama_cabang ||
+                        item.nama ||
+                        item.cabang ||
+                        "",
+
+                        item.total ||
+                        0,
+
+                        item.open ||
+                        0,
+
+                        item.proses ||
+                        0,
+
+                        item.selesai ||
+                        0,
+
+                        item.ditolak ||
+                        0
+                    ]
+                );
+            }
+        );
+
+        sheet.addRow([]);
+
+
+        /* =============================================
+           REKAP SOW
+        ============================================= */
+
+        sheet.addRow(
+            [
+                "REKAP BERDASARKAN SOW"
+            ]
+        );
+
+        sheet.addRow(
+            [
+                "No",
+                "SOW",
+                "Total",
+                "Open",
+                "Proses",
+                "Selesai",
+                "Ditolak"
+            ]
+        );
+
+        (
+            result.rekapTeknisi ||
+            []
+        ).forEach(
+            function (
+                item,
+                index
+            ) {
+
+                sheet.addRow(
+                    [
+                        index + 1,
+
+                        item.sow ||
+                        item.teknisi ||
+                        item.nama ||
+                        "Belum Ditugaskan",
+
+                        item.total ||
+                        0,
+
+                        item.open ||
+                        0,
+
+                        item.proses ||
+                        0,
+
+                        item.selesai ||
+                        0,
+
+                        item.ditolak ||
+                        0
+                    ]
+                );
+            }
+        );
+
+        sheet.addRow([]);
+
+
+        /* =============================================
+           DETAIL ORDER
+        ============================================= */
+
+        sheet.addRow(
+            [
+                "DETAIL ORDER"
+            ]
+        );
+
+        sheet.addRow(
+            [
+                "No",
+                "Kode Order",
+                "Nama",
+                "Unit Kerja",
+                "Kode Cabang",
+                "Jenis Kendala",
+                "Tanggal",
+                "Status",
+                "SOW"
+            ]
+        );
+
+        (
+            result.orders ||
+            []
+        ).forEach(
+            function (
+                order,
+                index
+            ) {
+
+                sheet.addRow(
+                    [
+                        index + 1,
+
+                        order.kode ||
+                        "",
+
+                        order.nama ||
+                        "",
+
+                        order.unit_kerja ||
+                        "",
+
+                        order.kode_cabang ||
+                        "",
+
+                        order.jenis_kendala ||
+                        "",
+
+                        order.tanggal ||
+                        "",
+
+                        order.status ||
+                        "",
+
+                        order.sow ||
+                        order.teknisi ||
+                        ""
+                    ]
+                );
+            }
+        );
+
+
+        /* =============================================
+           AUTO WIDTH
+        ============================================= */
+
+        sheet.columns.forEach(
+            function (column) {
+
+                let maxLength =
+                    12;
+
+                column.eachCell(
+                    {
+                        includeEmpty:
+                            true
+                    },
+
+                    function (
+                        cell
+                    ) {
+
+                        maxLength =
+                            Math.min(
+                                45,
+
+                                Math.max(
+                                    maxLength,
+
+                                    String(
+                                        cell.value ??
+                                        ""
+                                    ).length +
+                                    2
+                                )
+                            );
+                    }
+                );
+
+                column.width =
+                    maxLength;
+            }
+        );
+
+
+        /* =============================================
+           BOLD HEADER
+        ============================================= */
+
+        sheet.eachRow(
+            function (
+                row
+            ) {
+
+                const text =
+                    String(
+                        row.getCell(
+                            1
+                        ).value ||
+                        ""
+                    );
+
+                if (
+                    text.includes(
+                        "LAPORAN"
+                    ) ||
+                    text.includes(
+                        "STATISTIK"
+                    ) ||
+                    text.includes(
+                        "REKAP BERDASARKAN"
+                    ) ||
+                    text.includes(
+                        "DETAIL ORDER"
+                    )
+                ) {
+
+                    row.font =
+                    {
+                        bold:
+                            true
+                    };
+                }
+            }
+        );
+
+
+        /* =============================================
+           DOWNLOAD
+        ============================================= */
+
+        const buffer =
+            await workbook.xlsx.writeBuffer();
+
+        const blob =
+            new Blob(
+                [buffer],
+                {
+                    type:
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                }
+            );
+
+        const url =
+            URL.createObjectURL(
+                blob
+            );
+
+        const link =
+            document.createElement(
+                "a"
+            );
+
+        link.href =
+            url;
+
+        link.download =
+            "Laporan_SOW_IV_Denpasar_" +
+            periodeRekapAktif +
+            "_" +
+            new Date()
+                .toISOString()
+                .slice(
+                    0,
+                    10
+                ) +
+            ".xlsx";
+
+        document.body.appendChild(
+            link
+        );
+
+        link.click();
+
+        document.body.removeChild(
+            link
+        );
+
+        setTimeout(
+            function () {
+
+                URL.revokeObjectURL(
+                    url
+                );
+
+            },
+            1000
+        );
+
+    } catch (error) {
+
+        console.error(
+            "EXPORT EXCEL:",
+            error
+        );
+
+        alert(
+            "Gagal membuat Excel: " +
+            error.message
+        );
+    }
+}
+
+
+/* ============================================================
+ * LOAD DAFTAR SOW
+ * ============================================================ */
+
+async function loadTeknisiAdmin() {
+
+    const table =
+        $("teknisiTableBody");
+
+    if (table) {
+
+        table.innerHTML =
+            `
+        <tr>
+          <td colspan="5">
+            Memuat daftar SOW...
+          </td>
+        </tr>
+      `;
+    }
+
+    try {
+
+        const result =
+            await getJSON(
+                {
+                    teknisi:
+                        "true"
+                }
+            );
+
+        daftarSOW =
             Array.isArray(
                 result.teknisi
             )
                 ? result.teknisi
                 : [];
 
-
         renderTeknisiAdmin();
 
-        updateSelectTeknisi();
-
+        updateSelectSOW();
 
     } catch (error) {
 
@@ -1688,239 +2522,237 @@ async function loadTeknisiAdmin() {
             error
         );
 
+        if (table) {
 
-        daftarSow =
-            [];
+            table.innerHTML =
+                `
+          <tr>
 
+            <td colspan="5">
 
-        updateSelectTeknisi();
+              ❌
+              ${esc(
+                    error.message
+                )}
 
+            </td>
 
-        teknisiTableBody.innerHTML = `
-            <tr>
-                <td colspan="5">
-                    Gagal memuat SOW.<br>
-                    ${escapeHtml(
-            error.message
-        )}
-                </td>
-            </tr>
+          </tr>
         `;
+        }
     }
 }
 
+
+/* ============================================================
+ * RENDER DAFTAR SOW
+ * ============================================================ */
 
 function renderTeknisiAdmin() {
 
-    if (!teknisiTableBody) {
+    const table =
+        $("teknisiTableBody");
+
+    if (!table) {
         return;
     }
 
+    if (
+        daftarSOW.length === 0
+    ) {
 
-    if (!daftarSow.length) {
+        table.innerHTML =
+            `
+        <tr>
 
-        teknisiTableBody.innerHTML = `
+          <td colspan="5">
+            Belum ada SOW.
+          </td>
+
+        </tr>
+      `;
+
+        return;
+    }
+
+    table.innerHTML =
+        daftarSOW
+            .map(
+                function (
+                    item,
+                    index
+                ) {
+
+                    const aktif =
+                        item.status ===
+                        "AKTIF";
+
+                    return `
             <tr>
-                <td colspan="5">
-                    Belum ada data SOW.
-                </td>
+
+              <td>
+                ${index + 1}
+              </td>
+
+              <td>
+                <strong>
+                  ${esc(
+                        item.nama
+                    )}
+                </strong>
+              </td>
+
+              <td>
+                ${aktif
+                            ? "AKTIF"
+                            : "NONAKTIF"
+                        }
+              </td>
+
+              <td>
+                ${esc(
+                            item.tanggal_update ||
+                            "-"
+                        )}
+              </td>
+
+              <td>
+
+                <button
+                  type="button"
+                  onclick="editTeknisiAdmin(${Number(
+                            item.id
+                        )})"
+                >
+                  ✏️ Edit
+                </button>
+
+                <button
+                  type="button"
+                  onclick="ubahStatusTeknisiAdmin(${Number(
+                            item.id
+                        )})"
+                >
+                  ${aktif
+                            ? "⛔ Nonaktifkan"
+                            : "✅ Aktifkan"
+                        }
+                </button>
+
+              </td>
+
             </tr>
-        `;
-
-        return;
-    }
-
-
-    teknisiTableBody.innerHTML =
-        daftarSow.map(
-            function (item, index) {
-
-                const id =
-                    item?.id ||
-                    item?.kode ||
-                    "";
-
-
-                const nama =
-                    item?.nama ||
-                    "";
-
-
-                const status =
-                    String(
-                        item?.status ||
-                        "AKTIF"
-                    ).toUpperCase();
-
-
-                const tanggal =
-                    item?.tanggal_update ||
-                    "-";
-
-
-                const statusBaru =
-                    status === "AKTIF"
-                        ? "NONAKTIF"
-                        : "AKTIF";
-
-
-                return `
-                    <tr>
-
-                        <td>
-                            ${index + 1}
-                        </td>
-
-                        <td>
-                            ${escapeHtml(nama)}
-                        </td>
-
-                        <td>
-                            ${escapeHtml(status)}
-                        </td>
-
-                        <td>
-                            ${escapeHtml(tanggal)}
-                        </td>
-
-                        <td>
-
-                            <button
-                                type="button"
-                                class="btn-detail"
-                                onclick="editTeknisiAdmin('${escapeAttribute(id)}')"
-                            >
-                                Edit
-                            </button>
-
-                            <button
-                                type="button"
-                                class="btn-detail"
-                                onclick="ubahStatusTeknisiAdmin('${escapeAttribute(id)}','${statusBaru}')"
-                            >
-                                ${status === "AKTIF"
-                        ? "Nonaktifkan"
-                        : "Aktifkan"
-                    }
-                            </button>
-
-                        </td>
-
-                    </tr>
-                `;
-            }
-        ).join("");
+          `;
+                }
+            )
+            .join("");
 }
 
 
-function updateSelectTeknisi() {
+/* ============================================================
+ * UPDATE SELECT SOW
+ * ============================================================ */
 
-    if (!updateTeknisi) {
+function updateSelectSOW() {
+
+    const select =
+        $("updateTeknisi");
+
+    if (!select) {
         return;
     }
 
-
     const nilaiLama =
-        updateTeknisi.value;
+        select.value;
 
-
-    updateTeknisi.innerHTML = `
-        <option value="">
-            -- Pilih SOW --
-        </option>
+    select.innerHTML =
+        `
+      <option value="">
+        -- Pilih SOW --
+      </option>
     `;
 
+    daftarSOW
+        .filter(
+            function (item) {
 
-    daftarSow.forEach(
-        function (item) {
-
-            const status =
-                String(
-                    item?.status ||
+                return (
+                    item.status ===
                     "AKTIF"
-                ).toUpperCase();
-
-
-            const nama =
-                String(
-                    item?.nama ||
-                    ""
-                ).trim();
-
-
-            if (
-                status !== "AKTIF" ||
-                !nama
-            ) {
-                return;
-            }
-
-
-            const option =
-                document.createElement(
-                    "option"
                 );
+            }
+        )
+        .forEach(
+            function (item) {
 
+                const option =
+                    document.createElement(
+                        "option"
+                    );
 
-            option.value =
-                nama;
+                option.value =
+                    item.nama;
 
+                option.textContent =
+                    item.nama;
 
-            option.textContent =
-                nama;
-
-
-            updateTeknisi.appendChild(
-                option
-            );
-        }
-    );
-
+                select.appendChild(
+                    option
+                );
+            }
+        );
 
     if (nilaiLama) {
 
-        updateTeknisi.value =
+        select.value =
             nilaiLama;
     }
 }
 
 
+/* ============================================================
+ * MODAL TAMBAH SOW
+ * ============================================================ */
+
 function bukaTambahTeknisi() {
 
-    teknisiModalTitle.textContent =
+    $("teknisiModalTitle").textContent =
         "Tambah SOW";
 
-
-    teknisiIdInput.value =
+    $("teknisiNamaInput").value =
         "";
 
-
-    teknisiNamaInput.value =
+    $("teknisiIdInput").value =
         "";
 
+    $("teknisiModal")?.classList.add(
+        "show"
+    );
 
-    teknisiModal.style.display =
-        "flex";
+    $("teknisiNamaInput")?.focus();
 }
 
 
-function editTeknisiAdmin(id) {
+/* ============================================================
+ * EDIT SOW
+ * ============================================================ */
+
+function editTeknisiAdmin(
+    id
+) {
 
     const item =
-        daftarSow.find(
-            function (row) {
+        daftarSOW.find(
+            function (data) {
 
                 return (
-                    String(
-                        row?.id ||
-                        row?.kode ||
-                        ""
+                    Number(
+                        data.id
                     ) ===
-                    String(id)
+                    Number(id)
                 );
             }
         );
-
 
     if (!item) {
 
@@ -1931,48 +2763,54 @@ function editTeknisiAdmin(id) {
         return;
     }
 
-
-    teknisiModalTitle.textContent =
+    $("teknisiModalTitle").textContent =
         "Edit SOW";
 
-
-    teknisiIdInput.value =
-        item.id ||
-        item.kode ||
-        "";
-
-
-    teknisiNamaInput.value =
+    $("teknisiNamaInput").value =
         item.nama ||
         "";
 
+    $("teknisiIdInput").value =
+        item.id;
 
-    teknisiModal.style.display =
-        "flex";
+    $("teknisiModal")?.classList.add(
+        "show"
+    );
+
+    $("teknisiNamaInput")?.focus();
 }
 
+
+/* ============================================================
+ * TUTUP MODAL SOW
+ * ============================================================ */
 
 function tutupTeknisiModal() {
 
-    if (!teknisiModal) {
-        return;
-    }
-
-
-    teknisiModal.style.display =
-        "none";
+    $("teknisiModal")?.classList.remove(
+        "show"
+    );
 }
 
 
+/* ============================================================
+ * SIMPAN SOW
+ * ============================================================ */
+
 async function simpanTeknisiAdmin() {
 
-    const id =
-        teknisiIdInput.value.trim();
-
-
     const nama =
-        teknisiNamaInput.value.trim();
+        val(
+            "teknisiNamaInput"
+        );
 
+    const id =
+        val(
+            "teknisiIdInput"
+        );
+
+    const button =
+        $("simpanTeknisiButton");
 
     if (!nama) {
 
@@ -1983,128 +2821,153 @@ async function simpanTeknisiAdmin() {
         return;
     }
 
-
-    simpanTeknisiButton.disabled =
+    button.disabled =
         true;
-
 
     try {
 
         const result =
-            await apiPost({
+            await postJSON(
+                {
+                    action:
+                        id
+                            ? "editTeknisi"
+                            : "tambahTeknisi",
 
-                action:
-                    id
-                        ? "editTeknisi"
-                        : "tambahTeknisi",
+                    token:
+                        ADMIN_TOKEN,
 
-                token:
-                    ADMIN_TOKEN,
+                    id:
+                        id
+                            ? Number(id)
+                            : undefined,
 
-                id:
-                    id,
-
-                nama:
-                    nama
-
-            });
-
+                    nama:
+                        nama
+                }
+            );
 
         if (
-            !result ||
-            result.success !== true
+            !result.success
         ) {
 
             throw new Error(
-                result?.message ||
-                "SOW gagal disimpan."
+                result.message ||
+                "Gagal menyimpan SOW."
             );
         }
-
 
         alert(
             result.message ||
             "SOW berhasil disimpan."
         );
 
-
         tutupTeknisiModal();
-
 
         await loadTeknisiAdmin();
 
-
     } catch (error) {
 
+        console.error(
+            "SIMPAN SOW:",
+            error
+        );
+
         alert(
-            "Gagal menyimpan SOW.\n\n" +
+            "❌ " +
             error.message
         );
 
-
     } finally {
 
-        simpanTeknisiButton.disabled =
+        button.disabled =
             false;
     }
 }
 
 
+/* ============================================================
+ * AKTIF / NONAKTIF SOW
+ * ============================================================ */
+
 async function ubahStatusTeknisiAdmin(
-    id,
-    status
+    id
 ) {
 
-    if (
-        !confirm(
-            "Ubah status SOW menjadi " +
-            status +
-            "?"
-        )
-    ) {
+    const item =
+        daftarSOW.find(
+            function (data) {
+
+                return (
+                    Number(
+                        data.id
+                    ) ===
+                    Number(id)
+                );
+            }
+        );
+
+    if (!item) {
         return;
     }
 
+    const statusBaru =
+        item.status ===
+            "AKTIF"
+            ? "NONAKTIF"
+            : "AKTIF";
+
+    const konfirmasi =
+        confirm(
+            `Ubah status SOW "${item.nama}" menjadi ${statusBaru}?`
+        );
+
+    if (!konfirmasi) {
+        return;
+    }
 
     try {
 
         const result =
-            await apiPost({
+            await postJSON(
+                {
+                    action:
+                        "ubahStatusTeknisi",
 
-                action:
-                    "ubahStatusTeknisi",
+                    token:
+                        ADMIN_TOKEN,
 
-                token:
-                    ADMIN_TOKEN,
-
-                id:
-                    id,
-
-                status:
-                    status
-
-            });
-
+                    id:
+                        Number(id)
+                }
+            );
 
         if (
-            !result ||
-            result.success !== true
+            !result.success
         ) {
 
             throw new Error(
-                result?.message ||
-                "Status SOW gagal diubah."
+                result.message ||
+                "Gagal mengubah status."
             );
         }
 
+        alert(
+            result.message ||
+            "Status SOW berhasil diubah."
+        );
 
         await loadTeknisiAdmin();
 
-
     } catch (error) {
 
+        console.error(
+            "STATUS SOW:",
+            error
+        );
+
         alert(
-            "Gagal mengubah status SOW.\n\n" +
+            "❌ " +
             error.message
         );
     }
@@ -2112,862 +2975,115 @@ async function ubahStatusTeknisiAdmin(
 
 
 /* ============================================================
-   20. REKAP
-   ============================================================ */
+ * NAVIGASI SIDEBAR
+ * ============================================================ */
 
-function tampilkanFormPeriode(periode) {
+function setupNavigation() {
 
-    periodeRekapAktif =
-        periode || "harian";
+    const sidebar =
+        $("adminSidebar");
 
+    const overlay =
+        $("sidebarOverlay");
 
-    if (!rekapPeriodForm) {
-        return;
-    }
 
+    function tutupSidebar() {
 
-    if (
-        periodeRekapAktif ===
-        "harian"
-    ) {
-
-        rekapPeriodForm.innerHTML = `
-            <div class="rekap-input-group">
-
-                <div class="rekap-input-item">
-
-                    <label>
-                        Tanggal
-                    </label>
-
-                    <input
-                        type="date"
-                        id="rekapTanggal"
-                    >
-
-                </div>
-
-            </div>
-        `;
-
-        return;
-    }
-
-
-    if (
-        periodeRekapAktif ===
-        "mingguan"
-    ) {
-
-        rekapPeriodForm.innerHTML = `
-            <div class="rekap-input-group">
-
-                <div class="rekap-input-item">
-
-                    <label>
-                        Tanggal Mulai
-                    </label>
-
-                    <input
-                        type="date"
-                        id="rekapTanggalMulai"
-                    >
-
-                </div>
-
-                <div class="rekap-input-item">
-
-                    <label>
-                        Tanggal Sampai
-                    </label>
-
-                    <input
-                        type="date"
-                        id="rekapTanggalSampai"
-                    >
-
-                </div>
-
-            </div>
-        `;
-
-        return;
-    }
-
-
-    if (
-        periodeRekapAktif ===
-        "bulanan"
-    ) {
-
-        rekapPeriodForm.innerHTML = `
-            <div class="rekap-input-group">
-
-                <div class="rekap-input-item">
-
-                    <label>
-                        Bulan
-                    </label>
-
-                    <select id="rekapBulan">
-
-                        <option value="">
-                            -- Pilih Bulan --
-                        </option>
-
-                        <option value="1">Januari</option>
-                        <option value="2">Februari</option>
-                        <option value="3">Maret</option>
-                        <option value="4">April</option>
-                        <option value="5">Mei</option>
-                        <option value="6">Juni</option>
-                        <option value="7">Juli</option>
-                        <option value="8">Agustus</option>
-                        <option value="9">September</option>
-                        <option value="10">Oktober</option>
-                        <option value="11">November</option>
-                        <option value="12">Desember</option>
-
-                    </select>
-
-                </div>
-
-                <div class="rekap-input-item">
-
-                    <label>
-                        Tahun
-                    </label>
-
-                    <input
-                        type="number"
-                        id="rekapTahun"
-                        placeholder="2026"
-                    >
-
-                </div>
-
-            </div>
-        `;
-
-        return;
-    }
-
-
-    if (
-        periodeRekapAktif ===
-        "tahunan"
-    ) {
-
-        rekapPeriodForm.innerHTML = `
-            <div class="rekap-input-group">
-
-                <div class="rekap-input-item">
-
-                    <label>
-                        Tahun
-                    </label>
-
-                    <input
-                        type="number"
-                        id="rekapTahun"
-                        placeholder="2026"
-                    >
-
-                </div>
-
-            </div>
-        `;
-    }
-}
-
-
-function ambilParameterRekap() {
-
-    if (
-        periodeRekapAktif ===
-        "harian"
-    ) {
-
-        const tanggal =
-            document.getElementById(
-                "rekapTanggal"
-            )?.value || "";
-
-
-        if (!tanggal) {
-
-            alert(
-                "Silakan pilih tanggal."
-            );
-
-            return null;
-        }
-
-
-        return {
-            tipe: "harian",
-            tanggal: tanggal
-        };
-    }
-
-
-    if (
-        periodeRekapAktif ===
-        "mingguan"
-    ) {
-
-        const tanggalMulai =
-            document.getElementById(
-                "rekapTanggalMulai"
-            )?.value || "";
-
-
-        const tanggalSampai =
-            document.getElementById(
-                "rekapTanggalSampai"
-            )?.value || "";
-
-
-        if (
-            !tanggalMulai ||
-            !tanggalSampai
-        ) {
-
-            alert(
-                "Silakan pilih tanggal mulai dan tanggal sampai."
-            );
-
-            return null;
-        }
-
-
-        return {
-
-            tipe:
-                "mingguan",
-
-            tanggalMulai:
-                tanggalMulai,
-
-            tanggalSampai:
-                tanggalSampai
-        };
-    }
-
-
-    if (
-        periodeRekapAktif ===
-        "bulanan"
-    ) {
-
-        const bulan =
-            document.getElementById(
-                "rekapBulan"
-            )?.value || "";
-
-
-        const tahun =
-            document.getElementById(
-                "rekapTahun"
-            )?.value || "";
-
-
-        if (
-            !bulan ||
-            !tahun
-        ) {
-
-            alert(
-                "Silakan pilih bulan dan tahun."
-            );
-
-            return null;
-        }
-
-
-        return {
-
-            tipe:
-                "bulanan",
-
-            bulan:
-                bulan,
-
-            tahun:
-                tahun
-        };
-    }
-
-
-    if (
-        periodeRekapAktif ===
-        "tahunan"
-    ) {
-
-        const tahun =
-            document.getElementById(
-                "rekapTahun"
-            )?.value || "";
-
-
-        if (!tahun) {
-
-            alert(
-                "Silakan pilih tahun."
-            );
-
-            return null;
-        }
-
-
-        return {
-
-            tipe:
-                "tahunan",
-
-            tahun:
-                tahun
-        };
-    }
-
-
-    return null;
-}
-
-
-async function tampilkanRekap() {
-
-    const parameter =
-        ambilParameterRekap();
-
-
-    if (!parameter) {
-        return;
-    }
-
-
-    if (rekapResult) {
-
-        rekapResult.innerHTML =
-            "Memuat rekap...";
-    }
-
-
-    try {
-
-        const params = {
-
-            token:
-                ADMIN_TOKEN,
-
-            rekap:
-                "true",
-
-            tipe:
-                parameter.tipe
-        };
-
-
-        if (parameter.tanggal) {
-            params.tanggal =
-                parameter.tanggal;
-        }
-
-
-        if (parameter.tanggalMulai) {
-            params.tanggalMulai =
-                parameter.tanggalMulai;
-        }
-
-
-        if (parameter.tanggalSampai) {
-            params.tanggalSampai =
-                parameter.tanggalSampai;
-        }
-
-
-        if (parameter.bulan) {
-            params.bulan =
-                parameter.bulan;
-        }
-
-
-        if (parameter.tahun) {
-            params.tahun =
-                parameter.tahun;
-        }
-
-
-        const result =
-            await apiGet(params);
-
-
-        if (
-            !result ||
-            result.success !== true
-        ) {
-
-            throw new Error(
-                result?.message ||
-                "Gagal mengambil rekap."
-            );
-        }
-
-
-        hasilRekapTerakhir =
-            result;
-
-
-        renderRekap(result);
-
-
-    } catch (error) {
-
-        console.error(
-            "REKAP:",
-            error
+        sidebar?.classList.remove(
+            "open"
         );
 
-
-        if (rekapResult) {
-
-            rekapResult.innerHTML = `
-                <div>
-                    Gagal memuat rekap.<br>
-                    ${escapeHtml(
-                error.message
-            )}
-                </div>
-            `;
-        }
-    }
-}
-
-
-/* ============================================================
-   21. RENDER REKAP
-   ============================================================ */
-
-function renderRekap(result) {
-
-    if (!rekapResult) {
-        return;
+        overlay?.classList.remove(
+            "show"
+        );
     }
 
 
-    const statistik =
-        result?.statistik || {};
+    function resetMode() {
+
+        document.body.classList.remove(
+            "mode-dashboard",
+            "mode-rekap",
+            "mode-teknisi"
+        );
+    }
 
 
-    const rekapCabang =
-        Array.isArray(
-            result?.rekapCabang
-        )
-            ? result.rekapCabang
-            : [];
+    function bukaMode(
+        target
+    ) {
 
+        resetMode();
 
-    const rekapTeknisi =
-        Array.isArray(
-            result?.rekapTeknisi
-        )
-            ? result.rekapTeknisi
-            : [];
+        document.body.classList.add(
+            "mode-" +
+            target
+        );
 
+        document
+            .querySelectorAll(
+                ".sidebar-menu-item"
+            )
+            .forEach(
+                function (item) {
 
-    let html = `
+                    item.classList.toggle(
+                        "active",
 
-        <div class="rekap-summary">
-
-            <div>
-                Total:
-                <strong>
-                    ${statistik.total ?? 0}
-                </strong>
-            </div>
-
-            <div>
-                OPEN:
-                <strong>
-                    ${statistik.open ?? 0}
-                </strong>
-            </div>
-
-            <div>
-                PROSES:
-                <strong>
-                    ${statistik.proses ?? 0}
-                </strong>
-            </div>
-
-            <div>
-                SELESAI:
-                <strong>
-                    ${statistik.selesai ?? 0}
-                </strong>
-            </div>
-
-        </div>
-
-
-        <div class="rekap-table-container">
-
-            <h3>
-                Rekap Berdasarkan Cabang
-            </h3>
-
-            <div class="table-wrapper">
-
-                <table>
-
-                    <thead>
-
-                        <tr>
-
-                            <th>No</th>
-
-                            <th>
-                                Kode Cabang
-                            </th>
-
-                            <th>
-                                Nama Cabang
-                            </th>
-
-                            <th>
-                                Jumlah
-                            </th>
-
-                        </tr>
-
-                    </thead>
-
-                    <tbody>
-    `;
-
-
-    if (!rekapCabang.length) {
-
-        html += `
-            <tr>
-                <td colspan="4">
-                    Tidak ada data cabang.
-                </td>
-            </tr>
-        `;
-
-    } else {
-
-        rekapCabang.forEach(
-            function (item, index) {
-
-                const kode =
-                    String(
-                        item?.kode ||
-                        item?.kode_cabang ||
-                        ""
-                    ).trim();
-
-
-                /*
-                 * Nama dari backend.
-                 *
-                 * Code.gs:
-                 * kode = kode cabang
-                 * nama = nama cabang
-                 */
-                const nama =
-                    String(
-                        item?.nama ||
-                        item?.nama_cabang ||
-                        ""
-                    ).trim();
-
-
-                const jumlah =
-                    Number(
-                        item?.jumlah ??
-                        item?.total ??
-                        item?.count ??
-                        0
+                        item.dataset
+                            .menuTarget ===
+                        target
                     );
+                }
+            );
 
-
-                html += `
-
-                    <tr>
-
-                        <td>
-                            ${index + 1}
-                        </td>
-
-                        <td>
-                            ${escapeHtml(
-                    kode || "-"
-                )}
-                        </td>
-
-                        <td>
-                            ${escapeHtml(
-                    nama || "-"
-                )}
-                        </td>
-
-                        <td>
-                            ${jumlah}
-                        </td>
-
-                    </tr>
-                `;
-            }
-        );
+        tutupSidebar();
     }
 
 
-    html += `
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-        </div>
-
-
-        <div class="rekap-table-container">
-
-            <h3>
-                Rekap Berdasarkan SOW
-            </h3>
-
-            <div class="table-wrapper">
-
-                <table>
-
-                    <thead>
-
-                        <tr>
-
-                            <th>No</th>
-
-                            <th>SOW</th>
-
-                            <th>Jumlah</th>
-
-                        </tr>
-
-                    </thead>
-
-                    <tbody>
-    `;
-
-
-    if (!rekapTeknisi.length) {
-
-        html += `
-            <tr>
-                <td colspan="3">
-                    Tidak ada data SOW.
-                </td>
-            </tr>
-        `;
-
-    } else {
-
-        rekapTeknisi.forEach(
-            function (item, index) {
-
-                const nama =
-                    item?.nama ||
-                    item?.teknisi ||
-                    item?.sow ||
-                    "-";
-
-
-                const jumlah =
-                    Number(
-                        item?.jumlah ??
-                        item?.total ??
-                        item?.count ??
-                        0
-                    );
-
-
-                html += `
-
-                    <tr>
-
-                        <td>
-                            ${index + 1}
-                        </td>
-
-                        <td>
-                            ${escapeHtml(nama)}
-                        </td>
-
-                        <td>
-                            ${jumlah}
-                        </td>
-
-                    </tr>
-                `;
-            }
-        );
-    }
-
-
-    html += `
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-        </div>
-    `;
-
-
-    rekapResult.innerHTML =
-        html;
-}
-
-
-/* ============================================================
-   22. DOWNLOAD EXCEL
-   ============================================================ */
-
-async function downloadRekapExcel() {
-
-    if (!hasilRekapTerakhir) {
-
-        alert(
-            "Tampilkan Rekap terlebih dahulu."
-        );
-
-        return;
-    }
-
-
-    if (
-        typeof XLSX ===
-        "undefined"
-    ) {
-
-        alert(
-            "Library Excel belum tersedia."
-        );
-
-        return;
-    }
-
-
-    const orders =
-        Array.isArray(
-            hasilRekapTerakhir.orders
-        )
-            ? hasilRekapTerakhir.orders
-            : [];
-
-
-    const data =
-        orders.map(
-            function (order, index) {
-
-                return {
-
-                    No:
-                        index + 1,
-
-                    "Kode Order":
-                        order.kode || "",
-
-                    Nama:
-                        order.nama || "",
-
-                    "Unit Kerja":
-                        order.unit_kerja || "",
-
-                    Cabang:
-                        formatCabang(order),
-
-                    "Jenis Kendala":
-                        order.jenis_kendala || "",
-
-                    Deskripsi:
-                        order.deskripsi || "",
-
-                    WhatsApp:
-                        order.whatsapp || "",
-
-                    Tanggal:
-                        order.tanggal || "",
-
-                    Jam:
-                        order.jam || "",
-
-                    Status:
-                        order.status || "",
-
-                    SOW:
-                        order.sow ||
-                        order.teknisi ||
-                        "",
-
-                    "Catatan Progres":
-                        order.catatan_progres ||
-                        ""
-                };
+    $("sidebarMenuButton")
+        ?.addEventListener(
+            "click",
+            function () {
+
+                sidebar?.classList.add(
+                    "open"
+                );
+
+                overlay?.classList.add(
+                    "show"
+                );
             }
         );
 
 
-    const worksheet =
-        XLSX.utils.json_to_sheet(
-            data
+    $("sidebarCloseButton")
+        ?.addEventListener(
+            "click",
+            tutupSidebar
         );
 
 
-    const workbook =
-        XLSX.utils.book_new();
-
-
-    XLSX.utils.book_append_sheet(
-        workbook,
-        worksheet,
-        "Rekap SOW"
+    overlay?.addEventListener(
+        "click",
+        tutupSidebar
     );
 
-
-    XLSX.writeFile(
-        workbook,
-        "REKAP_SOW_" +
-        periodeRekapAktif +
-        ".xlsx"
-    );
-}
-
-
-/* ============================================================
-   23. EVENT SIDEBAR
-   ============================================================ */
-
-function pasangEventSidebar() {
 
     document
         .querySelectorAll(
-            "[data-menu-target]"
+            ".sidebar-menu-item"
         )
         .forEach(
-            function (menu) {
+            function (item) {
 
-                menu.addEventListener(
+                item.addEventListener(
                     "click",
                     function () {
 
-                        bukaMenu(
-                            menu.dataset.menuTarget
+                        bukaMode(
+                            item.dataset
+                                .menuTarget
                         );
                     }
                 );
@@ -2975,61 +3091,61 @@ function pasangEventSidebar() {
         );
 
 
-    if (sidebarMenuButton) {
-
-        sidebarMenuButton.addEventListener(
-            "click",
-            bukaSidebar
-        );
-    }
-
-
-    if (sidebarCloseButton) {
-
-        sidebarCloseButton.addEventListener(
-            "click",
-            tutupSidebar
-        );
-    }
-
-
-    if (sidebarOverlay) {
-
-        sidebarOverlay.addEventListener(
-            "click",
-            tutupSidebar
-        );
-    }
+    bukaMode(
+        "dashboard"
+    );
 }
 
 
 /* ============================================================
-   24. EVENT FILTER
-   ============================================================ */
+ * EVENT UTAMA ADMIN
+ * ============================================================ */
 
-function pasangEventFilter() {
+function setupEvents() {
 
-    if (searchButton) {
+    [
+        "mousemove",
+        "keydown",
+        "click",
+        "scroll",
+        "touchstart"
+    ]
+        .forEach(
+            function (eventName) {
 
-        searchButton.addEventListener(
+                document.addEventListener(
+                    eventName,
+                    resetIdleTimer,
+                    {
+                        passive:
+                            true
+                    }
+                );
+            }
+        );
+
+
+    $("logoutButton")
+        ?.addEventListener(
+            "click",
+            function () {
+
+                logoutAdmin(
+                    "Logout admin"
+                );
+            }
+        );
+
+
+    $("searchButton")
+        ?.addEventListener(
             "click",
             loadOrders
         );
-    }
 
 
-    if (resetFilter) {
-
-        resetFilter.addEventListener(
-            "click",
-            resetSemuaFilter
-        );
-    }
-
-
-    if (searchOrder) {
-
-        searchOrder.addEventListener(
+    $("searchOrder")
+        ?.addEventListener(
             "keydown",
             function (event) {
 
@@ -3042,79 +3158,82 @@ function pasangEventFilter() {
                 }
             }
         );
-    }
-}
 
 
-/* ============================================================
-   25. EVENT DETAIL
-   ============================================================ */
+    [
+        "filterCabang",
+        "filterTanggalMulai",
+        "filterTanggalSampai"
+    ]
+        .forEach(
+            function (id) {
 
-function pasangEventDetail() {
-
-    const closeModal =
-        document.getElementById(
-            "closeModal"
+                $(id)?.addEventListener(
+                    "change",
+                    loadOrders
+                );
+            }
         );
 
 
-    const closeModalButton =
-        document.getElementById(
-            "closeModalButton"
-        );
-
-
-    if (closeModal) {
-
-        closeModal.addEventListener(
+    $("resetFilter")
+        ?.addEventListener(
             "click",
-            tutupDetailModal
+            function () {
+
+                $("searchOrder").value =
+                    "";
+
+                $("filterCabang").value =
+                    "";
+
+                $("filterTanggalMulai").value =
+                    "";
+
+                $("filterTanggalSampai").value =
+                    "";
+
+                loadOrders();
+            }
         );
-    }
 
 
-    if (closeModalButton) {
-
-        closeModalButton.addEventListener(
+    $("closeModal")
+        ?.addEventListener(
             "click",
-            tutupDetailModal
+            tutupModal
         );
-    }
 
 
-    if (saveUpdateButton) {
-
-        saveUpdateButton.addEventListener(
+    $("closeModalButton")
+        ?.addEventListener(
             "click",
-            simpanUpdateOrder
+            tutupModal
         );
-    }
 
 
-    if (detailModal) {
-
-        detailModal.addEventListener(
+    $("detailModal")
+        ?.addEventListener(
             "click",
             function (event) {
 
                 if (
                     event.target ===
-                    detailModal
+                    $("detailModal")
                 ) {
 
-                    tutupDetailModal();
+                    tutupModal();
                 }
             }
         );
-    }
-}
 
 
-/* ============================================================
-   26. EVENT REKAP
-   ============================================================ */
+    $("saveUpdateButton")
+        ?.addEventListener(
+            "click",
+            simpanUpdateOrder
+        );
 
-function pasangEventRekap() {
 
     document
         .querySelectorAll(
@@ -3140,15 +3259,13 @@ function pasangEventRekap() {
                                 }
                             );
 
-
                         button.classList.add(
                             "active"
                         );
 
-
                         tampilkanFormPeriode(
-                            button.dataset.period ||
-                            "harian"
+                            button.dataset
+                                .period
                         );
                     }
                 );
@@ -3156,278 +3273,129 @@ function pasangEventRekap() {
         );
 
 
-    if (
-        tampilkanRekapButton
-    ) {
-
-        tampilkanRekapButton.addEventListener(
+    $("tampilkanRekapButton")
+        ?.addEventListener(
             "click",
-            tampilkanRekap
+            ambilRekap
         );
-    }
 
 
-    if (
-        downloadRekapExcelButton
-    ) {
-
-        downloadRekapExcelButton.addEventListener(
+    $("downloadRekapExcelButton")
+        ?.addEventListener(
             "click",
             downloadRekapExcel
         );
-    }
-}
 
 
-/* ============================================================
-   27. EVENT SOW
-   ============================================================ */
-
-function pasangEventSow() {
-
-    if (
-        tambahTeknisiButton
-    ) {
-
-        tambahTeknisiButton.addEventListener(
+    $("tambahTeknisiButton")
+        ?.addEventListener(
             "click",
             bukaTambahTeknisi
         );
-    }
 
 
-    if (
-        closeTeknisiModal
-    ) {
-
-        closeTeknisiModal.addEventListener(
-            "click",
-            tutupTeknisiModal
-        );
-    }
-
-
-    if (
-        batalTeknisiButton
-    ) {
-
-        batalTeknisiButton.addEventListener(
-            "click",
-            tutupTeknisiModal
-        );
-    }
-
-
-    if (
-        simpanTeknisiButton
-    ) {
-
-        simpanTeknisiButton.addEventListener(
+    $("simpanTeknisiButton")
+        ?.addEventListener(
             "click",
             simpanTeknisiAdmin
         );
-    }
 
 
-    if (teknisiModal) {
+    $("batalTeknisiButton")
+        ?.addEventListener(
+            "click",
+            tutupTeknisiModal
+        );
 
-        teknisiModal.addEventListener(
+
+    $("closeTeknisiModal")
+        ?.addEventListener(
+            "click",
+            tutupTeknisiModal
+        );
+
+
+    $("teknisiModal")
+        ?.addEventListener(
             "click",
             function (event) {
 
                 if (
                     event.target ===
-                    teknisiModal
+                    $("teknisiModal")
                 ) {
 
                     tutupTeknisiModal();
                 }
             }
         );
-    }
-}
 
-
-/* ============================================================
-   28. EVENT LOGOUT
-   ============================================================ */
-
-function pasangEventLogout() {
-
-    if (!logoutButton) {
-        return;
-    }
-
-
-    logoutButton.addEventListener(
-        "click",
-        function () {
-
-            if (
-                confirm(
-                    "Logout dari Admin SOW?"
-                )
-            ) {
-
-                logoutAdmin();
-            }
-        }
-    );
-}
-
-
-/* ============================================================
-   29. EVENT ESC
-   ============================================================ */
-
-function pasangEventEscape() {
 
     document.addEventListener(
         "keydown",
         function (event) {
 
             if (
-                event.key !==
+                event.key ===
                 "Escape"
             ) {
-                return;
+
+                tutupModal();
+
+                tutupTeknisiModal();
             }
-
-
-            tutupSidebar();
-
-            tutupDetailModal();
-
-            tutupTeknisiModal();
         }
     );
 }
 
 
 /* ============================================================
-   30. INIT ADMIN
-   ============================================================ */
+ * INIT ADMIN
+ * ============================================================ */
 
-async function initAdminDashboard() {
+async function initAdmin() {
 
-    ambilElementDOM();
+    setupEvents();
 
+    setupNavigation();
 
-    /*
-     * Dashboard adalah halaman pertama.
-     */
-    setModeHalaman(
-        "dashboard"
-    );
-
-
-    setMenuAktif(
-        "dashboard"
-    );
-
-
-    periodeRekapAktif =
-        "harian";
-
+    resetIdleTimer();
 
     tampilkanFormPeriode(
         "harian"
     );
 
+    await Promise.all(
+        [
+            loadCabangMasterData(),
+            loadOrders(),
+            loadTeknisiAdmin()
+        ]
+    );
 
-    /*
-     * Pasang event.
-     */
-    pasangEventSidebar();
+    setInterval(
+        function () {
 
-    pasangEventFilter();
+            if (
+                Date.now() -
+                lastActivity <
+                ADMIN_IDLE_MS / 2
+            ) {
 
-    pasangEventDetail();
+                touchSession();
+            }
 
-    pasangEventRekap();
-
-    pasangEventSow();
-
-    pasangEventLogout();
-
-    pasangEventEscape();
-
-
-    /*
-     * Session.
-     */
-    setupAdminSession();
-
-
-    /*
-     * ========================================================
-     * URUTAN PENTING
-     * ========================================================
-     *
-     * 1. MASTER CABANG
-     * 2. SOW
-     * 3. ORDER
-     *
-     * Jangan load order sebelum master selesai.
-     */
-    await loadCabangMasterData();
-
-
-    await loadTeknisiAdmin();
-
-
-    await loadOrders();
+        },
+        4 * 60 * 1000
+    );
 }
 
 
 /* ============================================================
-   31. DOM READY
-   ============================================================ */
+ * START
+ * ============================================================ */
 
 document.addEventListener(
     "DOMContentLoaded",
-    function () {
-
-        initAdminDashboard()
-            .catch(
-                function (error) {
-
-                    console.error(
-                        "INIT ADMIN ERROR:",
-                        error
-                    );
-                }
-            );
-    }
+    initAdmin
 );
-
-
-/* ============================================================
-   32. GLOBAL FUNCTION
-   ============================================================ */
-
-window.lihatDetail =
-    lihatDetail;
-
-window.bukaTambahTeknisi =
-    bukaTambahTeknisi;
-
-window.editTeknisiAdmin =
-    editTeknisiAdmin;
-
-window.ubahStatusTeknisiAdmin =
-    ubahStatusTeknisiAdmin;
-
-window.tutupTeknisiModal =
-    tutupTeknisiModal;
-
-window.simpanTeknisiAdmin =
-    simpanTeknisiAdmin;
-
-window.tutupDetailModal =
-    tutupDetailModal;
-
-
-/* ============================================================
-   SELESAI
-   ============================================================ */
