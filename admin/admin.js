@@ -1533,16 +1533,127 @@ function tampilkanHasilRekap(result, periode) {
 
     result = result || {};
 
-    const statistik = result.statistik || {};
-    const rekapCabang = Array.isArray(result.rekapCabang)
-        ? result.rekapCabang
-        : [];
-    const rekapSOW = Array.isArray(result.rekapTeknisi)
-        ? result.rekapTeknisi
-        : [];
+
     const orders = Array.isArray(result.orders)
         ? result.orders
         : [];
+
+    /*
+     * Hitung ulang statistik dan rekap berdasarkan DETAIL ORDER.
+     */
+    const normalisasiStatus = (value) => {
+        const status = String(value || "OPEN")
+            .trim()
+            .toUpperCase();
+
+        if (status === "MENUNGGU") return "OPEN";
+        if (status === "DALAM PROSES") return "PROSES";
+
+        return status;
+    };
+
+    const statistik = {
+        total: orders.length,
+        open: 0,
+        proses: 0,
+        selesai: 0,
+        ditolak: 0
+    };
+
+    const cabangMap = {};
+    const sowMap = {};
+
+    orders.forEach((order) => {
+        const status = normalisasiStatus(order.status);
+
+        if (status === "OPEN") statistik.open++;
+        else if (status === "PROSES") statistik.proses++;
+        else if (status === "SELESAI") statistik.selesai++;
+        else if (status === "DITOLAK") statistik.ditolak++;
+
+        // Rekap cabang
+        let kodeCabang = String(
+            order.kode_cabang || ""
+        ).trim();
+
+        let namaCabang = String(
+            order.nama_cabang || ""
+        ).trim();
+
+        const teksCabang = String(
+            order.cabang || ""
+        ).trim();
+
+        if (!kodeCabang && teksCabang) {
+            const bagian = teksCabang.match(
+                /^([^-]+)\s*-\s*(.+)$/
+            );
+
+            if (bagian) {
+                kodeCabang = bagian[1].trim();
+                namaCabang = namaCabang || bagian[2].trim();
+            } else {
+                namaCabang = namaCabang || teksCabang;
+            }
+        }
+
+        const kunciCabang = (
+            kodeCabang || namaCabang || "CABANG_TIDAK_DIKETAHUI"
+        ).toUpperCase();
+
+        if (!cabangMap[kunciCabang]) {
+            cabangMap[kunciCabang] = {
+                kode: kodeCabang,
+                nama: namaCabang || kodeCabang || "Cabang Tidak Diketahui",
+                total: 0,
+                open: 0,
+                proses: 0,
+                selesai: 0,
+                ditolak: 0
+            };
+        }
+
+        const cabang = cabangMap[kunciCabang];
+        cabang.total++;
+
+        if (status === "OPEN") cabang.open++;
+        else if (status === "PROSES") cabang.proses++;
+        else if (status === "SELESAI") cabang.selesai++;
+        else if (status === "DITOLAK") cabang.ditolak++;
+
+        // Rekap SOW
+        const namaSOW = String(
+            order.sow || order.teknisi || "Belum Ditentukan"
+        ).trim() || "Belum Ditentukan";
+
+        const kunciSOW = namaSOW.toUpperCase();
+
+        if (!sowMap[kunciSOW]) {
+            sowMap[kunciSOW] = {
+                nama: namaSOW,
+                total: 0,
+                open: 0,
+                proses: 0,
+                selesai: 0,
+                ditolak: 0
+            };
+        }
+
+        const sow = sowMap[kunciSOW];
+        sow.total++;
+
+        if (status === "OPEN") sow.open++;
+        else if (status === "PROSES") sow.proses++;
+        else if (status === "SELESAI") sow.selesai++;
+        else if (status === "DITOLAK") sow.ditolak++;
+    });
+
+    const rekapCabang = Object.values(cabangMap)
+        .sort((a, b) => b.total - a.total);
+
+    const rekapSOW = Object.values(sowMap)
+        .sort((a, b) => b.total - a.total);
+
 
     const periodeText = formatPeriodeRekap(
         result.labelPeriode ||
@@ -1810,25 +1921,32 @@ function tampilkanHasilRekap(result, periode) {
 }
 
 /* ============================================================
-   EXPORT REKAP EXCEL — DESAIN LAMA SOW IV DENPASAR
-   Sheet 1: Ringkasan dan rekap
-   Sheet 2: Detail order lengkap dengan DESKRIPSI
-   Perubahan dibatasi pada fungsi ekspor.
+   EXPORT EXCEL — LAPORAN SOW IV DENPASAR
+   Satu sheet:
+   1. Informasi periode
+   2. Statistik laporan
+   3. Rekap cabang
+   4. Rekap teknisi / SOW
+   5. Detail order lengkap
    ============================================================ */
 
 async function downloadRekapExcel() {
-    if (!hasilRekapTerakhir) {
-        alert("Tampilkan rekap terlebih dahulu.");
+    if (
+        !hasilRekapTerakhir ||
+        !hasilRekapTerakhir.success
+    ) {
+        alert("Silakan tampilkan rekap terlebih dahulu.");
         return;
     }
 
     if (typeof ExcelJS === "undefined") {
-        alert("Library ExcelJS belum tersedia.");
+        alert("Library ExcelJS belum tersedia. Periksa pemuatan library Excel.");
         return;
     }
 
     try {
         const result = hasilRekapTerakhir;
+
         const statistik = result.statistik || {};
         const rekapCabang = Array.isArray(result.rekapCabang)
             ? result.rekapCabang : [];
@@ -1837,9 +1955,18 @@ async function downloadRekapExcel() {
         const orders = Array.isArray(result.orders)
             ? result.orders : [];
 
+        const workbook = new ExcelJS.Workbook();
+        workbook.creator = "SOW IV Denpasar";
+        workbook.subject = "Rekap Laporan SOW";
+        workbook.created = new Date();
+
+        const ws = workbook.addWorksheet("Laporan SOW", {
+            views: [{ state: "frozen", ySplit: 0 }]
+        });
+
         const warna = {
             navy: "17365D",
-            subjudul: "2F75B5",
+            biru: "2F75B5",
             bagian: "4472C4",
             header: "5B9BD5",
             putih: "FFFFFF",
@@ -1848,656 +1975,428 @@ async function downloadRekapExcel() {
             open: "FFF2CC",
             proses: "DDEBF7",
             selesai: "E2F0D9",
-            ditolak: "F4CCCC",
-            teks: "222222"
+            ditolak: "F4CCCC"
         };
 
-        const periodeObj =
-            result.periode && typeof result.periode === "object"
-                ? result.periode
-                : {};
+        const kolomAkhir = 13;
 
-        const ambilPertama = (...nilai) => {
-            for (const item of nilai) {
-                if (item !== undefined && item !== null && item !== "") {
-                    return item;
-                }
-            }
-            return "";
-        };
+        ws.columns = [
+            { width: 7 },   // A No
+            { width: 17 },  // B Kode Order / Kode Cabang
+            { width: 23 },  // C Nama / Cabang
+            { width: 16 },  // D Unit Kerja / Total
+            { width: 20 },  // E Tanggal / Open
+            { width: 16 },  // F Status / Proses
+            { width: 25 },  // G SOW / Selesai
+            { width: 22 },  // H Nama Cabang / Ditolak
+            { width: 20 },  // I Jenis Kendala
+            { width: 42 },  // J Deskripsi
+            { width: 20 },  // K WhatsApp
+            { width: 42 },  // L Catatan Progres
+            { width: 21 }   // M Tanggal Update
+        ];
 
-        const teks = (value, fallback = "-") => {
-            if (value === undefined || value === null || value === "") {
-                return fallback;
-            }
-            if (typeof value === "object") return fallback;
-            return String(value);
-        };
-
-        const angka = value => {
-            const n = Number(value);
-            return Number.isFinite(n) ? n : 0;
-        };
-
-        const tanggalISO = value => {
-            if (!value) return "";
-
-            if (value instanceof Date && !isNaN(value.getTime())) {
-                return [
-                    value.getFullYear(),
-                    String(value.getMonth() + 1).padStart(2, "0"),
-                    String(value.getDate()).padStart(2, "0")
-                ].join("-");
-            }
-
-            const s = String(value).trim();
-            const iso = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
-
-            if (iso) {
-                return `${iso[1]}-${String(iso[2]).padStart(2, "0")}-${String(iso[3]).padStart(2, "0")}`;
-            }
-
-            const lokal = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-
-            if (lokal) {
-                return `${lokal[3]}-${String(lokal[2]).padStart(2, "0")}-${String(lokal[1]).padStart(2, "0")}`;
-            }
-
-            return "";
-        };
-
-        const tanggalIndonesia = value => {
-            const iso = tanggalISO(value);
-            if (!iso) return teks(value);
-
-            const [tahun, bulan, hari] = iso.split("-").map(Number);
-            return `${String(hari).padStart(2, "0")}/${String(bulan).padStart(2, "0")}/${tahun}`;
-        };
-
-        const formatBulan = value => {
-            const iso = tanggalISO(value);
-            if (!iso) return "";
-
-            const [tahun, bulan] = iso.split("-").map(Number);
-            const namaBulan = [
-                "Januari", "Februari", "Maret", "April",
-                "Mei", "Juni", "Juli", "Agustus",
-                "September", "Oktober", "November", "Desember"
-            ];
-
-            return `${namaBulan[bulan - 1]} ${tahun}`;
-        };
-
-        const labelMentah = ambilPertama(
-            result.labelPeriode,
-            periodeObj.labelPeriode,
-            periodeObj.label,
-            periodeObj.namaPeriode,
-            periodeObj.periodeText,
-            typeof result.periode === "string" ? result.periode : "",
-            typeof periodeRekapAktif === "string" ? periodeRekapAktif : ""
-        );
-
-        let jenisPeriode = String(ambilPertama(
-            result.tipe,
-            result.jenisPeriode,
-            periodeObj.tipe,
-            periodeObj.jenis,
-            periodeObj.type,
-            periodeObj.mode,
-            periodeRekapAktif
-        )).toLowerCase();
-
-        if (jenisPeriode.includes("harian")) {
-            jenisPeriode = "HARIAN";
-        } else if (jenisPeriode.includes("mingguan")) {
-            jenisPeriode = "MINGGUAN";
-        } else if (jenisPeriode.includes("tahunan")) {
-            jenisPeriode = "TAHUNAN";
-        } else if (jenisPeriode.includes("bulanan")) {
-            jenisPeriode = "BULANAN";
-        } else {
-            jenisPeriode = "REKAP";
-        }
-
-        let tanggalMulai = ambilPertama(
-            result.tanggalMulai,
-            result.tanggal_mulai,
-            periodeObj.tanggalMulai,
-            periodeObj.tanggal_mulai,
-            periodeObj.startDate,
-            periodeObj.start,
-            periodeObj.dari
-        );
-
-        let tanggalSampai = ambilPertama(
-            result.tanggalSampai,
-            result.tanggal_sampai,
-            periodeObj.tanggalSampai,
-            periodeObj.tanggal_sampai,
-            periodeObj.endDate,
-            periodeObj.end,
-            periodeObj.sampai
-        );
-
-        // Jika backend belum memberikan rentang tanggal, gunakan
-        // tanggal order sebagai fallback yang tersedia.
-        if (!tanggalMulai || !tanggalSampai) {
-            const tanggalOrder = orders
-                .map(order => tanggalISO(order.tanggal))
-                .filter(Boolean)
-                .sort();
-
-            if (!tanggalMulai && tanggalOrder.length) {
-                tanggalMulai = tanggalOrder[0];
-            }
-
-            if (!tanggalSampai && tanggalOrder.length) {
-                tanggalSampai = tanggalOrder[tanggalOrder.length - 1];
-            }
-        }
-
-        // Coba membaca label yang berisi tanggal awal dan akhir.
-        if ((!tanggalMulai || !tanggalSampai) && typeof labelMentah === "string") {
-            const tanggalDalamLabel = labelMentah.match(
-                /(\d{4}-\d{2}-\d{2}).*?(\d{4}-\d{2}-\d{2})/
-            );
-
-            if (tanggalDalamLabel) {
-                tanggalMulai = tanggalMulai || tanggalDalamLabel[1];
-                tanggalSampai = tanggalSampai || tanggalDalamLabel[2];
-            }
-        }
-
-        let labelPeriode = "-";
-
-        if (jenisPeriode === "BULANAN") {
-            labelPeriode =
-                formatBulan(tanggalMulai) ||
-                formatBulan(tanggalSampai) ||
-                teks(labelMentah, "Bulanan");
-        } else if (jenisPeriode === "TAHUNAN") {
-            const tahun = String(
-                ambilPertama(
-                    periodeObj.tahun,
-                    periodeObj.year,
-                    result.tahun,
-                    tanggalMulai ? String(tanggalMulai).slice(0, 4) : "",
-                    tanggalSampai ? String(tanggalSampai).slice(0, 4) : ""
-                )
-            );
-
-            labelPeriode = tahun && tahun !== "undefined"
-                ? tahun
-                : teks(labelMentah, "Tahunan");
-        } else if (labelMentah && typeof labelMentah === "string") {
-            labelPeriode = labelMentah;
-        } else if (tanggalMulai && tanggalSampai) {
-            labelPeriode =
-                `${tanggalIndonesia(tanggalMulai)} - ${tanggalIndonesia(tanggalSampai)}`;
-        } else {
-            labelPeriode = jenisPeriode;
-        }
-
-        const workbook = new ExcelJS.Workbook();
-        workbook.creator = "SOW IV Denpasar";
-        workbook.subject = "Rekap Laporan SOW";
-        workbook.title = "Laporan SOW IV Denpasar";
-        workbook.created = new Date();
-
-        const borderTipis = {
-            top: { style: "thin", color: { argb: warna.garis } },
-            left: { style: "thin", color: { argb: warna.garis } },
-            bottom: { style: "thin", color: { argb: warna.garis } },
-            right: { style: "thin", color: { argb: warna.garis } }
-        };
-
-        function isiWarna(cell, hex) {
-            cell.fill = {
-                type: "pattern",
-                pattern: "solid",
-                fgColor: { argb: "FF" + hex }
-            };
-        }
-
-        function formatBarisJudul(sheet, rowNumber, lastColumn, hex, size) {
-            const row = sheet.getRow(rowNumber);
-            sheet.mergeCells(rowNumber, 1, rowNumber, lastColumn);
-            row.height = size >= 14 ? 30 : 25;
-
-            const cell = row.getCell(1);
-            cell.font = {
-                name: "Arial",
-                size,
-                bold: true,
-                color: { argb: "FFFFFFFF" }
-            };
-            isiWarna(cell, hex);
-            cell.alignment = {
-                horizontal: "center",
-                vertical: "middle"
-            };
-        }
-
-        function formatBagian(sheet, rowNumber, lastColumn) {
-            formatBarisJudul(
-                sheet,
-                rowNumber,
-                lastColumn,
-                warna.bagian,
-                11
-            );
-        }
-
-        function formatHeaderTabel(row) {
-            row.height = 25;
-
-            row.eachCell({ includeEmpty: true }, cell => {
+        function gayaBaris(row, options = {}) {
+            row.eachCell({ includeEmpty: true }, function (cell) {
                 cell.font = {
                     name: "Arial",
                     size: 10,
-                    bold: true,
-                    color: { argb: "FFFFFFFF" }
+                    color: {
+                        argb: options.fontColor || "222222"
+                    },
+                    bold: Boolean(options.bold)
                 };
-                isiWarna(cell, warna.header);
+
                 cell.alignment = {
-                    horizontal: "center",
                     vertical: "middle",
+                    horizontal: options.align || "left",
                     wrapText: true
                 };
-                cell.border = borderTipis;
-            });
-        }
 
-        function formatIsi(sheet, awal, akhir) {
-            for (let r = awal; r <= akhir; r++) {
-                const row = sheet.getRow(r);
-
-                row.eachCell({ includeEmpty: true }, cell => {
-                    cell.font = {
-                        name: "Arial",
-                        size: 10,
-                        color: { argb: "FF" + warna.teks }
-                    };
-                    cell.alignment = {
-                        vertical: "middle",
-                        wrapText: true
-                    };
-                    cell.border = borderTipis;
-
-                    if (r % 2 === 0) {
-                        isiWarna(cell, warna.abu);
-                    }
-                });
-            }
-        }
-
-        function formatStatus(cell, status) {
-            const value = String(status || "").toUpperCase();
-
-            if (value.includes("OPEN") || value.includes("MENUNGGU")) {
-                isiWarna(cell, warna.open);
-            } else if (value.includes("PROSES") || value.includes("OTW")) {
-                isiWarna(cell, warna.proses);
-            } else if (value.includes("SELESAI")) {
-                isiWarna(cell, warna.selesai);
-            } else if (value.includes("TOLAK")) {
-                isiWarna(cell, warna.ditolak);
-            }
-        }
-
-        /* ====================================================
-           SHEET 1 — LAPORAN SOW
-           ==================================================== */
-
-        const sheet = workbook.addWorksheet("Laporan SOW");
-
-        sheet.columns = [
-            { width: 26 },
-            { width: 18 },
-            { width: 18 },
-            { width: 15 },
-            { width: 15 },
-            { width: 15 },
-            { width: 15 },
-            { width: 15 }
-        ];
-
-        sheet.addRow(["LAPORAN DETAIL SOW IV DENPASAR"]);
-        formatBarisJudul(sheet, 1, 8, warna.navy, 16);
-
-        sheet.addRow(["REKAP LAPORAN SOW"]);
-        formatBarisJudul(sheet, 2, 8, warna.subjudul, 11);
-
-        sheet.addRow([]);
-
-        sheet.addRow(["PERIODE", ":", jenisPeriode]);
-        sheet.addRow([
-            "TANGGAL MULAI",
-            ":",
-            tanggalMulai ? tanggalIndonesia(tanggalMulai) : "-"
-        ]);
-        sheet.addRow([
-            "TANGGAL SAMPAI",
-            ":",
-            tanggalSampai ? tanggalIndonesia(tanggalSampai) : "-"
-        ]);
-
-        for (let r = 4; r <= 6; r++) {
-            const row = sheet.getRow(r);
-            row.height = 21;
-
-            row.eachCell({ includeEmpty: true }, cell => {
-                cell.font = {
-                    name: "Arial",
-                    size: 10,
-                    bold: cell.col === 1 || cell.col === 3
+                cell.border = {
+                    top: { style: "thin", color: { argb: warna.garis } },
+                    left: { style: "thin", color: { argb: warna.garis } },
+                    bottom: { style: "thin", color: { argb: warna.garis } },
+                    right: { style: "thin", color: { argb: warna.garis } }
                 };
-                cell.border = borderTipis;
-                cell.alignment = { vertical: "middle" };
+
+                if (options.fill) {
+                    cell.fill = {
+                        type: "pattern",
+                        pattern: "solid",
+                        fgColor: { argb: options.fill }
+                    };
+                }
             });
 
-            isiWarna(row.getCell(1), "D9EAF7");
+            if (options.height) {
+                row.height = options.height;
+            }
         }
 
-        sheet.addRow([]);
+        function tambahJudul(teks, fill = warna.biru) {
+            const row = ws.addRow([teks]);
+            ws.mergeCells(row.number, 1, row.number, kolomAkhir);
 
-        /* Statistik — format lama Keterangan dan Jumlah */
-        const rowStatBagian = sheet.rowCount + 1;
-        sheet.addRow(["STATISTIK LAPORAN"]);
-        formatBagian(sheet, rowStatBagian, 8);
+            row.getCell(1).fill = {
+                type: "pattern",
+                pattern: "solid",
+                fgColor: { argb: fill }
+            };
 
-        const rowStatHeader = sheet.rowCount + 1;
-        sheet.addRow(["Keterangan", "Jumlah"]);
-        formatHeaderTabel(sheet.getRow(rowStatHeader));
-
-        const statistikRows = [
-            ["Total Order", angka(statistik.total), ""],
-            ["OPEN", angka(statistik.open), warna.open],
-            ["PROSES", angka(statistik.proses), warna.proses],
-            ["SELESAI", angka(statistik.selesai), warna.selesai],
-            ["DITOLAK", angka(statistik.ditolak), warna.ditolak]
-        ];
-
-        statistikRows.forEach(item => {
-            const row = sheet.addRow([item[0], item[1]]);
             row.getCell(1).font = {
                 name: "Arial",
-                size: 10,
-                bold: true
+                size: 12,
+                bold: true,
+                color: { argb: warna.putih }
             };
-            row.getCell(2).alignment = {
+
+            row.getCell(1).alignment = {
                 horizontal: "center",
                 vertical: "middle"
             };
-            row.eachCell({ includeEmpty: true }, cell => {
-                cell.border = borderTipis;
-            });
 
-            if (item[2]) {
-                isiWarna(row.getCell(1), item[2]);
-                isiWarna(row.getCell(2), item[2]);
+            row.height = 25;
+            return row;
+        }
+
+        function tambahHeader(nilai) {
+            const row = ws.addRow(nilai);
+            gayaBaris(row, {
+                fill: warna.header,
+                fontColor: warna.putih,
+                bold: true,
+                align: "center",
+                height: 30
+            });
+            return row;
+        }
+
+        function angka(nilai) {
+            const n = Number(nilai);
+            return Number.isFinite(n) ? n : 0;
+        }
+
+        function nilaiCabang(order) {
+            const kode = order.kode_cabang || "";
+            const nama = order.nama_cabang || "";
+
+            if (order.cabang) return order.cabang;
+            if (kode && nama) return kode + " - " + nama;
+
+            return kode || nama || "";
+        }
+
+        function nilaiSOW(order) {
+            return order.sow ||
+                order.teknisi ||
+                "Belum Ditentukan";
+        }
+
+        function statusNormal(nilai) {
+            const status = String(nilai || "OPEN")
+                .trim()
+                .toUpperCase();
+
+            if (status === "MENUNGGU") return "OPEN";
+            if (status === "DALAM PROSES") return "PROSES";
+
+            return status;
+        }
+
+        // ----------------------------------------------------
+        // 1. JUDUL DAN INFORMASI PERIODE
+        // ----------------------------------------------------
+
+        const judul = ws.addRow([
+            "LAPORAN DETAIL SOW IV DENPASAR"
+        ]);
+
+        ws.mergeCells(judul.number, 1, judul.number, kolomAkhir);
+
+        judul.getCell(1).font = {
+            name: "Arial",
+            size: 16,
+            bold: true,
+            color: { argb: warna.putih }
+        };
+
+        judul.getCell(1).fill = {
+            type: "pattern",
+            pattern: "solid",
+            fgColor: { argb: warna.navy }
+        };
+
+        judul.getCell(1).alignment = {
+            horizontal: "center",
+            vertical: "middle"
+        };
+
+        judul.height = 34;
+
+        ws.addRow([]);
+        tambahJudul("REKAP LAPORAN SOW");
+
+        const periode = String(
+            periodeRekapTerakhir || periodeRekapAktif || "-"
+        ).toUpperCase();
+
+        [
+            ["PERIODE", periode],
+            ["TANGGAL MULAI", result.periode?.mulai || "-"],
+            ["TANGGAL SAMPAI", result.periode?.sampai || "-"]
+        ].forEach(function (item) {
+            const row = ws.addRow(item);
+            gayaBaris(row);
+            row.getCell(1).font = { name: "Arial", size: 10, bold: true };
+            row.getCell(2).font = { name: "Arial", size: 10, bold: true };
+        });
+
+        ws.addRow([]);
+
+        // ----------------------------------------------------
+        // 2. STATISTIK LAPORAN
+        // ----------------------------------------------------
+
+        tambahJudul("STATISTIK LAPORAN", warna.bagian);
+        tambahHeader(["Keterangan", "Jumlah"]);
+
+        [
+            ["Total Order", angka(statistik.total ?? orders.length)],
+            ["OPEN", angka(statistik.open)],
+            ["PROSES", angka(statistik.proses)],
+            ["SELESAI", angka(statistik.selesai)],
+            ["DITOLAK", angka(statistik.ditolak)]
+        ].forEach(function (item) {
+            const row = ws.addRow(item);
+            gayaBaris(row);
+
+            const status = String(item[0]).toUpperCase();
+            const fill = status === "OPEN" ? warna.open
+                : status === "PROSES" ? warna.proses
+                    : status === "SELESAI" ? warna.selesai
+                        : status === "DITOLAK" ? warna.ditolak
+                            : null;
+
+            if (fill) {
+                row.getCell(1).fill = {
+                    type: "pattern",
+                    pattern: "solid",
+                    fgColor: { argb: fill }
+                };
+                row.getCell(2).fill = {
+                    type: "pattern",
+                    pattern: "solid",
+                    fgColor: { argb: fill }
+                };
             }
         });
 
-        sheet.addRow([]);
+        ws.addRow([]);
 
-        /* Rekap cabang */
-        const rowCabangBagian = sheet.rowCount + 1;
-        sheet.addRow(["REKAP BERDASARKAN CABANG"]);
-        formatBagian(sheet, rowCabangBagian, 8);
+        // ----------------------------------------------------
+        // 3. REKAP BERDASARKAN CABANG
+        // ----------------------------------------------------
 
-        const rowCabangHeader = sheet.rowCount + 1;
-        sheet.addRow([
+        tambahJudul("REKAP BERDASARKAN CABANG", warna.bagian);
+
+        tambahHeader([
             "Kode Cabang",
             "Nama Cabang",
             "Total",
             "Open",
             "Proses",
             "Selesai",
-            "Ditolak",
-            " "
+            "Ditolak"
         ]);
-        formatHeaderTabel(sheet.getRow(rowCabangHeader));
-
-        const rowCabangAwal = sheet.rowCount + 1;
 
         if (rekapCabang.length) {
-            rekapCabang.forEach(item => {
-                sheet.addRow([
-                    teks(item.kode_cabang || item.kode || item.cabang),
-                    teks(item.nama_cabang || item.nama || item.cabang),
-                    angka(item.total),
+            rekapCabang.forEach(function (item) {
+                const row = ws.addRow([
+                    item.kode_cabang || item.kode || "",
+                    item.nama_cabang || item.nama || "",
+                    angka(item.total ?? item.jumlah),
                     angka(item.open),
                     angka(item.proses),
                     angka(item.selesai),
-                    angka(item.ditolak),
-                    ""
+                    angka(item.ditolak)
                 ]);
+
+                gayaBaris(row);
             });
         } else {
-            sheet.addRow(["Tidak ada data cabang", "", 0, 0, 0, 0, 0, ""]);
+            const row = ws.addRow(["Tidak ada data cabang"]);
+            ws.mergeCells(row.number, 1, row.number, 7);
+            gayaBaris(row);
         }
 
-        formatIsi(sheet, rowCabangAwal, sheet.rowCount);
+        ws.addRow([]);
 
-        sheet.addRow([]);
+        // ----------------------------------------------------
+        // 4. REKAP BERDASARKAN TEKNISI / SOW
+        // ----------------------------------------------------
 
-        /* Rekap SOW */
-        const rowSOWBagian = sheet.rowCount + 1;
-        sheet.addRow(["REKAP BERDASARKAN SOW"]);
-        formatBagian(sheet, rowSOWBagian, 8);
+        tambahJudul("REKAP BERDASARKAN TEKNISI / SOW", warna.bagian);
 
-        const rowSOWHeader = sheet.rowCount + 1;
-        sheet.addRow([
-            "Nama SOW",
+        tambahHeader([
+            "Nama Teknisi / SOW",
             "Total",
             "Open",
             "Proses",
             "Selesai",
-            "Ditolak",
-            "",
-            ""
+            "Ditolak"
         ]);
-        formatHeaderTabel(sheet.getRow(rowSOWHeader));
-
-        const rowSOWAwal = sheet.rowCount + 1;
 
         if (rekapSOW.length) {
-            rekapSOW.forEach(item => {
-                sheet.addRow([
-                    teks(item.sow || item.teknisi || item.nama, "Belum Ditugaskan"),
-                    angka(item.total),
+            rekapSOW.forEach(function (item) {
+                const row = ws.addRow([
+                    item.sow || item.teknisi || item.nama || "Belum Ditentukan",
+                    angka(item.total ?? item.jumlah),
                     angka(item.open),
                     angka(item.proses),
                     angka(item.selesai),
-                    angka(item.ditolak),
-                    "",
-                    ""
+                    angka(item.ditolak)
                 ]);
+
+                gayaBaris(row);
             });
         } else {
-            sheet.addRow(["Tidak ada data SOW", 0, 0, 0, 0, 0, "", ""]);
+            const row = ws.addRow(["Tidak ada data teknisi / SOW"]);
+            ws.mergeCells(row.number, 1, row.number, 6);
+            gayaBaris(row);
         }
 
-        formatIsi(sheet, rowSOWAwal, sheet.rowCount);
+        ws.addRow([]);
 
-        sheet.views = [{ state: "frozen", ySplit: 3 }];
-        sheet.pageSetup = {
-            orientation: "landscape",
-            fitToPage: true,
-            fitToWidth: 1,
-            fitToHeight: 0,
-            paperSize: 9
-        };
+        // ----------------------------------------------------
+        // 5. DETAIL ORDER LENGKAP
+        // ----------------------------------------------------
 
-        /* ====================================================
-           SHEET 2 — DETAIL ORDER LENGKAP
-           ==================================================== */
+        tambahJudul("DETAIL ORDER", warna.bagian);
 
-        const detail = workbook.addWorksheet("Detail Order");
-
-        detail.columns = [
-            { header: "No", key: "no", width: 7 },
-            { header: "Kode Order", key: "kode", width: 18 },
-            { header: "Tanggal", key: "tanggal", width: 15 },
-            { header: "Jam", key: "jam", width: 11 },
-            { header: "Nama Pelapor", key: "nama", width: 24 },
-            { header: "Unit Kerja", key: "unit", width: 18 },
-            { header: "Kode Cabang", key: "kodeCabang", width: 15 },
-            { header: "Nama Cabang", key: "namaCabang", width: 30 },
-            { header: "Jenis Kendala", key: "kendala", width: 22 },
-            { header: "DESKRIPSI", key: "deskripsi", width: 45 },
-            { header: "WhatsApp Pelapor", key: "whatsapp", width: 20 },
-            { header: "Status", key: "status", width: 15 },
-            { header: "SOW", key: "sow", width: 24 },
-            { header: "Catatan Progres", key: "catatan", width: 40 },
-            { header: "Tanggal Update", key: "tanggalUpdate", width: 22 }
-        ];
-
-        detail.addRow(["LAPORAN DETAIL ORDER — SOW IV DENPASAR"]);
-        formatBarisJudul(detail, 1, 15, warna.navy, 16);
-
-        detail.addRow([`PERIODE: ${labelPeriode}`]);
-        detail.mergeCells(2, 1, 2, 15);
-        detail.getCell("A2").font = {
-            name: "Arial",
-            size: 11,
-            bold: true,
-            color: { argb: "FF" + warna.teks }
-        };
-
-        detail.addRow([
-            `TANGGAL MULAI: ${tanggalMulai ? tanggalIndonesia(tanggalMulai) : "-"}`
-        ]);
-        detail.mergeCells(3, 1, 3, 15);
-
-        detail.addRow([
-            `TANGGAL SAMPAI: ${tanggalSampai ? tanggalIndonesia(tanggalSampai) : "-"}`
-        ]);
-        detail.mergeCells(4, 1, 4, 15);
-
-        detail.addRow([`JUMLAH ORDER: ${orders.length}`]);
-        detail.mergeCells(5, 1, 5, 15);
-
-        const headerDetail = detail.addRow([
+        tambahHeader([
             "No",
             "Kode Order",
             "Tanggal",
-            "Jam",
             "Nama Pelapor",
             "Unit Kerja",
             "Kode Cabang",
             "Nama Cabang",
             "Jenis Kendala",
-            "DESKRIPSI",
+            "Deskripsi Kendala",
             "WhatsApp Pelapor",
             "Status",
-            "SOW",
-            "Catatan Progres",
-            "Tanggal Update"
+            "Teknisi / SOW",
+            "Catatan Progres"
         ]);
 
-        formatHeaderTabel(headerDetail);
-
-        const awalDetail = detail.rowCount + 1;
-
-        orders.forEach((order, index) => {
-            detail.addRow([
-                index + 1,
-                teks(order.kode),
-                tanggalIndonesia(order.tanggal),
-                teks(order.jam),
-                teks(order.nama),
-                teks(order.unit_kerja || order.unitkerja),
-                teks(order.kode_cabang),
-                teks(order.nama_cabang || order.cabang),
-                teks(order.jenis_kendala),
-                teks(order.deskripsi),
-                teks(order.whatsapp),
-                teks(order.status),
-                teks(order.sow || order.teknisi),
-                teks(order.catatan_progres),
-                tanggalIndonesia(order.tanggal_update)
-            ]);
-        });
-
         if (orders.length) {
-            formatIsi(detail, awalDetail, detail.rowCount);
+            orders.forEach(function (order, index) {
+                const row = ws.addRow([
+                    index + 1,
+                    order.kode || "",
+                    order.tanggal || "",
+                    order.nama || "",
+                    order.unit_kerja || "",
+                    order.kode_cabang || "",
+                    order.nama_cabang || order.cabang || "",
+                    order.jenis_kendala || "",
+                    order.deskripsi || "",
+                    order.whatsapp || "",
+                    statusNormal(order.status),
+                    nilaiSOW(order),
+                    order.catatan_progres || ""
+                ]);
 
-            orders.forEach((order, index) => {
-                formatStatus(
-                    detail.getRow(awalDetail + index).getCell(12),
-                    order.status
-                );
+                gayaBaris(row, {
+                    height: 32
+                });
+
+                const status = statusNormal(order.status);
+                const fill = status === "OPEN" ? warna.open
+                    : status === "PROSES" ? warna.proses
+                        : status === "SELESAI" ? warna.selesai
+                            : status === "DITOLAK" ? warna.ditolak
+                                : null;
+
+                if (fill) {
+                    row.getCell(11).fill = {
+                        type: "pattern",
+                        pattern: "solid",
+                        fgColor: { argb: fill }
+                    };
+                    row.getCell(11).font = {
+                        name: "Arial",
+                        size: 10,
+                        bold: true
+                    };
+                }
             });
         } else {
-            detail.addRow(["-", "Tidak ada order pada periode ini"]);
+            const row = ws.addRow(["Tidak ada order pada periode ini."]);
+            ws.mergeCells(row.number, 1, row.number, kolomAkhir);
+            gayaBaris(row);
         }
 
-        detail.autoFilter = {
-            from: {
-                row: headerDetail.number,
-                column: 1
-            },
-            to: {
-                row: headerDetail.number,
-                column: 15
-            }
+        // Pengaturan cetak dan filter untuk detail order.
+        ws.pageSetup.orientation = "landscape";
+        ws.pageSetup.fitToPage = true;
+        ws.pageSetup.fitToWidth = 1;
+        ws.pageSetup.fitToHeight = 0;
+        ws.pageSetup.paperSize = 9;
+        ws.pageSetup.margins = {
+            left: 0.25,
+            right: 0.25,
+            top: 0.5,
+            bottom: 0.5,
+            header: 0.2,
+            footer: 0.2
         };
 
-        detail.views = [{ state: "frozen", ySplit: headerDetail.number }];
-
-        detail.pageSetup = {
-            orientation: "landscape",
-            fitToPage: true,
-            fitToWidth: 1,
-            fitToHeight: 0,
-            paperSize: 9,
-            margins: {
-                left: 0.25,
-                right: 0.25,
-                top: 0.5,
-                bottom: 0.5,
-                header: 0.2,
-                footer: 0.2
-            }
-        };
-
-        /* ====================================================
-           DOWNLOAD FILE
-           ==================================================== */
-
-        const tanggalFile = new Date().toISOString().slice(0, 10);
-        const namaPeriode = String(labelPeriode)
-            .replace(/[^a-zA-Z0-9_-]/g, "_");
-
-        const buffer = await workbook.xlsx.writeBuffer();
-
-        const blob = new Blob([buffer], {
-            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        ws.eachRow(function (row) {
+            row.eachCell({ includeEmpty: true }, function (cell) {
+                cell.alignment = {
+                    ...cell.alignment,
+                    vertical: "middle",
+                    wrapText: true
+                };
+            });
         });
 
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
+        const namaFile = "Laporan_SOW_IV_Denpasar_" +
+            periode.replace(/[^A-Z0-9_-]/g, "_") +
+            ".xlsx";
 
-        link.href = url;
-        link.download =
-            `Laporan_SOW_IV_Denpasar_${namaPeriode}_${tanggalFile}.xlsx`;
+        await workbook.xlsx.writeBuffer().then(function (buffer) {
+            const blob = new Blob(
+                [buffer],
+                {
+                    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                }
+            );
 
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
 
-        setTimeout(() => URL.revokeObjectURL(url), 1500);
+            link.href = url;
+            link.download = namaFile;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+
+            setTimeout(function () {
+                URL.revokeObjectURL(url);
+            }, 1000);
+        });
 
     } catch (error) {
-        console.error("EXPORT EXCEL:", error);
+        console.error("Gagal ekspor Excel:", error);
         alert(
-            "Gagal membuat Excel. Buka Console browser untuk melihat detail kesalahan."
+            "Ekspor Excel gagal. Periksa Console browser dan pastikan library ExcelJS tersedia."
         );
     }
 }
+
 
 
 
