@@ -1930,351 +1930,99 @@ function tampilkanHasilRekap(result, periode) {
    5. Detail order lengkap
    ============================================================ */
 
+
 async function downloadRekapExcel() {
-    if (
-        !hasilRekapTerakhir ||
-        !hasilRekapTerakhir.success
-    ) {
+    if (!hasilRekapTerakhir || !hasilRekapTerakhir.success) {
         alert("Silakan tampilkan rekap terlebih dahulu.");
         return;
     }
 
-    if (typeof ExcelJS === "undefined") {
-        alert("Library ExcelJS belum tersedia. Periksa pemuatan library Excel.");
+    // Gunakan library XLSX yang dipakai proyek ini.
+    if (typeof XLSX === "undefined") {
+        alert("Library XLSX belum tersedia. Periksa script library di index.html.");
         return;
     }
 
     try {
         const result = hasilRekapTerakhir;
-
         const statistik = result.statistik || {};
-        const rekapCabang = Array.isArray(result.rekapCabang)
+        const periode = result.periode || {};
+
+        const cabang = Array.isArray(result.rekapCabang)
             ? result.rekapCabang : [];
-        const rekapSOW = Array.isArray(result.rekapTeknisi)
+
+        const teknisi = Array.isArray(result.rekapTeknisi)
             ? result.rekapTeknisi : [];
+
         const orders = Array.isArray(result.orders)
             ? result.orders : [];
 
-        const workbook = new ExcelJS.Workbook();
-        workbook.creator = "SOW IV Denpasar";
-        workbook.subject = "Rekap Laporan SOW";
-        workbook.created = new Date();
+        const data = [];
 
-        const ws = workbook.addWorksheet("Laporan SOW", {
-            views: [{ state: "frozen", ySplit: 0 }]
-        });
+        // Judul laporan
+        data.push(["LAPORAN DETAIL SOW IV DENPASAR"]);
+        data.push(["REKAP LAPORAN SOW"]);
+        data.push(["Periode", String(
+            result.tipe || periodeRekapTerakhir || periodeRekapAktif || "-"
+        ).toUpperCase()]);
+        data.push(["Tanggal Mulai", periode.mulai || "-"]);
+        data.push(["Tanggal Sampai", periode.sampai || "-"]);
+        data.push([]);
 
-        const warna = {
-            navy: "17365D",
-            biru: "2F75B5",
-            bagian: "4472C4",
-            header: "5B9BD5",
-            putih: "FFFFFF",
-            garis: "B7C9D6",
-            abu: "F2F2F2",
-            open: "FFF2CC",
-            proses: "DDEBF7",
-            selesai: "E2F0D9",
-            ditolak: "F4CCCC"
-        };
+        // Statistik
+        data.push(["STATISTIK LAPORAN"]);
+        data.push(["Keterangan", "Jumlah"]);
+        data.push(["Total Order", Number(statistik.total ?? orders.length)]);
+        data.push(["OPEN", Number(statistik.open || 0)]);
+        data.push(["PROSES", Number(statistik.proses || 0)]);
+        data.push(["SELESAI", Number(statistik.selesai || 0)]);
+        data.push(["DITOLAK", Number(statistik.ditolak || 0)]);
+        data.push([]);
 
-        const kolomAkhir = 13;
-
-        ws.columns = [
-            { width: 7 },   // A No
-            { width: 17 },  // B Kode Order / Kode Cabang
-            { width: 23 },  // C Nama / Cabang
-            { width: 16 },  // D Unit Kerja / Total
-            { width: 20 },  // E Tanggal / Open
-            { width: 16 },  // F Status / Proses
-            { width: 25 },  // G SOW / Selesai
-            { width: 22 },  // H Nama Cabang / Ditolak
-            { width: 20 },  // I Jenis Kendala
-            { width: 42 },  // J Deskripsi
-            { width: 20 },  // K WhatsApp
-            { width: 42 },  // L Catatan Progres
-            { width: 21 }   // M Tanggal Update
-        ];
-
-        function gayaBaris(row, options = {}) {
-            row.eachCell({ includeEmpty: true }, function (cell) {
-                cell.font = {
-                    name: "Arial",
-                    size: 10,
-                    color: {
-                        argb: options.fontColor || "222222"
-                    },
-                    bold: Boolean(options.bold)
-                };
-
-                cell.alignment = {
-                    vertical: "middle",
-                    horizontal: options.align || "left",
-                    wrapText: true
-                };
-
-                cell.border = {
-                    top: { style: "thin", color: { argb: warna.garis } },
-                    left: { style: "thin", color: { argb: warna.garis } },
-                    bottom: { style: "thin", color: { argb: warna.garis } },
-                    right: { style: "thin", color: { argb: warna.garis } }
-                };
-
-                if (options.fill) {
-                    cell.fill = {
-                        type: "pattern",
-                        pattern: "solid",
-                        fgColor: { argb: options.fill }
-                    };
-                }
-            });
-
-            if (options.height) {
-                row.height = options.height;
-            }
-        }
-
-        function tambahJudul(teks, fill = warna.biru) {
-            const row = ws.addRow([teks]);
-            ws.mergeCells(row.number, 1, row.number, kolomAkhir);
-
-            row.getCell(1).fill = {
-                type: "pattern",
-                pattern: "solid",
-                fgColor: { argb: fill }
-            };
-
-            row.getCell(1).font = {
-                name: "Arial",
-                size: 12,
-                bold: true,
-                color: { argb: warna.putih }
-            };
-
-            row.getCell(1).alignment = {
-                horizontal: "center",
-                vertical: "middle"
-            };
-
-            row.height = 25;
-            return row;
-        }
-
-        function tambahHeader(nilai) {
-            const row = ws.addRow(nilai);
-            gayaBaris(row, {
-                fill: warna.header,
-                fontColor: warna.putih,
-                bold: true,
-                align: "center",
-                height: 30
-            });
-            return row;
-        }
-
-        function angka(nilai) {
-            const n = Number(nilai);
-            return Number.isFinite(n) ? n : 0;
-        }
-
-        function nilaiCabang(order) {
-            const kode = order.kode_cabang || "";
-            const nama = order.nama_cabang || "";
-
-            if (order.cabang) return order.cabang;
-            if (kode && nama) return kode + " - " + nama;
-
-            return kode || nama || "";
-        }
-
-        function nilaiSOW(order) {
-            return order.sow ||
-                order.teknisi ||
-                "Belum Ditentukan";
-        }
-
-        function statusNormal(nilai) {
-            const status = String(nilai || "OPEN")
-                .trim()
-                .toUpperCase();
-
-            if (status === "MENUNGGU") return "OPEN";
-            if (status === "DALAM PROSES") return "PROSES";
-
-            return status;
-        }
-
-        // ----------------------------------------------------
-        // 1. JUDUL DAN INFORMASI PERIODE
-        // ----------------------------------------------------
-
-        const judul = ws.addRow([
-            "LAPORAN DETAIL SOW IV DENPASAR"
+        // Rekap cabang
+        data.push(["REKAP BERDASARKAN CABANG"]);
+        data.push([
+            "Kode Cabang", "Nama Cabang", "Total",
+            "Open", "Proses", "Selesai", "Ditolak"
         ]);
 
-        ws.mergeCells(judul.number, 1, judul.number, kolomAkhir);
-
-        judul.getCell(1).font = {
-            name: "Arial",
-            size: 16,
-            bold: true,
-            color: { argb: warna.putih }
-        };
-
-        judul.getCell(1).fill = {
-            type: "pattern",
-            pattern: "solid",
-            fgColor: { argb: warna.navy }
-        };
-
-        judul.getCell(1).alignment = {
-            horizontal: "center",
-            vertical: "middle"
-        };
-
-        judul.height = 34;
-
-        ws.addRow([]);
-        tambahJudul("REKAP LAPORAN SOW");
-
-        const periode = String(
-            periodeRekapTerakhir || periodeRekapAktif || "-"
-        ).toUpperCase();
-
-        [
-            ["PERIODE", periode],
-            ["TANGGAL MULAI", result.periode?.mulai || "-"],
-            ["TANGGAL SAMPAI", result.periode?.sampai || "-"]
-        ].forEach(function (item) {
-            const row = ws.addRow(item);
-            gayaBaris(row);
-            row.getCell(1).font = { name: "Arial", size: 10, bold: true };
-            row.getCell(2).font = { name: "Arial", size: 10, bold: true };
+        cabang.forEach(function (item) {
+            data.push([
+                item.kode_cabang || item.kode || "",
+                item.nama_cabang || item.nama || "",
+                Number(item.total ?? item.jumlah ?? 0),
+                Number(item.open || 0),
+                Number(item.proses || 0),
+                Number(item.selesai || 0),
+                Number(item.ditolak || 0)
+            ]);
         });
 
-        ws.addRow([]);
+        data.push([]);
 
-        // ----------------------------------------------------
-        // 2. STATISTIK LAPORAN
-        // ----------------------------------------------------
+        // Rekap teknisi / SOW
+        data.push(["REKAP BERDASARKAN TEKNISI / SOW"]);
+        data.push([
+            "Nama Teknisi / SOW", "Total",
+            "Open", "Proses", "Selesai", "Ditolak"
+        ]);
 
-        tambahJudul("STATISTIK LAPORAN", warna.bagian);
-        tambahHeader(["Keterangan", "Jumlah"]);
-
-        [
-            ["Total Order", angka(statistik.total ?? orders.length)],
-            ["OPEN", angka(statistik.open)],
-            ["PROSES", angka(statistik.proses)],
-            ["SELESAI", angka(statistik.selesai)],
-            ["DITOLAK", angka(statistik.ditolak)]
-        ].forEach(function (item) {
-            const row = ws.addRow(item);
-            gayaBaris(row);
-
-            const status = String(item[0]).toUpperCase();
-            const fill = status === "OPEN" ? warna.open
-                : status === "PROSES" ? warna.proses
-                    : status === "SELESAI" ? warna.selesai
-                        : status === "DITOLAK" ? warna.ditolak
-                            : null;
-
-            if (fill) {
-                row.getCell(1).fill = {
-                    type: "pattern",
-                    pattern: "solid",
-                    fgColor: { argb: fill }
-                };
-                row.getCell(2).fill = {
-                    type: "pattern",
-                    pattern: "solid",
-                    fgColor: { argb: fill }
-                };
-            }
+        teknisi.forEach(function (item) {
+            data.push([
+                item.sow || item.teknisi || item.nama || "Belum Ditentukan",
+                Number(item.total ?? item.jumlah ?? 0),
+                Number(item.open || 0),
+                Number(item.proses || 0),
+                Number(item.selesai || 0),
+                Number(item.ditolak || 0)
+            ]);
         });
 
-        ws.addRow([]);
+        data.push([]);
 
-        // ----------------------------------------------------
-        // 3. REKAP BERDASARKAN CABANG
-        // ----------------------------------------------------
-
-        tambahJudul("REKAP BERDASARKAN CABANG", warna.bagian);
-
-        tambahHeader([
-            "Kode Cabang",
-            "Nama Cabang",
-            "Total",
-            "Open",
-            "Proses",
-            "Selesai",
-            "Ditolak"
-        ]);
-
-        if (rekapCabang.length) {
-            rekapCabang.forEach(function (item) {
-                const row = ws.addRow([
-                    item.kode_cabang || item.kode || "",
-                    item.nama_cabang || item.nama || "",
-                    angka(item.total ?? item.jumlah),
-                    angka(item.open),
-                    angka(item.proses),
-                    angka(item.selesai),
-                    angka(item.ditolak)
-                ]);
-
-                gayaBaris(row);
-            });
-        } else {
-            const row = ws.addRow(["Tidak ada data cabang"]);
-            ws.mergeCells(row.number, 1, row.number, 7);
-            gayaBaris(row);
-        }
-
-        ws.addRow([]);
-
-        // ----------------------------------------------------
-        // 4. REKAP BERDASARKAN TEKNISI / SOW
-        // ----------------------------------------------------
-
-        tambahJudul("REKAP BERDASARKAN TEKNISI / SOW", warna.bagian);
-
-        tambahHeader([
-            "Nama Teknisi / SOW",
-            "Total",
-            "Open",
-            "Proses",
-            "Selesai",
-            "Ditolak"
-        ]);
-
-        if (rekapSOW.length) {
-            rekapSOW.forEach(function (item) {
-                const row = ws.addRow([
-                    item.sow || item.teknisi || item.nama || "Belum Ditentukan",
-                    angka(item.total ?? item.jumlah),
-                    angka(item.open),
-                    angka(item.proses),
-                    angka(item.selesai),
-                    angka(item.ditolak)
-                ]);
-
-                gayaBaris(row);
-            });
-        } else {
-            const row = ws.addRow(["Tidak ada data teknisi / SOW"]);
-            ws.mergeCells(row.number, 1, row.number, 6);
-            gayaBaris(row);
-        }
-
-        ws.addRow([]);
-
-        // ----------------------------------------------------
-        // 5. DETAIL ORDER LENGKAP
-        // ----------------------------------------------------
-
-        tambahJudul("DETAIL ORDER", warna.bagian);
-
-        tambahHeader([
+        // Detail order lengkap dalam sheet yang sama
+        data.push(["DETAIL ORDER"]);
+        data.push([
             "No",
             "Kode Order",
             "Tanggal",
@@ -2287,115 +2035,75 @@ async function downloadRekapExcel() {
             "WhatsApp Pelapor",
             "Status",
             "Teknisi / SOW",
-            "Catatan Progres"
+            "Catatan Progres",
+            "Tanggal Update"
         ]);
 
-        if (orders.length) {
-            orders.forEach(function (order, index) {
-                const row = ws.addRow([
-                    index + 1,
-                    order.kode || "",
-                    order.tanggal || "",
-                    order.nama || "",
-                    order.unit_kerja || "",
-                    order.kode_cabang || "",
-                    order.nama_cabang || order.cabang || "",
-                    order.jenis_kendala || "",
-                    order.deskripsi || "",
-                    order.whatsapp || "",
-                    statusNormal(order.status),
-                    nilaiSOW(order),
-                    order.catatan_progres || ""
-                ]);
-
-                gayaBaris(row, {
-                    height: 32
-                });
-
-                const status = statusNormal(order.status);
-                const fill = status === "OPEN" ? warna.open
-                    : status === "PROSES" ? warna.proses
-                        : status === "SELESAI" ? warna.selesai
-                            : status === "DITOLAK" ? warna.ditolak
-                                : null;
-
-                if (fill) {
-                    row.getCell(11).fill = {
-                        type: "pattern",
-                        pattern: "solid",
-                        fgColor: { argb: fill }
-                    };
-                    row.getCell(11).font = {
-                        name: "Arial",
-                        size: 10,
-                        bold: true
-                    };
-                }
-            });
-        } else {
-            const row = ws.addRow(["Tidak ada order pada periode ini."]);
-            ws.mergeCells(row.number, 1, row.number, kolomAkhir);
-            gayaBaris(row);
-        }
-
-        // Pengaturan cetak dan filter untuk detail order.
-        ws.pageSetup.orientation = "landscape";
-        ws.pageSetup.fitToPage = true;
-        ws.pageSetup.fitToWidth = 1;
-        ws.pageSetup.fitToHeight = 0;
-        ws.pageSetup.paperSize = 9;
-        ws.pageSetup.margins = {
-            left: 0.25,
-            right: 0.25,
-            top: 0.5,
-            bottom: 0.5,
-            header: 0.2,
-            footer: 0.2
-        };
-
-        ws.eachRow(function (row) {
-            row.eachCell({ includeEmpty: true }, function (cell) {
-                cell.alignment = {
-                    ...cell.alignment,
-                    vertical: "middle",
-                    wrapText: true
-                };
-            });
+        orders.forEach(function (order, index) {
+            data.push([
+                index + 1,
+                order.kode || order.kode_order || "",
+                order.tanggal || "",
+                order.nama || "",
+                order.unit_kerja || "",
+                order.kode_cabang || "",
+                order.nama_cabang || order.cabang || "",
+                order.jenis_kendala || "",
+                order.deskripsi || "",
+                order.whatsapp || "",
+                String(order.status || "OPEN").toUpperCase(),
+                order.sow || order.teknisi || "Belum Ditentukan",
+                order.catatan_progres || "",
+                order.tanggal_update || ""
+            ]);
         });
 
-        const namaFile = "Laporan_SOW_IV_Denpasar_" +
-            periode.replace(/[^A-Z0-9_-]/g, "_") +
-            ".xlsx";
+        // Buat satu worksheet saja
+        const worksheet = XLSX.utils.aoa_to_sheet(data);
 
-        await workbook.xlsx.writeBuffer().then(function (buffer) {
-            const blob = new Blob(
-                [buffer],
-                {
-                    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                }
-            );
+        // Atur lebar kolom
+        worksheet["!cols"] = [
+            { wch: 7 },
+            { wch: 19 },
+            { wch: 14 },
+            { wch: 24 },
+            { wch: 16 },
+            { wch: 14 },
+            { wch: 25 },
+            { wch: 22 },
+            { wch: 42 },
+            { wch: 20 },
+            { wch: 14 },
+            { wch: 28 },
+            { wch: 42 },
+            { wch: 21 }
+        ];
 
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
+        // Bekukan baris paling atas tidak diperlukan;
+        // semua bagian tetap berada pada satu sheet.
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Laporan SOW");
 
-            link.href = url;
-            link.download = namaFile;
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
+        const tipe = String(
+            result.tipe || periodeRekapTerakhir || periodeRekapAktif || "rekap"
+        ).toLowerCase();
 
-            setTimeout(function () {
-                URL.revokeObjectURL(url);
-            }, 1000);
-        });
+        const tanggalMulai = String(periode.mulai || "");
+        const tanggalSampai = String(periode.sampai || "");
+
+        const namaFile =
+            "Laporan_SOW_IV_Denpasar_" +
+            tipe + "_" + tanggalMulai +
+            "_sampai_" + tanggalSampai + ".xlsx";
+
+        XLSX.writeFile(workbook, namaFile);
 
     } catch (error) {
         console.error("Gagal ekspor Excel:", error);
-        alert(
-            "Ekspor Excel gagal. Periksa Console browser dan pastikan library ExcelJS tersedia."
-        );
+        alert("Ekspor Excel gagal: " + (error.message || error));
     }
 }
+
 
 
 
