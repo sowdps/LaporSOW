@@ -1963,7 +1963,10 @@ async function downloadRekapExcel() {
         data.push(["LAPORAN DETAIL SOW IV DENPASAR"]);
         data.push(["REKAP LAPORAN SOW"]);
         data.push(["Periode", String(
-            result.tipe || periodeRekapTerakhir || periodeRekapAktif || "-"
+            result.tipe ||
+            (typeof periodeRekapAktif !== "undefined"
+                ? periodeRekapAktif
+                : "bulanan")
         ).toUpperCase()]);
         data.push(["Tanggal Mulai", periode.mulai || "-"]);
         data.push(["Tanggal Sampai", periode.sampai || "-"]);
@@ -2084,9 +2087,14 @@ async function downloadRekapExcel() {
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, "Laporan SOW");
 
+
         const tipe = String(
-            result.tipe || periodeRekapTerakhir || periodeRekapAktif || "rekap"
+            result.tipe ||
+            (typeof periodeRekapAktif !== "undefined"
+                ? periodeRekapAktif
+                : "bulanan")
         ).toLowerCase();
+
 
         const tanggalMulai = String(periode.mulai || "");
         const tanggalSampai = String(periode.sampai || "");
