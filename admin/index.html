@@ -1,1113 +1,906 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta
-        name="description"
-        content="Admin Dashboard LAPOR SOW IV Denpasar"
-    >
+    <meta name="description" content="Admin Dashboard LAPOR SOW IV Denpasar">
 
     <title>
         Admin Dashboard | LAPOR SOW IV DENPASAR
     </title>
 
-    <link
-        rel="stylesheet"
-        href="admin.css"
-    >
+    <link rel="stylesheet" href="admin.css">
 </head>
 
 <body>
 
-<!-- ============================================================
+    <!-- ============================================================
      SIDEBAR BUTTON
      ============================================================ -->
 
-<button
-    type="button"
-    id="sidebarMenuButton"
-    class="sidebar-menu-button"
-    aria-label="Buka Menu Admin"
-    title="Buka Menu Admin"
->
-    ☰
-</button>
+    <button type="button" id="sidebarMenuButton" class="sidebar-menu-button" aria-label="Buka Menu Admin"
+        title="Buka Menu Admin">
+        ☰
+    </button>
 
 
-<!-- ============================================================
+    <!-- ============================================================
      SIDEBAR OVERLAY
      ============================================================ -->
 
-<div
-    id="sidebarOverlay"
-    class="sidebar-overlay"
-></div>
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
 
 
-<!-- ============================================================
+    <!-- ============================================================
      SIDEBAR ADMIN
      ============================================================ -->
 
-<aside
-    id="adminSidebar"
-    class="admin-sidebar"
-    aria-label="Menu Admin"
->
+    <aside id="adminSidebar" class="admin-sidebar" aria-label="Menu Admin">
 
-    <div class="sidebar-header">
+        <div class="sidebar-header">
 
-        <div class="sidebar-title">
+            <div class="sidebar-title">
 
-            <span class="sidebar-title-icon">
-                ☰
-            </span>
+                <span class="sidebar-title-icon">
+                    ☰
+                </span>
 
-            <div>
+                <div>
 
-                <strong>
-                    MENU ADMIN
-                </strong>
+                    <strong>
+                        MENU ADMIN
+                    </strong>
 
-                <small>
-                    SOW IV DENPASAR
-                </small>
+                    <small>
+                        SOW IV DENPASAR
+                    </small>
+
+                </div>
 
             </div>
+
+
+            <button type="button" id="sidebarCloseButton" class="sidebar-close-button" aria-label="Tutup Menu"
+                title="Tutup Menu">
+                ✕
+            </button>
 
         </div>
 
 
-        <button
-            type="button"
-            id="sidebarCloseButton"
-            class="sidebar-close-button"
-            aria-label="Tutup Menu"
-            title="Tutup Menu"
-        >
-            ✕
-        </button>
+        <nav class="sidebar-menu" aria-label="Menu Admin">
 
-    </div>
+            <button type="button" class="sidebar-menu-item active" data-menu-target="dashboard">
 
+                <span class="sidebar-menu-icon">
+                    🏠
+                </span>
 
-    <nav
-        class="sidebar-menu"
-        aria-label="Menu Admin"
-    >
+                <span>
+                    Dashboard
+                </span>
 
-        <button
-            type="button"
-            class="sidebar-menu-item active"
-            data-menu-target="dashboard"
-        >
-
-            <span class="sidebar-menu-icon">
-                🏠
-            </span>
-
-            <span>
-                Dashboard
-            </span>
-
-        </button>
+            </button>
 
 
-        <button
-            type="button"
-            class="sidebar-menu-item"
-            data-menu-target="rekap"
-        >
+            <button type="button" class="sidebar-menu-item" data-menu-target="rekap">
 
-            <span class="sidebar-menu-icon">
-                📊
-            </span>
+                <span class="sidebar-menu-icon">
+                    📊
+                </span>
 
-            <span>
-                Rekap Laporan
-            </span>
+                <span>
+                    Rekap Laporan
+                </span>
 
-        </button>
+            </button>
 
 
-        <button
-            type="button"
-            class="sidebar-menu-item"
-            data-menu-target="teknisi"
-        >
+            <button type="button" class="sidebar-menu-item" data-menu-target="teknisi">
 
-            <span class="sidebar-menu-icon">
-                👨‍🔧
-            </span>
+                <span class="sidebar-menu-icon">
+                    👨‍🔧
+                </span>
+
+                <span>
+                    Manajemen SOW
+                </span>
+
+            </button>
+
+        </nav>
+
+
+        <div class="sidebar-footer">
 
             <span>
-                Manajemen SOW
+                Sistem Monitoring Order
             </span>
 
-        </button>
+            <strong>
+                SOW IV DENPASAR
+            </strong>
 
-    </nav>
+        </div>
 
-
-    <div class="sidebar-footer">
-
-        <span>
-            Sistem Monitoring Order
-        </span>
-
-        <strong>
-            SOW IV DENPASAR
-        </strong>
-
-    </div>
-
-</aside>
+    </aside>
 
 
-<!-- ============================================================
+    <!-- ============================================================
      DASHBOARD UTAMA
      ============================================================ -->
 
-<main class="dashboard-container">
+    <main class="dashboard-container">
 
 
-    <!-- ========================================================
+        <!-- ========================================================
          HEADER
          ======================================================== -->
 
-    <header class="dashboard-header">
+        <header class="dashboard-header">
 
-        <div class="dashboard-brand">
+            <div class="dashboard-brand">
 
-            <img
-                src="../images/logo-sow-iv-dps-compact.png"
-                alt="Logo SOW IV Denpasar"
-                class="dashboard-logo"
-            >
+                <img src="../images/logo-sow-iv-dps-compact.png" alt="Logo SOW IV Denpasar" class="dashboard-logo">
 
-            <div class="dashboard-brand-text">
+                <div class="dashboard-brand-text">
 
-                <h1>
-                    ADMIN SOW IV DENPASAR
-                </h1>
+                    <h1>
+                        ADMIN SOW IV DENPASAR
+                    </h1>
 
-                <p>
-                    Sistem Monitoring Order
-                </p>
+                    <p>
+                        Sistem Monitoring Order
+                    </p>
+
+                </div>
 
             </div>
 
-        </div>
+
+            <button id="logoutButton" type="button">
+                🚪 Logout
+            </button>
+
+        </header>
 
 
-        <button
-            id="logoutButton"
-            type="button"
-        >
-            🚪 Logout
-        </button>
-
-    </header>
-
-
-    <!-- ========================================================
+        <!-- ========================================================
          STATISTIK
          ======================================================== -->
 
-    <section
-        class="stats-container"
-        aria-label="Statistik Order"
-    >
+        <section class="stats-container" aria-label="Statistik Order">
 
-        <div class="stat-card">
+            <div class="stat-card">
 
-            <span>
-                Total Order
-            </span>
+                <span>
+                    Total Order
+                </span>
 
-            <h2 id="totalOrder">
-                0
-            </h2>
+                <h2 id="totalOrder">
+                    0
+                </h2>
 
-        </div>
+            </div>
 
 
-        <div class="stat-card">
+            <div class="stat-card">
 
-            <span>
-                OPEN
-            </span>
+                <span>
+                    OPEN
+                </span>
 
-            <h2 id="totalOpen">
-                0
-            </h2>
+                <h2 id="totalOpen">
+                    0
+                </h2>
 
-        </div>
-
-
-        <div class="stat-card">
-
-            <span>
-                PROSES
-            </span>
-
-            <h2 id="totalProses">
-                0
-            </h2>
-
-        </div>
+            </div>
 
 
-        <div class="stat-card">
+            <div class="stat-card">
 
-            <span>
-                SELESAI
-            </span>
+                <span>
+                    PROSES
+                </span>
 
-            <h2 id="totalSelesai">
-                0
-            </h2>
+                <h2 id="totalProses">
+                    0
+                </h2>
 
-        </div>
-
-    </section>
+            </div>
 
 
-    <!-- ========================================================
+            <div class="stat-card">
+
+                <span>
+                    SELESAI
+                </span>
+
+                <h2 id="totalSelesai">
+                    0
+                </h2>
+
+            </div>
+
+        </section>
+
+
+        <!-- ========================================================
          FILTER ORDER
          ======================================================== -->
 
-    <section
-        class="filter-container"
-        aria-label="Filter Order"
-    >
+        <section class="filter-container" aria-label="Filter Order">
 
-        <input
-            type="text"
-            id="searchOrder"
-            placeholder="Cari Kode Order..."
-            autocomplete="off"
-        >
+            <input type="text" id="searchOrder" placeholder="Cari Kode Order..." autocomplete="off">
 
 
-        <select
-            id="filterCabang"
-            aria-label="Filter Cabang"
-        >
+            <select id="filterCabang" aria-label="Filter Cabang">
 
-            <option value="">
-                Semua Cabang
-            </option>
+                <option value="">
+                    Semua Cabang
+                </option>
 
-        </select>
+            </select>
 
 
-        <input
-            type="date"
-            id="filterTanggalMulai"
-            title="Tanggal Mulai"
-        >
+            <input type="date" id="filterTanggalMulai" title="Tanggal Mulai">
 
 
-        <input
-            type="date"
-            id="filterTanggalSampai"
-            title="Tanggal Sampai"
-        >
+            <input type="date" id="filterTanggalSampai" title="Tanggal Sampai">
 
 
-        <button
-            type="button"
-            id="searchButton"
-        >
-            🔍 Cari
-        </button>
+            <button type="button" id="searchButton">
+                🔍 Cari
+            </button>
 
 
-        <button
-            type="button"
-            id="resetFilter"
-        >
-            Reset Filter
-        </button>
+            <button type="button" id="resetFilter">
+                Reset Filter
+            </button>
 
-    </section>
+        </section>
 
 
-    <!-- ========================================================
+        <!-- ========================================================
          REKAP
          ======================================================== -->
 
-    <section
-        class="rekap-container"
-        aria-label="Rekap Laporan"
-    >
+        <section class="rekap-container" aria-label="Rekap Laporan">
 
-        <div class="rekap-header">
-
-            <div>
-
-                <h2>
-                    📊 Rekap Laporan
-                </h2>
-
-                <p>
-                    Rekap laporan berdasarkan periode.
-                </p>
-
-            </div>
-
-        </div>
-
-
-        <div
-            class="rekap-menu"
-            role="tablist"
-        >
-
-            <button
-                type="button"
-                class="rekap-period-button active"
-                data-period="harian"
-            >
-                📅 Harian
-            </button>
-
-
-            <button
-                type="button"
-                class="rekap-period-button"
-                data-period="mingguan"
-            >
-                📆 Mingguan
-            </button>
-
-
-            <button
-                type="button"
-                class="rekap-period-button"
-                data-period="bulanan"
-            >
-                🗓️ Bulanan
-            </button>
-
-
-            <button
-                type="button"
-                class="rekap-period-button"
-                data-period="tahunan"
-            >
-                📈 Tahunan
-            </button>
-
-        </div>
-
-
-        <div
-            id="rekapPeriodForm"
-            class="rekap-period-form"
-        >
-
-            <div class="rekap-info">
-
-                <strong>
-                    Periode Rekap
-                </strong>
-
-                <span>
-                    Harian dipilih.
-                </span>
-
-            </div>
-
-        </div>
-
-
-        <div class="rekap-action">
-
-            <button
-                type="button"
-                id="tampilkanRekapButton"
-            >
-                🔍 Tampilkan Rekap
-            </button>
-
-
-            <button
-                type="button"
-                id="downloadRekapExcelButton"
-            >
-                📥 Download Excel
-            </button>
-
-        </div>
-
-
-        <div
-            id="rekapResult"
-            class="rekap-result"
-        >
-
-            <div class="rekap-empty">
+            <div class="rekap-header">
 
                 <div>
-                    📊
+
+                    <h2>
+                        📊 Rekap Laporan
+                    </h2>
+
+                    <p>
+                        Rekap laporan berdasarkan periode.
+                    </p>
+
                 </div>
-
-                <h3>
-                    Belum Ada Rekap
-                </h3>
-
-                <p>
-                    Pilih periode kemudian tekan
-                    <strong>
-                        Tampilkan Rekap
-                    </strong>.
-                </p>
 
             </div>
 
-        </div>
 
-    </section>
+            <div class="rekap-menu" role="tablist">
+
+                <button type="button" class="rekap-period-button active" data-period="harian">
+                    📅 Harian
+                </button>
 
 
-    <!-- ========================================================
+                <button type="button" class="rekap-period-button" data-period="mingguan">
+                    📆 Mingguan
+                </button>
+
+
+                <button type="button" class="rekap-period-button" data-period="bulanan">
+                    🗓️ Bulanan
+                </button>
+
+
+                <button type="button" class="rekap-period-button" data-period="tahunan">
+                    📈 Tahunan
+                </button>
+
+            </div>
+
+
+            <div id="rekapPeriodForm" class="rekap-period-form">
+
+                <div class="rekap-info">
+
+                    <strong>
+                        Periode Rekap
+                    </strong>
+
+                    <span>
+                        Harian dipilih.
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="rekap-action">
+
+                <button type="button" id="tampilkanRekapButton">
+                    🔍 Tampilkan Rekap
+                </button>
+
+
+                <button type="button" id="downloadRekapExcelButton">
+                    📥 Download Excel
+                </button>
+
+            </div>
+
+
+            <div id="rekapResult" class="rekap-result">
+
+                <div class="rekap-empty">
+
+                    <div>
+                        📊
+                    </div>
+
+                    <h3>
+                        Belum Ada Rekap
+                    </h3>
+
+                    <p>
+                        Pilih periode kemudian tekan
+                        <strong>
+                            Tampilkan Rekap
+                        </strong>.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ========================================================
          MANAJEMEN SOW
          ======================================================== -->
 
-    <section
-        class="teknisi-container"
-        aria-label="Manajemen SOW"
-    >
+        <section class="teknisi-container" aria-label="Manajemen SOW">
 
-        <div class="teknisi-header">
+            <div class="teknisi-header">
 
-            <div>
+                <div>
 
-                <h2>
-                    👨‍🔧 Manajemen SOW
-                </h2>
+                    <h2>
+                        👨‍🔧 Manajemen SOW
+                    </h2>
 
-                <p>
-                    Kelola daftar SOW yang digunakan
-                    dalam proses pengerjaan order.
-                </p>
+                    <p>
+                        Kelola daftar SOW yang digunakan
+                        dalam proses pengerjaan order.
+                    </p>
+
+                </div>
+
+
+                <button type="button" id="tambahTeknisiButton" class="btn-tambah-teknisi">
+                    ➕ Tambah SOW
+                </button>
 
             </div>
 
 
-            <button
-                type="button"
-                id="tambahTeknisiButton"
-                class="btn-tambah-teknisi"
-            >
-                ➕ Tambah SOW
-            </button>
+            <div class="teknisi-table-wrapper">
 
-        </div>
+                <table class="teknisi-table">
 
+                    <thead>
 
-        <div class="teknisi-table-wrapper">
+                        <tr>
 
-            <table class="teknisi-table">
+                            <th>
+                                No
+                            </th>
 
-                <thead>
+                            <th>
+                                Nama SOW
+                            </th>
 
-                    <tr>
+                            <th>
+                                Status
+                            </th>
 
-                        <th>
-                            No
-                        </th>
+                            <th>
+                                Tanggal Update
+                            </th>
 
-                        <th>
-                            Nama SOW
-                        </th>
+                            <th>
+                                Aksi
+                            </th>
 
-                        <th>
-                            Status
-                        </th>
+                        </tr>
 
-                        <th>
-                            Tanggal Update
-                        </th>
-
-                        <th>
-                            Aksi
-                        </th>
-
-                    </tr>
-
-                </thead>
+                    </thead>
 
 
-                <tbody id="teknisiTableBody">
+                    <tbody id="teknisiTableBody">
 
-                    <tr>
+                        <tr>
 
-                        <td
-                            colspan="5"
-                            class="teknisi-loading"
-                        >
-                            Memuat daftar SOW...
-                        </td>
+                            <td colspan="5" class="teknisi-loading">
+                                Memuat daftar SOW...
+                            </td>
 
-                    </tr>
+                        </tr>
 
-                </tbody>
+                    </tbody>
 
-            </table>
+                </table>
 
-        </div>
+            </div>
 
-    </section>
+        </section>
 
 
-    <!-- ========================================================
+        <!-- ========================================================
          TABEL ORDER
          ======================================================== -->
 
-    <section
-        class="table-container"
-        aria-label="Daftar Order"
-    >
+        <section class="table-container" aria-label="Daftar Order">
 
-        <div class="table-wrapper">
+            <div class="table-wrapper">
 
-            <table>
+                <table>
 
-                <thead>
+                    <thead>
 
-                    <tr>
+                        <tr>
 
-                        <th>
-                            No
-                        </th>
+                            <th>
+                                No
+                            </th>
 
-                        <th>
-                            Kode Order
-                        </th>
+                            <th>
+                                Kode Order
+                            </th>
 
-                        <th>
-                            Nama
-                        </th>
+                            <th>
+                                Nama
+                            </th>
 
-                        <th>
-                            Cabang
-                        </th>
+                            <th>
+                                Cabang
+                            </th>
 
-                        <th>
-                            Jenis Kendala
-                        </th>
+                            <th>
+                                Jenis Kendala
+                            </th>
 
-                        <th>
-                            Tanggal
-                        </th>
+                            <th>
+                                Tanggal
+                            </th>
 
-                        <th>
-                            Status
-                        </th>
+                            <th>
+                                Status
+                            </th>
 
-                        <th>
-                            SOW
-                        </th>
+                            <th>
+                                SOW
+                            </th>
 
-                        <th>
-                            Aksi
-                        </th>
+                            <th>
+                                Aksi
+                            </th>
 
-                    </tr>
+                        </tr>
 
-                </thead>
+                    </thead>
 
 
-                <tbody id="orderTableBody">
+                    <tbody id="orderTableBody">
 
-                    <tr>
+                        <tr>
 
-                        <td colspan="9">
-                            Memuat data order...
-                        </td>
+                            <td colspan="9">
+                                Memuat data order...
+                            </td>
 
-                    </tr>
+                        </tr>
 
-                </tbody>
+                    </tbody>
 
-            </table>
+                </table>
 
-        </div>
+            </div>
 
-    </section>
+        </section>
 
-</main>
+    </main>
 
 
-<!-- ============================================================
+    <!-- ============================================================
      MODAL TAMBAH / EDIT SOW
      ============================================================ -->
 
-<div
-    id="teknisiModal"
-    class="teknisi-modal"
-    aria-hidden="true"
->
+    <div id="teknisiModal" class="teknisi-modal" aria-hidden="true">
 
-    <div class="teknisi-modal-content">
+        <div class="teknisi-modal-content">
 
-        <div class="teknisi-modal-header">
+            <div class="teknisi-modal-header">
 
-            <h3 id="teknisiModalTitle">
-                Tambah SOW
-            </h3>
+                <h3 id="teknisiModalTitle">
+                    Tambah SOW
+                </h3>
 
-            <button
-                type="button"
-                id="closeTeknisiModal"
-                class="teknisi-modal-close"
-            >
-                ✕
-            </button>
+                <button type="button" id="closeTeknisiModal" class="teknisi-modal-close">
+                    ✕
+                </button>
 
-        </div>
+            </div>
 
 
-        <div class="teknisi-modal-body">
+            <div class="teknisi-modal-body">
 
-            <label for="teknisiNamaInput">
-                Nama SOW
-            </label>
+                <label for="teknisiNamaInput">
+                    Nama SOW
+                </label>
 
-            <input
-                type="text"
-                id="teknisiNamaInput"
-                placeholder="Contoh: BUDI S"
-                autocomplete="off"
-            >
+                <input type="text" id="teknisiNamaInput" placeholder="Contoh: BUDI S" autocomplete="off">
 
-            <input
-                type="hidden"
-                id="teknisiIdInput"
-                value=""
-            >
+                <input type="hidden" id="teknisiIdInput" value="">
 
-        </div>
+            </div>
 
 
-        <div class="teknisi-modal-footer">
+            <div class="teknisi-modal-footer">
 
-            <button
-                type="button"
-                id="batalTeknisiButton"
-                class="btn-batal-teknisi"
-            >
-                Batal
-            </button>
+                <button type="button" id="batalTeknisiButton" class="btn-batal-teknisi">
+                    Batal
+                </button>
 
 
-            <button
-                type="button"
-                id="simpanTeknisiButton"
-                class="btn-simpan-teknisi"
-            >
-                💾 Simpan
-            </button>
+                <button type="button" id="simpanTeknisiButton" class="btn-simpan-teknisi">
+                    💾 Simpan
+                </button>
+
+            </div>
 
         </div>
 
     </div>
 
-</div>
 
-
-<!-- ============================================================
+    <!-- ============================================================
      MODAL DETAIL ORDER
      ============================================================ -->
 
-<div
-    id="detailModal"
-    class="modal"
-    aria-hidden="true"
->
+    <div id="detailModal" class="modal" aria-hidden="true">
 
-    <div class="modal-content">
+        <div class="modal-content">
 
 
-        <!-- HEADER MODAL -->
+            <!-- HEADER MODAL -->
 
-        <div class="modal-header">
+            <div class="modal-header">
 
-            <div>
+                <div>
 
-                <h2>
-                    DETAIL ORDER
-                </h2>
+                    <h2>
+                        DETAIL ORDER
+                    </h2>
 
-                <p>
-                    Informasi lengkap laporan SOW
-                </p>
+                    <p>
+                        Informasi lengkap laporan SOW
+                    </p>
 
-            </div>
-
-
-            <button
-                type="button"
-                id="closeModal"
-                class="close-modal"
-                aria-label="Tutup Detail"
-            >
-                ✕
-            </button>
-
-        </div>
+                </div>
 
 
-        <!-- DETAIL -->
-
-        <div class="modal-body">
-
-
-            <div class="detail-item">
-
-                <span class="detail-label">
-                    Kode Order
-                </span>
-
-                <span
-                    class="detail-value"
-                    id="detailKode"
-                >
-                    -
-                </span>
+                <button type="button" id="closeModal" class="close-modal" aria-label="Tutup Detail">
+                    ✕
+                </button>
 
             </div>
 
 
-            <div class="detail-item">
+            <!-- DETAIL -->
 
-                <span class="detail-label">
-                    Nama
-                </span>
-
-                <span
-                    class="detail-value"
-                    id="detailNama"
-                >
-                    -
-                </span>
-
-            </div>
+            <div class="modal-body">
 
 
-            <div class="detail-item">
+                <div class="detail-item">
 
-                <span class="detail-label">
-                    Unit Kerja
-                </span>
+                    <span class="detail-label">
+                        Kode Order
+                    </span>
 
-                <span
-                    class="detail-value"
-                    id="detailUnitKerja"
-                >
-                    -
-                </span>
+                    <span class="detail-value" id="detailKode">
+                        -
+                    </span>
 
-            </div>
+                </div>
 
 
-            <div class="detail-item">
+                <div class="detail-item">
 
-                <span class="detail-label">
-                    Cabang
-                </span>
+                    <span class="detail-label">
+                        Nama
+                    </span>
 
-                <span
-                    class="detail-value"
-                    id="detailCabang"
-                >
-                    -
-                </span>
+                    <span class="detail-value" id="detailNama">
+                        -
+                    </span>
 
-            </div>
+                </div>
 
 
-            <div class="detail-item">
+                <div class="detail-item">
 
-                <span class="detail-label">
-                    Jenis Kendala
-                </span>
+                    <span class="detail-label">
+                        Unit Kerja
+                    </span>
 
-                <span
-                    class="detail-value"
-                    id="detailJenisKendala"
-                >
-                    -
-                </span>
+                    <span class="detail-value" id="detailUnitKerja">
+                        -
+                    </span>
 
-            </div>
+                </div>
 
 
-            <div class="detail-item detail-full">
+                <div class="detail-item">
 
-                <span class="detail-label">
-                    Deskripsi Kendala
-                </span>
+                    <span class="detail-label">
+                        Cabang
+                    </span>
 
-                <div
-                    class="detail-description"
-                    id="detailDeskripsi"
-                >
-                    -
+                    <span class="detail-value" id="detailCabang">
+                        -
+                    </span>
+
+                </div>
+
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Jenis Kendala
+                    </span>
+
+                    <span class="detail-value" id="detailJenisKendala">
+                        -
+                    </span>
+
+                </div>
+
+
+                <div class="detail-item detail-full">
+
+                    <span class="detail-label">
+                        Deskripsi Kendala
+                    </span>
+
+                    <div class="detail-description" id="detailDeskripsi">
+                        -
+                    </div>
+
+                </div>
+
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        WhatsApp
+                    </span>
+
+                    <span class="detail-value" id="detailWhatsapp">
+                        -
+                    </span>
+
+                </div>
+
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Tanggal
+                    </span>
+
+                    <span class="detail-value" id="detailTanggal">
+                        -
+                    </span>
+
+                </div>
+
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Jam
+                    </span>
+
+                    <span class="detail-value" id="detailJam">
+                        -
+                    </span>
+
+                </div>
+
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Status
+                    </span>
+
+                    <span class="detail-status" id="detailStatus">
+                        -
+                    </span>
+
+                </div>
+
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        SOW
+                    </span>
+
+                    <span class="detail-value" id="detailTeknisi">
+                        -
+                    </span>
+
+                </div>
+
+
+                <div class="detail-item detail-full">
+
+                    <span class="detail-label">
+                        Catatan Progres
+                    </span>
+
+                    <div class="detail-description" id="detailCatatan">
+                        -
+                    </div>
+
+                </div>
+
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Terakhir Update
+                    </span>
+
+                    <span class="detail-value" id="detailTanggalUpdate">
+                        -
+                    </span>
+
+                </div>
+
+
+                <div class="detail-item detail-full">
+
+                    <span class="detail-label">
+                        Riwayat Status
+                    </span>
+
+                    <div class="detail-history" id="detailRiwayat">
+                        -
+                    </div>
+
                 </div>
 
             </div>
 
 
-            <div class="detail-item">
-
-                <span class="detail-label">
-                    WhatsApp
-                </span>
-
-                <span
-                    class="detail-value"
-                    id="detailWhatsapp"
-                >
-                    -
-                </span>
-
-            </div>
-
-
-            <div class="detail-item">
-
-                <span class="detail-label">
-                    Tanggal
-                </span>
-
-                <span
-                    class="detail-value"
-                    id="detailTanggal"
-                >
-                    -
-                </span>
-
-            </div>
-
-
-            <div class="detail-item">
-
-                <span class="detail-label">
-                    Jam
-                </span>
-
-                <span
-                    class="detail-value"
-                    id="detailJam"
-                >
-                    -
-                </span>
-
-            </div>
-
-
-            <div class="detail-item">
-
-                <span class="detail-label">
-                    Status
-                </span>
-
-                <span
-                    class="detail-status"
-                    id="detailStatus"
-                >
-                    -
-                </span>
-
-            </div>
-
-
-            <div class="detail-item">
-
-                <span class="detail-label">
-                    SOW
-                </span>
-
-                <span
-                    class="detail-value"
-                    id="detailTeknisi"
-                >
-                    -
-                </span>
-
-            </div>
-
-
-            <div class="detail-item detail-full">
-
-                <span class="detail-label">
-                    Catatan Progres
-                </span>
-
-                <div
-                    class="detail-description"
-                    id="detailCatatan"
-                >
-                    -
-                </div>
-
-            </div>
-
-
-            <div class="detail-item">
-
-                <span class="detail-label">
-                    Terakhir Update
-                </span>
-
-                <span
-                    class="detail-value"
-                    id="detailTanggalUpdate"
-                >
-                    -
-                </span>
-
-            </div>
-
-
-            <div class="detail-item detail-full">
-
-                <span class="detail-label">
-                    Riwayat Status
-                </span>
-
-                <div
-                    class="detail-history"
-                    id="detailRiwayat"
-                >
-                    -
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- ====================================================
+            <!-- ====================================================
              UPDATE ORDER
              ==================================================== -->
 
-        <div class="update-order-section">
+            <div class="update-order-section">
 
-            <h3>
-                UPDATE ORDER
-            </h3>
+                <h3>
+                    UPDATE ORDER
+                </h3>
 
 
-            <div class="update-item">
+                <div class="update-item">
 
-                <label for="updateStatus">
-                    Update Status
-                </label>
+                    <label for="updateStatus">
+                        Update Status
+                    </label>
 
-                <select id="updateStatus">
+                    <select id="updateStatus">
 
-                    <option value="OPEN">
-                        OPEN
-                    </option>
+                        <option value="OPEN">
+                            OPEN
+                        </option>
 
-                    <option value="PROSES">
-                        PROSES
-                    </option>
+                        <option value="PROSES">
+                            PROSES
+                        </option>
 
-                    <option value="SELESAI">
-                        SELESAI
-                    </option>
+                        <option value="SELESAI">
+                            SELESAI
+                        </option>
 
-                </select>
+                    </select>
+
+                </div>
+
+
+                <div class="update-item">
+
+                    <label for="updateTeknisi">
+                        Pilih SOW
+                    </label>
+
+                    <select id="updateTeknisi">
+
+                        <option value="">
+                            -- Pilih SOW --
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="update-item">
+
+                    <label for="updateCatatan">
+                        Catatan Progres
+                    </label>
+
+                    <textarea id="updateCatatan" placeholder="Tulis catatan progres pekerjaan..." rows="4"></textarea>
+
+                </div>
+
+
+                <button type="button" id="saveUpdateButton">
+                    Simpan Update
+                </button>
 
             </div>
 
 
-            <div class="update-item">
+            <!-- FOOTER -->
 
-                <label for="updateTeknisi">
-                    Pilih SOW
-                </label>
+            <div class="modal-footer">
 
-                <select id="updateTeknisi">
-
-                    <option value="">
-                        -- Pilih SOW --
-                    </option>
-
-                </select>
+                <button type="button" id="closeModalButton" class="btn-close">
+                    Tutup
+                </button>
 
             </div>
-
-
-            <div class="update-item">
-
-                <label for="updateCatatan">
-                    Catatan Progres
-                </label>
-
-                <textarea
-                    id="updateCatatan"
-                    placeholder="Tulis catatan progres pekerjaan..."
-                    rows="4"
-                ></textarea>
-
-            </div>
-
-
-            <button
-                type="button"
-                id="saveUpdateButton"
-            >
-                Simpan Update
-            </button>
-
-        </div>
-
-
-        <!-- FOOTER -->
-
-        <div class="modal-footer">
-
-            <button
-                type="button"
-                id="closeModalButton"
-                class="btn-close"
-            >
-                Tutup
-            </button>
 
         </div>
 
     </div>
 
-</div>
 
-
-<!-- ============================================================
+    <!-- ============================================================
      LIBRARY EXCEL
      ============================================================ -->
 
-<script
-    src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"
-></script>
 
-<script
-    src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"
-></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.min.js"></script>
 
 
-<!-- ============================================================
+    <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+
+
+    <!-- ============================================================
      ADMIN JAVASCRIPT
      ============================================================ -->
 
-<script src="admin.js"></script>
+    <script src="admin.js"></script>
 
 </body>
+
 </html>
