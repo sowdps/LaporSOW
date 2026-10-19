@@ -1931,13 +1931,13 @@ function tampilkanHasilRekap(result, periode) {
    ============================================================ */
 
 
+
 async function downloadRekapExcel() {
     if (!hasilRekapTerakhir || !hasilRekapTerakhir.success) {
         alert("Silakan tampilkan rekap terlebih dahulu.");
         return;
     }
 
-    // Gunakan library XLSX yang dipakai proyek ini.
     if (typeof XLSX === "undefined") {
         alert("Library XLSX belum tersedia. Periksa script library di index.html.");
         return;
@@ -1947,49 +1947,36 @@ async function downloadRekapExcel() {
         const result = hasilRekapTerakhir;
         const statistik = result.statistik || {};
         const periode = result.periode || {};
-
         const cabang = Array.isArray(result.rekapCabang)
             ? result.rekapCabang : [];
-
         const teknisi = Array.isArray(result.rekapTeknisi)
             ? result.rekapTeknisi : [];
-
         const orders = Array.isArray(result.orders)
             ? result.orders : [];
 
-        const data = [];
+        const data = [
+            ["LAPORAN DETAIL SOW IV DENPASAR"],
+            ["REKAPITULASI LAPORAN SOW"],
+            [],
+            ["PERIODE", String(result.tipe || periodeRekapAktif || "bulanan").toUpperCase()],
+            ["TANGGAL MULAI", periode.mulai || "-"],
+            ["TANGGAL SAMPAI", periode.sampai || "-"],
+            [],
+            ["STATISTIK LAPORAN"],
+            ["Keterangan", "Jumlah"],
+            ["Total Order", Number(statistik.total ?? orders.length)],
+            ["OPEN", Number(statistik.open || 0)],
+            ["PROSES", Number(statistik.proses || 0)],
+            ["SELESAI", Number(statistik.selesai || 0)],
+            ["DITOLAK", Number(statistik.ditolak || 0)],
+            [],
+            ["REKAP BERDASARKAN CABANG"],
+            ["Kode Cabang", "Nama Cabang", "Total", "Open", "Proses", "Selesai", "Ditolak"]
+        ];
 
-        // Judul laporan
-        data.push(["LAPORAN DETAIL SOW IV DENPASAR"]);
-        data.push(["REKAP LAPORAN SOW"]);
-        data.push(["Periode", String(
-            result.tipe ||
-            (typeof periodeRekapAktif !== "undefined"
-                ? periodeRekapAktif
-                : "bulanan")
-        ).toUpperCase()]);
-        data.push(["Tanggal Mulai", periode.mulai || "-"]);
-        data.push(["Tanggal Sampai", periode.sampai || "-"]);
-        data.push([]);
+        const awalCabang = data.length + 1;
 
-        // Statistik
-        data.push(["STATISTIK LAPORAN"]);
-        data.push(["Keterangan", "Jumlah"]);
-        data.push(["Total Order", Number(statistik.total ?? orders.length)]);
-        data.push(["OPEN", Number(statistik.open || 0)]);
-        data.push(["PROSES", Number(statistik.proses || 0)]);
-        data.push(["SELESAI", Number(statistik.selesai || 0)]);
-        data.push(["DITOLAK", Number(statistik.ditolak || 0)]);
-        data.push([]);
-
-        // Rekap cabang
-        data.push(["REKAP BERDASARKAN CABANG"]);
-        data.push([
-            "Kode Cabang", "Nama Cabang", "Total",
-            "Open", "Proses", "Selesai", "Ditolak"
-        ]);
-
-        cabang.forEach(function (item) {
+        cabang.forEach(item => {
             data.push([
                 item.kode_cabang || item.kode || "",
                 item.nama_cabang || item.nama || "",
@@ -2002,15 +1989,12 @@ async function downloadRekapExcel() {
         });
 
         data.push([]);
-
-        // Rekap teknisi / SOW
         data.push(["REKAP BERDASARKAN TEKNISI / SOW"]);
-        data.push([
-            "Nama Teknisi / SOW", "Total",
-            "Open", "Proses", "Selesai", "Ditolak"
-        ]);
+        data.push(["Nama Teknisi / SOW", "Total", "Open", "Proses", "Selesai", "Ditolak"]);
 
-        teknisi.forEach(function (item) {
+        const awalTeknisi = data.length + 1;
+
+        teknisi.forEach(item => {
             data.push([
                 item.sow || item.teknisi || item.nama || "Belum Ditentukan",
                 Number(item.total ?? item.jumlah ?? 0),
@@ -2022,27 +2006,17 @@ async function downloadRekapExcel() {
         });
 
         data.push([]);
-
-        // Detail order lengkap dalam sheet yang sama
         data.push(["DETAIL ORDER"]);
         data.push([
-            "No",
-            "Kode Order",
-            "Tanggal",
-            "Nama Pelapor",
-            "Unit Kerja",
-            "Kode Cabang",
-            "Nama Cabang",
-            "Jenis Kendala",
-            "Deskripsi Kendala",
-            "WhatsApp Pelapor",
-            "Status",
-            "Teknisi / SOW",
-            "Catatan Progres",
-            "Tanggal Update"
+            "No", "Kode Order", "Tanggal", "Nama Pelapor",
+            "Unit Kerja", "Kode Cabang", "Nama Cabang",
+            "Jenis Kendala", "Deskripsi Kendala", "WhatsApp Pelapor",
+            "Status", "Teknisi / SOW", "Catatan Progres", "Tanggal Update"
         ]);
 
-        orders.forEach(function (order, index) {
+        const awalDetail = data.length + 1;
+
+        orders.forEach((order, index) => {
             data.push([
                 index + 1,
                 order.kode || order.kode_order || "",
@@ -2061,56 +2035,242 @@ async function downloadRekapExcel() {
             ]);
         });
 
-        // Buat satu worksheet saja
         const worksheet = XLSX.utils.aoa_to_sheet(data);
+        const workbook = XLSX.utils.book_new();
 
-        // Atur lebar kolom
+        // Palet warna profesional
+        const navy = "16365C";
+        const blue = "4472C4";
+        const lightBlue = "D9EAF7";
+        const white = "FFFFFF";
+        const gray = "D9E1F2";
+        const green = "E2F0D9";
+        const orange = "FCE4D6";
+        const red = "F4CCCC";
+        const borderColor = "B4C6E7";
+
+        const border = {
+            top: { style: "thin", color: { rgb: borderColor } },
+            bottom: { style: "thin", color: { rgb: borderColor } },
+            left: { style: "thin", color: { rgb: borderColor } },
+            right: { style: "thin", color: { rgb: borderColor } }
+        };
+
+        function styleRange(row, colStart, colEnd, style) {
+            for (let col = colStart; col <= colEnd; col++) {
+                const address = XLSX.utils.encode_cell({
+                    r: row - 1,
+                    c: col
+                });
+                if (worksheet[address]) {
+                    worksheet[address].s = {
+                        ...(worksheet[address].s || {}),
+                        ...style,
+                        border
+                    };
+                }
+            }
+        }
+
+        function section(row, lastCol) {
+            styleRange(row, 0, lastCol, {
+                fill: { patternType: "solid", fgColor: { rgb: blue } },
+                font: { bold: true, color: { rgb: white }, sz: 12 },
+                alignment: { vertical: "center", horizontal: "left" }
+            });
+            worksheet["!rows"][row - 1] = { hpt: 24 };
+        }
+
+        // Judul utama
+        styleRange(1, 0, 13, {
+            fill: { patternType: "solid", fgColor: { rgb: navy } },
+            font: { bold: true, color: { rgb: white }, sz: 18 },
+            alignment: { horizontal: "center", vertical: "center" }
+        });
+        worksheet["!merges"] = [
+            { s: { r: 0, c: 0 }, e: { r: 0, c: 13 } },
+            { s: { r: 1, c: 0 }, e: { r: 1, c: 13 } }
+        ];
+        worksheet["!rows"] = worksheet["!rows"] || [];
+        worksheet["!rows"][0] = { hpt: 34 };
+
+        styleRange(2, 0, 13, {
+            fill: { patternType: "solid", fgColor: { rgb: blue } },
+            font: { bold: true, color: { rgb: white }, sz: 13 },
+            alignment: { horizontal: "center", vertical: "center" }
+        });
+        worksheet["!rows"][1] = { hpt: 25 };
+
+        // Informasi periode
+        for (let r = 4; r <= 6; r++) {
+            styleRange(r, 0, 1, {
+                fill: { patternType: "solid", fgColor: { rgb: lightBlue } },
+                font: { bold: true, color: { rgb: navy } },
+                alignment: { vertical: "center" }
+            });
+        }
+
+        // Statistik laporan
+        section(8, 1);
+        styleRange(9, 0, 1, {
+            fill: { patternType: "solid", fgColor: { rgb: lightBlue } },
+            font: { bold: true, color: { rgb: navy } }
+        });
+
+        for (let r = 10; r <= 14; r++) {
+            styleRange(r, 0, 1, {
+                fill: {
+                    patternType: "solid",
+                    fgColor: {
+                        rgb: r === 10 ? gray :
+                            r === 13 ? green :
+                                r === 14 ? red : "FFFFFF"
+                    }
+                },
+                font: { color: { rgb: "222222" } },
+                alignment: { vertical: "center" }
+            });
+        }
+
+        // Rekap cabang
+        const barisCabangJudul = 16;
+        const barisCabangHeader = 17;
+        section(barisCabangJudul, 6);
+        styleRange(barisCabangHeader, 0, 6, {
+            fill: { patternType: "solid", fgColor: { rgb: lightBlue } },
+            font: { bold: true, color: { rgb: navy } },
+            alignment: { horizontal: "center", vertical: "center", wrapText: true }
+        });
+
+        // Rekap teknisi
+        const barisTeknisiJudul = awalCabang + cabang.length + 1;
+        const barisTeknisiHeader = barisTeknisiJudul + 1;
+        section(barisTeknisiJudul, 5);
+        styleRange(barisTeknisiHeader, 0, 5, {
+            fill: { patternType: "solid", fgColor: { rgb: lightBlue } },
+            font: { bold: true, color: { rgb: navy } },
+            alignment: { horizontal: "center", vertical: "center", wrapText: true }
+        });
+
+        // Detail order
+        const barisDetailJudul = awalDetail - 1;
+        const barisDetailHeader = awalDetail;
+        section(barisDetailJudul, 13);
+        styleRange(barisDetailHeader, 0, 13, {
+            fill: { patternType: "solid", fgColor: { rgb: lightBlue } },
+            font: { bold: true, color: { rgb: navy } },
+            alignment: { horizontal: "center", vertical: "center", wrapText: true }
+        });
+
+        // Border, perataan, dan warna status
+        const range = XLSX.utils.decode_range(worksheet["!ref"]);
+        for (let r = 0; r <= range.e.r; r++) {
+            for (let c = 0; c <= range.e.c; c++) {
+                const address = XLSX.utils.encode_cell({ r, c });
+                const cell = worksheet[address];
+                if (!cell) continue;
+
+                cell.s = {
+                    ...(cell.s || {}),
+                    border,
+                    alignment: {
+                        vertical: "center",
+                        ...(cell.s && cell.s.alignment ? cell.s.alignment : {})
+                    }
+                };
+
+                // Baris data dibuat selang-seling agar mudah dibaca.
+                if (r >= awalDetail - 1 && r % 2 === 0 &&
+                    !(cell.s.fill && cell.s.fill.fgColor)) {
+                    cell.s.fill = {
+                        patternType: "solid",
+                        fgColor: { rgb: "F7FAFD" }
+                    };
+                }
+            }
+        }
+
+        // Warna status pada kolom K detail order
+        for (let i = 0; i < orders.length; i++) {
+            const row = awalDetail + i;
+            const address = XLSX.utils.encode_cell({ r: row - 1, c: 10 });
+            const cell = worksheet[address];
+            if (!cell) continue;
+
+            const status = String(cell.v || "").toUpperCase();
+            const warna = status === "SELESAI" ? "E2F0D9"
+                : status === "PROSES" ? "D9EAF7"
+                    : status === "DITOLAK" ? "F4CCCC"
+                        : orange;
+
+            cell.s = {
+                ...(cell.s || {}),
+                fill: { patternType: "solid", fgColor: { rgb: warna } },
+                font: { bold: true, color: { rgb: navy } },
+                alignment: { horizontal: "center", vertical: "center" },
+                border
+            };
+        }
+
+        // Lebar kolom
         worksheet["!cols"] = [
-            { wch: 7 },
-            { wch: 19 },
-            { wch: 14 },
-            { wch: 24 },
-            { wch: 16 },
-            { wch: 14 },
-            { wch: 25 },
-            { wch: 22 },
-            { wch: 42 },
-            { wch: 20 },
-            { wch: 14 },
-            { wch: 28 },
-            { wch: 42 },
-            { wch: 21 }
+            { wch: 8 }, { wch: 21 }, { wch: 15 }, { wch: 25 },
+            { wch: 20 }, { wch: 15 }, { wch: 27 }, { wch: 24 },
+            { wch: 44 }, { wch: 22 }, { wch: 15 }, { wch: 28 },
+            { wch: 42 }, { wch: 22 }
         ];
 
-        // Bekukan baris paling atas tidak diperlukan;
-        // semua bagian tetap berada pada satu sheet.
-        const workbook = XLSX.utils.book_new();
+        worksheet["!rows"] = worksheet["!rows"] || [];
+        worksheet["!rows"][7] = { hpt: 25 };
+        worksheet["!rows"][15] = { hpt: 25 };
+        worksheet["!rows"][barisTeknisiJudul - 1] = { hpt: 25 };
+        worksheet["!rows"][barisDetailJudul - 1] = { hpt: 25 };
+        worksheet["!rows"][barisCabangHeader - 1] = { hpt: 30 };
+        worksheet["!rows"][barisTeknisiHeader - 1] = { hpt: 30 };
+        worksheet["!rows"][barisDetailHeader - 1] = { hpt: 38 };
+
+        // Filter pada tabel detail
+        if (orders.length > 0) {
+            worksheet["!autofilter"] = {
+                ref: XLSX.utils.encode_range({
+                    s: { r: barisDetailHeader - 1, c: 0 },
+                    e: { r: barisDetailHeader - 1 + orders.length, c: 13 }
+                })
+            };
+        }
+
+        // Pengaturan cetak
+        worksheet["!sheetViews"] = [{
+            showGridLines: false
+        }];
+        worksheet["!pageSetup"] = {
+            orientation: "landscape",
+            fitToWidth: 1,
+            fitToHeight: 0,
+            paperSize: 9
+        };
+        worksheet["!margins"] = {
+            left: 0.25, right: 0.25,
+            top: 0.5, bottom: 0.5,
+            header: 0.2, footer: 0.2
+        };
+
         XLSX.utils.book_append_sheet(workbook, worksheet, "Laporan SOW");
 
+        const tipe = String(result.tipe || periodeRekapAktif || "bulanan").toLowerCase();
+        const aman = teks => String(teks || "-").replace(/[\\/:*?"<>|]/g, "-");
+        const namaFile = "Laporan_SOW_IV_Denpasar_" + aman(tipe) +
+            "_" + aman(periode.mulai || "mulai") +
+            "_sampai_" + aman(periode.sampai || "akhir") + ".xlsx";
 
-        const tipe = String(
-            result.tipe ||
-            (typeof periodeRekapAktif !== "undefined"
-                ? periodeRekapAktif
-                : "bulanan")
-        ).toLowerCase();
-
-
-        const tanggalMulai = String(periode.mulai || "");
-        const tanggalSampai = String(periode.sampai || "");
-
-        const namaFile =
-            "Laporan_SOW_IV_Denpasar_" +
-            tipe + "_" + tanggalMulai +
-            "_sampai_" + tanggalSampai + ".xlsx";
-
-        XLSX.writeFile(workbook, namaFile);
+        XLSX.writeFile(workbook, namaFile, { cellStyles: true });
 
     } catch (error) {
         console.error("Gagal ekspor Excel:", error);
         alert("Ekspor Excel gagal: " + (error.message || error));
     }
 }
+
 
 
 
